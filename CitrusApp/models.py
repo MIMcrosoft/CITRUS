@@ -66,7 +66,7 @@ class Equipe(models.Model):
     matchs = models.ManyToManyField('Match')
 
 class CoachManager(BaseUserManager):
-    def create_user(self,courriel, password=None,**extra_fields):
+    def create_user(self, courriel, password=None, **extra_fields):
         if not courriel:
             raise ValueError("Le courriel n'existe pas")
         courriel = self.normalize_email(courriel)
@@ -75,19 +75,18 @@ class CoachManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(self,courriel,password=None,**extra_fields):
-        extra_fields.setdefault('admin_flag',True)
-        return self.create_user(courriel,password,**extra_fields)
-class Coach(AbstractUser,PermissionsMixin):
+    def create_superuser(self, courriel, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        return self.create_user(courriel, password, **extra_fields)
+
+class Coach(AbstractUser):
     coach_id = models.AutoField(primary_key=True)
     nom_coach = models.CharField(max_length=100)
     prenom_coach = models.CharField(max_length=100)
-    courriel = models.EmailField(max_length=255,unique=True)
-    password = models.CharField(max_length=255,default="default_password")
+    courriel = models.EmailField(max_length=255, unique=True)
     admin_flag = models.BooleanField(default=False)
-
-    equipe_id = models.ForeignKey(Equipe, on_delete=models.CASCADE,null=True, blank=True)
-
+    equipe_id = models.ForeignKey(Equipe, on_delete=models.CASCADE, null=True, blank=True)
     objects = CoachManager()
 
     USERNAME_FIELD = 'courriel'
@@ -96,6 +95,7 @@ class Coach(AbstractUser,PermissionsMixin):
     def __str__(self):
         return self.courriel
 
+    @property
     def is_admin(self):
         return self.admin_flag
 class Punition(models.Model):
