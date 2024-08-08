@@ -86,7 +86,8 @@ button, .btn {
     border-radius: 2rem;
     display: block;
     box-shadow: 0px 4px 10px 4px rgba(98, 98, 98, 0.3);
-    transition: all 0.5s ease, margin padding padding-inline 0.1ms;
+    transition: all 0.3s;
+    margin-bottom: 1rem;
 }
 
 .btnInline {
@@ -103,14 +104,16 @@ button, .btn {
     padding-inline: 2.65rem;
     background: var(--gradient);
     color: #FFFFFF;
+    outline: 0.05rem solid transparent;
     
 }
 
 .btnPrimary:hover, .btnPrimaryHover {
     background: var(--mainPampsFade);
-    border:0.15rem solid var(--mainPamps);
+    outline:0.15rem solid var(--mainPamps);
     color: var(--mainPamps);
     padding: 0.4rem;
+    margin: 0.15rem;
     padding-inline: 2.5rem;
 }
 
@@ -119,6 +122,7 @@ button, .btn {
     border: none;
     z-index: 0;
     margin: 0.15rem;
+    margin-bottom: 1rem;
 }
 
 .btnSecondary span {
@@ -157,9 +161,10 @@ button, .btn {
 
 .btnSecondary:hover, .btnSecondaryHover {
     background: var(--white);
-    border:0.15rem solid var(--mainPamps);
+    outline:0.15rem solid var(--mainPamps);
     color: var(--mainPamps);
     margin: 0;
+    margin-bottom:1rem;
 }
 
 .btnSecondary:hover span, .btnSecondaryHover span {

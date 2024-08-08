@@ -24,17 +24,16 @@
     <p>Tooltip text<i class="tooltip fa-solid fa-circle-info" data-tippy-content="Tooltip"></i></p>
 
     <button class="btnPrimary"><span>Primary</span></button>
-<br>
+
     <button class="btnSecondary"><span>Secondary</span></button>
-<br>
+
     <button class="btnPrimary btnInline"><span>Primary inline</span></button>
     <button class="btnSecondary btnInline"><span>Secondary inline</span></button>
-<br>
-<br>
+
     <button class="btnPrimary btnStretch"><span>Primary stretch</span></button>
-<br>
+
     <button class="btnSecondary btnStretch"><span>Secondary stretch</span></button>
-<br>
+
 
     <input type="text" value="Text input">
     <br>
@@ -249,9 +248,12 @@
             closeAllSelect(this);
             this.nextSibling.classList.toggle("select-hide");
             this.classList.toggle("select-arrow-active");
-            let input = x[i].parentNode.getElementsByClassName("select-search-bar-input")[0];
-            input.focus();
-            this.nextElementSibling.scroll(0, 0);
+            if (this.parentNode.classList.contains("select-search")) {
+                let input = x[i].parentNode.getElementsByClassName("select-search-bar-input")[0];
+                input.focus();
+                this.nextElementSibling.scroll(0, 0);
+            }
+            
         });
         g = document.createElement("DIV");
         g.innerHTML = "Aucun résultats";
