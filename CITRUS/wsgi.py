@@ -1,5 +1,5 @@
 """
-WSGI config for todelete project.
+WSGI config for Citrus project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 

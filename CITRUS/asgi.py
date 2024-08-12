@@ -1,5 +1,5 @@
 """
-ASGI config for todelete project.
+ASGI config for Citrus project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
