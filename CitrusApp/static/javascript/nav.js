@@ -1,10 +1,10 @@
 //Get parameters from URL
 function getParams() {
-    var idx = document.URL.indexOf('?');
-    var params = new Array();
+    let idx = document.URL.indexOf('?');
+    let params = new Array();
     if (idx != -1) {
-        var pairs = document.URL.substring(idx+1, document.URL.length).split('&');
-        for (var i=0; i<pairs.length; i++) {
+        let pairs = document.URL.substring(idx+1, document.URL.length).split('&');
+        for (let i=0; i<pairs.length; i++) {
             nameVal = pairs[i].split('=');
             params[nameVal[0]] = nameVal[1];
         }
@@ -17,7 +17,7 @@ function getParams() {
 }
 
 function removeQueryParameter(param) {
-    var url = window.location.protocol + "//" + window.location.host + window.location.pathname;
+    let url = window.location.protocol + "//" + window.location.host + window.location.pathname;
     window.history.replaceState({}, document.title, url);
 }
 

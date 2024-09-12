@@ -1,0 +1,78 @@
+{% extends 'baseTemplate.html '%}
+
+{% block content %}
+    
+    <h1>Ajouter un Interprète</h1>
+    <h1>{{ equipe.nom_equipe }}</h1>
+    <form method="post">
+        {% csrf_token %}
+
+        <!---<div class="select select-search" style="width:400px;">
+        <select name="nomInterprete" id="nomInterprete">
+            <option value="">Nom de l'interprète</option>
+            <option value="">Ajoutez l'interprète</option>
+            {% for interprete in allInterprete %}
+                <option value="{{ interprete.interprete_id }}">{{ interprete.nom_interprete }}</option>
+            {% endfor %}
+        </select>
+    </div>--->
+        {% if modifyFlag == True %}
+            <h2>{{ interprete.nom_interprete }}</h2>
+            <label for="pronomsInterprete" >Pronoms</label>
+            <input type="text" name="pronomsInterprete" id="pronomsInterprete" placeholder="Pronoms" value="{{ interprete.pronom_interprete }}" maxlength="20">
+        
+            <label for="numInterprete">Numéro</label>
+            <input type="text" name="numInterprete" id="numInterprete" placeholder="Numéro" value="{{ interprete.numero_interprete }}" maxlength="20">
+        
+            <label class="radioContainer">Aucun Rôle
+                <input value="" type="radio" name="radioRoleInterprete" {% if interprete.role_interprete == "" %} checked {% endif %}>
+                <span class="checkmark"></span>
+            </label>
+        
+            <label class="radioContainer">Capitaine
+                <input value="C" type="radio" name="radioRoleInterprete" {% if interprete.role_interprete == "C" %} checked {% endif %}>
+                <span class="checkmark"></span>
+            </label>
+        
+            <label class="radioContainer">Assistant.e
+                <input value="A" type="radio" name="radioRoleInterprete" {% if interprete.role_interprete == "A" %} checked {% endif %}>
+                <span class="checkmark"></span>
+            </label>
+        
+            <button type="submit" class="btnPrimary" id="btnAjoutEquipe"><span>Sauvegarder</span></button>
+            <button type="button" class="btnSecondary" onclick="navTo(this,'/Citrus/Equipe{{ equipe.id_equipe }}-0/',false)">Retour</button>
+        {% else %}
+            <label for="nomInterprete">Nom de l'interprete</label>
+            <input type="text" name="nomInterprete" id="nomInterprete" placeholder="Nom" maxlength="100">
+            <label for="pronomsInterprete">Pronoms</label>
+            <input type="text" name="pronomsInterprete" id="pronomsInterprete" placeholder="Pronoms" maxlength="20">
+        
+            <label for="numInterprete">Numéro</label>
+            <input type="text" name="numInterprete" id="numInterprete" placeholder="Numéro" maxlength="20">
+        
+            <label class="radioContainer">Aucun Rôle
+                <input value="" type="radio" name="radioRoleInterprete" checked>
+                <span class="checkmark"></span>
+            </label>
+        
+            <label class="radioContainer">Capitaine
+                <input value="C" type="radio" name="radioRoleInterprete">
+                <span class="checkmark"></span>
+            </label>
+        
+            <label class="radioContainer">Assistant.e
+                <input value="A" type="radio" name="radioRoleInterprete">
+                <span class="checkmark"></span>
+            </label>
+        
+            <button type="submit" class="btnPrimary" id="btnAjoutEquipe"><span>Ajouter et Continuer</span></button>
+            <button type="submit" class="btnPrimary" id="btnAjoutEquipe"><span>Ajouter et Retourner</span></button>
+            <button type="button" class="btnSecondary" onclick="navTo(this,'/Citrus/Equipe{{ equipe.id_equipe }}-0/',false)">Retour</button>
+        {% endif %}
+        
+    
+    </form>
+    
+     
+    
+{% endblock %}

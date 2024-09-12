@@ -1,0 +1,56 @@
+{% extends 'baseTemplate.html '%}
+
+{% block content %}
+    
+    <h1>Mon Équipe</h1>
+    <h2>{{ equipe.nom_equipe }}</h2>
+    <h3>{{ equipe.college }}</h3>
+    
+    <div class="select" style="width:200px;">
+        <select name="saisonAlignement" id="saisonAlignement">
+            {% for saison in allSaisons %}
+                
+                <option value="{{ saison.saison_id }}">{{ saison.nom_saison}}</option>
+            {% endfor %}
+
+        </select>
+    </div>
+    
+    <img src="{% if equipe.logo %}{{ equipe.logo.url }}{% endif %}" alt="LOGO">
+    
+    <button class="btnPrimary" onclick="navTo(this,'/Citrus/ModificationEquipe{{ equipe.id_equipe }}',false)"><span>Modifier</span></button>
+    
+    <button class="btnPrimary" onclick="navTo(this, '/Citrus/AjoutInterprete{{ equipe.id_equipe }}-{{ alignement.id_alignement }}', false)"><span>Ajouter un interprète</span></button>
+    <table>
+        <tr class="tableHeaderRow">
+            <th>Pos</th>
+            <th>Num</th>
+            <th>Nom de l'interprete</th>
+            <th>Pronoms</th>
+        </tr>
+        {% for interprete in alignement.interpretes.all %}
+            <tr class="pamps">
+                <td>{{ interprete.role_interprete }}</td>
+                <td>{{ interprete.numero_interprete }}</td>
+                <td>{{ interprete.nom_interprete }}</td>
+                <td>{{ interprete.pronom_interprete }}</td>
+                <td><button class="btnSecondary btnInline" onclick="navTo(this,'/Citrus/ModificationInterprete{{ interprete.interprete_id }}-{{ equipe.id_equipe }}')"><span>Modifier</span></button></td>
+                <td><button class="btnSecondary btnInline"><span>Supprimer</span></button></td>
+            </tr>
+        {% endfor %}
+        {% for coach in coachs %}
+            <tr class="pamps">
+                <td>Coach</td>
+                <td>{{ coach.prenom_coach }} {{ coach.nom_coach }}</td>
+                <td>{{ coach.courriel }}</td>
+                <td>{{ coach.pronom_coach }}</td>
+                <td><button class="btnSecondary btnInline" onclick=""><span>Modifier</span></button></td>
+                <td><button class="btnSecondary btnInline"><span>Supprimer</span></button></td>
+            </tr>
+        {% endfor %}
+    </table>
+    
+    
+     
+    
+{% endblock %}

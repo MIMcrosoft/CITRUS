@@ -1,39 +1,40 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Base teamplate</title>
-    <link rel="stylesheet" href="generalStyles.css">
+    <link rel="stylesheet" href="{% static 'stylesheets/components/generalStyles.css' %}">
 </head>
 <body class="basicPage">
     <nav class="primaryNav hover" id="primaryNav">
         <div class="navLogoContainer">
-            <img src="../icons/CitrusLogo.png" alt="" class="navLogo">
+            <img src="{% static 'icons/CitrusLogo.png' %}" alt="" class="navLogo">
             <h2 class="navLogoText">CITRUS</h2>
         </div>
         <div class="navLists">
             <ul class="navList">
-                <li class="navListItem active" onclick="navTo(this, 'page2.html?animation=1', true)">
-                    <img src="../icons/home.png" alt="" class="navItemIcon">
+                <li class="navListItem" onclick="navTo(this, 'baseTemplate.html?animation=1', f)">
+                    <img src="{% static 'icons/home.png' %}" alt="" class="navItemIcon">
                     <h2 class="navItemText">Accueil</h2>
                 </li>
-                <li class="navListItem" onclick="navTo(this, 'page2.html?animation=1', true)">
-                    <img src="../icons/teams.png" alt="" class="navItemIcon">
+                <li class="navListItem active" onclick="navTo(this, 'baseTemplate.html?animation=1', true)">
+                    <img src="{% static 'icons/teams.png' %}" alt="" class="navItemIcon">
                     <h2 class="navItemText">Équipes</h2>
                 </li>
-                <li class="navListItem" onclick="navTo(this, 'page2.html?animation=1', true)">
-                    <img src="../icons/calendar.png" alt="" class="navItemIcon">
+                <li class="navListItem" onclick="navTo(this, 'baseTemplate.html?animation=1', true)">
+                    <img src="{% static 'icons/calendrier.png' %}" alt="" class="navItemIcon">
                     <h2 class="navItemText">Calendrier</h2>
                 </li>
-                <li class="navListItem" onclick="navTo(this, 'page2.html?animation=1', true)">
-                    <img src="../icons/trophy.png" alt="" class="navItemIcon">
+                <li class="navListItem" onclick="navTo(this, 'baseTemplate.html?animation=1', true)">
+                    <img src="{% static 'icons/trophy.png' %}" alt="" class="navItemIcon">
                     <h2 class="navItemText">Tournois</h2>
                 </li>
             </ul>
             <ul class="navList">
                 <li class="navListItem">
-                    <img src="../icons/quit.png" alt="" class="navItemIcon">
+                    <img src="{% static 'icons/quit.png' %}" alt="" class="navItemIcon">
                     <h2 class="navItemText">Déconnexion</h2>
                 </li>
             </ul>    
@@ -47,6 +48,6 @@
         </div>
         
     </main>
-    <script src="nav.js"></script>
+    <script src="{% static 'javascript/nav.js' %}"></script>
 </body>
 </html>

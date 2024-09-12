@@ -18,8 +18,30 @@ SESSION_CHOICES = [
 class Saison(models.Model):
     saison_id = models.AutoField(primary_key=True)
     nom_saison = models.CharField(max_length=255)
+    est_active = models.BooleanField(default=False)
 
     calendrier_officiel = models.ForeignKey('Calendrier', on_delete=models.CASCADE, null=True)
+
+    @classmethod
+    def createSaison(cls, nom_saison):
+        saison = cls(
+            nom_saison=nom_saison
+        )
+        saison.save()
+        for equipe in Equipe.objects.all():
+            alignements = Alignements.create_alignement(equipe,saison)
+            alignements.save()
+
+        return saison
+
+    def set_active(self):
+        if self.est_active == False:
+            for saison in Saison.objects.all():
+                saison.est_active = False
+            self.est_active = True
+
+    def __str__(self):
+        return self.nom_saison
 
 
 class Session(models.Model):
@@ -51,6 +73,9 @@ class Serie(models.Model):
     division = models.CharField(max_length=50, choices=DIVISION_CHOICES)
 
     saison = models.ForeignKey(Saison, on_delete=models.CASCADE, null=True)
+
+    def __str__(self):
+        return self.saison.nom_saison + "-SERIE-" + str(self.division)
 
 
 class Calendrier(models.Model):
@@ -106,6 +131,7 @@ class College(models.Model):
     locationX = models.FloatField()
     locationY = models.FloatField()
     adresse = models.CharField(max_length=255)
+    indisponibilites = models.JSONField(null=True)
 
     @classmethod
     def createCollege(cls, nom_college, adresse):
@@ -137,62 +163,98 @@ class College(models.Model):
 class Interprete(models.Model):
     interprete_id = models.AutoField(primary_key=True)
     nom_interprete = models.CharField(max_length=100)
-    prenom_interprete = models.CharField(max_length=100)
     pronom_interprete = models.CharField(max_length=20, blank=True, null=True)
     numero_interprete = models.CharField(max_length=20, blank=True, null=True)
     role_interprete = models.CharField(max_length=1, blank=True, null=True)
 
-    equipes = models.ManyToManyField('Equipe')
+
+    alignement = models.ManyToManyField('Alignements', related_name='interpretes')
+
 
     @classmethod
-    def createInterprete(cls, nom_interprete, prenom_interprete, pronom_interprete, numero_interprete, role_interprete,
-                         equipesIds):
+    def createInterprete(cls, nom_interprete, pronom_interprete, numero_interprete, role_interprete,
+                         alignement):
         interprete = cls(
             nom_interprete=nom_interprete,
-            prenom_interprete=prenom_interprete,
             pronom_interprete=pronom_interprete,
             numero_interprete=numero_interprete,
             role_interprete=role_interprete
         )
         interprete.save()
-        for equipeID in equipesIds:
-            equipe = Equipe.objects.get(id_equipe=equipeID)
-            interprete.equipes.add(equipe)
+
+        if alignement :
+            interprete.alignement.add(alignement)
+            interprete.save()
+            alignement.save()
+
 
         return interprete
 
+    def get_equipe(self,saison):
+
+        equipes = [alignement.equipe for alignement in self.alignement.all() if alignement.saison == saison]
+
+        if len(equipes) > 1:
+            return None
+        else:
+            return equipes[0]
+
     def __str__(self):
-        return self.prenom_interprete + " " + self.nom_interprete + " #" + str(
-            self.numero_interprete) + " (" + self.prenom_interprete + ")"
+        return f"{self.nom_interprete} #{self.numero_interprete} ({self.pronom_interprete})"
 
 
 class Equipe(models.Model):
     id_equipe = models.AutoField(primary_key=True)
     nom_equipe = models.CharField(max_length=100, unique=True)
-    url_logo = models.URLField(max_length=255, blank=True, null=True)
+    logo = models.FileField(blank=True, null=True, upload_to='logos/')
     division = models.CharField(max_length=50, choices=DIVISION_CHOICES)
     last_modified = models.DateTimeField(auto_now=True)
     nb_matchVis = models.IntegerField(default=0)
     nb_matchHost = models.IntegerField(default=0)
+    indisponibilites = models.JSONField(null=True,blank=True)
 
     college = models.ForeignKey(College, related_name="equipes", on_delete=models.CASCADE, null=True)
-    interpretes = models.ManyToManyField(Interprete, null=True,blank=True)
-    matchs = models.ManyToManyField('Match', null=True,blank=True)
+    alignements = models.ForeignKey('Alignements', related_name="alignements", on_delete=models.SET_NULL, null=True)
+    matchs = models.ManyToManyField('Match', null=True, blank=True)
 
     @classmethod
-    def createEquipe(cls, nomEquipe, url_logo=None, division=None, collegeID=None):
+    def createEquipe(cls, nomEquipe, logo=None, division=None, college=None):
         equipe = cls(
-            nomEquipe=nomEquipe,
-            url_logo=url_logo,
+            nom_equipe=nomEquipe,
+            logo=logo,
             division=division,
-            college_id=collegeID
+            college=college,
         )
         equipe.save()
         return equipe
 
+    @classmethod
+    def getAlignement(cls, saisonID):
+        selectedSaison = Saison.objects.filter(saison_id=saisonID).first()
+        return [interprete for interprete in Alignements.objects.filter(saison=selectedSaison).first().interpretes]
+
     def __str__(self):
         return self.nom_equipe
 
+
+class Alignements(models.Model):
+    id_alignement = models.AutoField(primary_key=True)
+
+    equipe = models.ForeignKey(Equipe, related_name="equipe", on_delete=models.CASCADE, null=False)
+    saison = models.ForeignKey(Saison, related_name="saison", on_delete=models.CASCADE, null=False)
+
+
+    @classmethod
+    def create_alignement(cls,equipe, saison):
+        alignement = cls(
+            equipe=equipe,
+            saison=saison
+        )
+        alignement.save()
+        return alignement
+
+    def __str__(self):
+        return self.saison.nom_saison + "-" + self.equipe.nom_equipe
 
 class CoachManager(BaseUserManager):
     def create_user(self, courriel, password=None, **extra_fields):
@@ -214,10 +276,13 @@ class Coach(AbstractUser):
     coach_id = models.AutoField(primary_key=True)
     nom_coach = models.CharField(max_length=100)
     prenom_coach = models.CharField(max_length=100)
+    pronom_coach = models.CharField(max_length=20, blank=True, null=True)
     courriel = models.EmailField(max_length=255, unique=True)
     admin_flag = models.BooleanField(default=False)
-    equipe_id = models.ForeignKey(Equipe, on_delete=models.CASCADE, null=True, blank=True)
+    equipe = models.ForeignKey(Equipe, on_delete=models.SET_NULL, null=True, blank=True)
     objects = CoachManager()
+
+    college = models.ForeignKey('College', on_delete=models.SET_NULL, null=True, blank=True, related_name='college')
 
     USERNAME_FIELD = 'courriel'
     REQUIRED_FIELDS = []
@@ -247,7 +312,11 @@ class Match(models.Model):
     nom_arbitre = models.CharField(max_length=100, blank=True, null=True)
     date_match = models.DateTimeField(auto_now=True)
     url_photo = models.URLField(blank=True, null=True)
+    url_match = models.URLField(blank=True, null=True)
     division = models.CharField(max_length=50, choices=DIVISION_CHOICES)
+    date = models.DateField(blank=True, null=True)
+    completed_flag = models.BooleanField(default=False)
+    validated_flag = models.BooleanField(default=False)
 
     session = models.ForeignKey(Session, on_delete=models.SET_NULL, null=True)
     serie = models.ForeignKey(Serie, on_delete=models.CASCADE, null=True)
@@ -257,7 +326,11 @@ class Match(models.Model):
     punitions = models.ManyToManyField(Punition)
 
     @classmethod
-    def createMatch(cls,division,session=None, serie=None, equipe1=None, equipe2=None, semaine=None,):
+    def validate_match(self):
+        pass
+
+    @classmethod
+    def createMatch(cls, division, session=None, serie=None, equipe1=None, equipe2=None, semaine=None, ):
         match = cls(
             session=session,
             serie=serie,
@@ -289,6 +362,7 @@ class Match(models.Model):
             return True
         except cls.DoesNotExist:
             return False
+
     def __str__(self):
         date_formatted = self.date_match.strftime("%Y-%m-%d")
         session = self.session

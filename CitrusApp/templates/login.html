@@ -1,5 +1,20 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<form method="post">
+    {% csrf_token %}
+    <label>
+    <input name="username">
+</label>
+<label>
+    <input name="password">
+</label>
+<button type="submit">Confirmer</button>
+</form>
 
-{% block content %}
-
-{% endblock %}
+</body>
+</html>

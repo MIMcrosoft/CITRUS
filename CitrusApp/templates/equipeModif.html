@@ -1,0 +1,56 @@
+{% extends 'baseTemplate.html '%}
+
+{% block content %}
+    
+    <form method="post">
+    {% csrf_token %}
+        <h1>Mon Équipe</h1>
+        <input name="newNomEquipe" id="newNomEquipe" type="text" value="{{ equipe.nom_equipe }}">
+        <div class="select select-search" style="width:400px;">
+            <select name="newCollegeEquipe" id="newCollegeEquipe">
+                <option value="{{ equipe.college.college_id }}">{{ equipe.college }}</option>
+                {% for college in allColleges %}
+                    <option value="{{ college.college_id }}">{{ college.nom_college }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="select" style="width:200px;">
+            <select name="saisonAlignement" id="saisonAlignement">
+                {% for saison in allSaisons %}
+                    
+                    <option value="{{ saison.saison_id }}">{{ saison.nom_saison}}</option>
+                {% endfor %}
+    
+            </select>
+        </div>
+        
+        <img id="logoEquipe" src="{{ equipe.url_logo }}" alt="LogoEquipe">
+        <input type="file">
+    
+        
+        <table>
+            <tr class="tableHeaderRow">
+                <th>Pos</th>
+                <th>Num</th>
+                <th>Nom de l'interprete</th>
+                <th>Pronoms</th>
+            </tr>
+            {% for interprete in alignement.interpretes.all %}
+                <tr class="pamps">
+                    <td>{{ interprete.role_interprete }}</td>
+                    <td>{{ interprete.numero_interprete }}</td>
+                    <td>{{ interprete.nom_interprete }}</td>
+                    <td>{{ interprete.pronom_interprete }}</td>
+                    <td><button class="btnSecondary btnInline" onclick=""><span>Modifier</span></button></td>
+                    <td><button class="btnSecondary btnInline"><span>Supprimer</span></button></td>
+                </tr>
+            {% endfor %}
+        </table>
+    
+        <button type="button" class="btnSecondary" onclick="navTo(this,'/Citrus/Equipe{{ equipe.id_equipe }}-0',false)"><span>Retour</span></button>
+        <button class="btnPrimary" type="submit">Sauvegarder</button>
+    </form>
+     
+    
+{% endblock %}
