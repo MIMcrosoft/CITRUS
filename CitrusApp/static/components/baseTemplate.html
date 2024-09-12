@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Base teamplate</title>
-    <link rel="stylesheet" href="generalStyles.css">
+    <link rel="stylesheet" href="../stylesheets/components/generalStyles.css">
 </head>
 <body class="basicPage">
     <nav class="primaryNav hover" id="primaryNav">
@@ -32,7 +32,7 @@
                 </li>
             </ul>
             <ul class="navList">
-                <li class="navListItem">
+                <li class="navListItem" onclick="disconnect('login.html')">
                     <img src="../icons/quit.png" alt="" class="navItemIcon">
                     <h2 class="navItemText">Déconnexion</h2>
                 </li>
@@ -41,12 +41,13 @@
         <div class="selector" id="selector"></div>
     </nav>
     <main>
-        <div class="pageContent hiden">
+        <div class="pageContent hidden">
             <h1>Page header</h1>
             <p>Page content Lorem ipsum dolor sit amet consectetur adipisicing elit. Consectetur, aliquam? Atque enim velit accusantium, earum a dolore ab, soluta, iste non sequi veniam quisquam officiis eum rem dolores. Ipsam, similique!</p>
         </div>
         
     </main>
+    <div id="pageCover"></div>
     <script src="nav.js"></script>
 </body>
 </html>
