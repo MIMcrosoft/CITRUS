@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-from .models import Saison, Serie, Session, Calendrier, Match, Punition, Equipe, College, Coach, Interprete,Semaine
+from .models import Saison, Serie, Session, Calendrier, Match, Punition, Equipe, College, Coach, Interprete,Semaine, Alignements
 
 class CoachCreationForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
@@ -11,7 +11,7 @@ class CoachCreationForm(UserCreationForm):
 class CoachChangeForm(UserChangeForm):
     class Meta(UserChangeForm.Meta):
         model = Coach
-        fields = ('nom_coach','prenom_coach','courriel','admin_flag','equipe_id')
+        fields = ('nom_coach','prenom_coach','courriel','admin_flag','equipe')
 
 class CoachAdmin(BaseUserAdmin):
     form = CoachChangeForm
@@ -19,9 +19,9 @@ class CoachAdmin(BaseUserAdmin):
 
     fieldsets = (
         (None, {'fields': ('courriel', 'password')}),
-        ('Personal info', {'fields': ('nom_coach', 'prenom_coach')}),
+        ('Personal info', {'fields': ('nom_coach', 'prenom_coach','pronom_coach')}),
         ('Permissions', {'fields': ('admin_flag',)}),
-        ('Team info', {'fields': ('equipe_id',)}),
+        ('Team info', {'fields': ('equipe',)}),
     )
 
     add_fieldsets = (
@@ -46,3 +46,4 @@ admin.site.register(College)
 admin.site.register(Interprete)
 admin.site.register(Semaine)
 admin.site.register(Coach, CoachAdmin)
+admin.site.register(Alignements)
