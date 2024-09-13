@@ -50,6 +50,31 @@
         {% endfor %}
     </table>
     
+    <h2>Matchs</h2>
+    <table>
+        <tr class="tableHeaderRow">
+            <th>Visiteur</th>
+            <th>Match & lieu</th>
+            <th>Local</th>
+            <th>Date</th>
+        </tr>
+        {% for match in allMatchs %}
+
+            <tr class="pamps">
+                <td><img src="{% if match.equipe2.logo %}{{ match.equipe2.logo.url }}{% endif %}" alt=""></td>
+                <td>
+                    <span>{{ match.equipe2.nom_equipe }} VS {{ match.equipe1.nom_equipe }}</span>
+                    <span>{{ match.score_eq2 }} : {{ match.score_eq1 }}</span>
+                    <span>{{ match.equipe1.college.nom_college }}</span>
+                </td>
+                <td><img src="{% if match.equipe1.logo %}{{ match.equipe1.logo.url }}{% endif %}" alt=""></td>
+                <td>{{ match.date }}</td>
+            </tr>
+
+            
+        {% endfor %}
+    </table>
+    
     
      
     

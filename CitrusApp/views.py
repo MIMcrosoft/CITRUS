@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
@@ -5,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
-from .models import Coach, Equipe, College, Interprete, Saison, Alignements
+from .models import Coach, Equipe, College, Interprete, Saison, Alignements, Match
 from .admin import CoachChangeForm
 
 
@@ -105,7 +106,8 @@ def equipe(request, idEquipe, idSaison=None):
                   {'equipe': equipe,
                    'allSaisons': Saison.objects.all(),
                    'alignement': alignement,
-                   'coachs': Coach.objects.filter(equipe=equipe)
+                   'coachs': Coach.objects.filter(equipe=equipe),
+                   'allMatchs' : Match.objects.filter(Q(equipe1=equipe) | Q(equipe2=equipe)).all()
                    })
 
 
