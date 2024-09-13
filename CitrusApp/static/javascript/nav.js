@@ -46,6 +46,7 @@ function placeSelector(el) {
 
 //if reload or no info
 if (loadAnimation == 0) {
+    console.log(document.getElementById("pageCover"));
     document.getElementById("pageCover").style.animation = "1ms forwards quickHide";
     const primaryNav = document.getElementById("primaryNav");
     primaryNav.classList.add("skipTransition");
