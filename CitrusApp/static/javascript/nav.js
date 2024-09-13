@@ -35,15 +35,18 @@ function getBaseURL() {
 let params = getParams();
 let loadAnimation = params['animation'];
 
-//Page Loading Animation
+//Moving selector to element
 function placeSelector(el) {
     const fromTop = el.getBoundingClientRect().top;
     const selector = document.getElementById("selector");
     selector.style.top = fromTop + "px";
 }
 
+//--ANIMATIONS--
+
 //if reload or no info
 if (loadAnimation == 0) {
+    document.getElementById("pageCover").style.animation = "1ms forwards quickHide";
     const primaryNav = document.getElementById("primaryNav");
     primaryNav.classList.add("skipTransition");
     primaryNav.classList.remove("hover");
@@ -53,21 +56,36 @@ if (loadAnimation == 0) {
     const activeEl = document.getElementsByClassName("navListItem active");
     placeSelector(activeEl[0]);
     setTimeout(function() {
-        document.getElementsByClassName("pageContent")[0].classList.remove("hiden");
+        document.getElementsByClassName("pageContent")[0].classList.remove("hidden");
     }, 500);
 }
-//if from another page 
+
+//if from another page using nav
 else if (loadAnimation == 1) {
+    document.getElementById("pageCover").style.display="none";
     const activeEl = document.getElementsByClassName("navListItem active");
     placeSelector(activeEl[0]);
     document.getElementById("primaryNav").classList.remove("hover");
     setTimeout(function() {
-        document.getElementsByClassName("pageContent")[0].classList.remove("hiden");
+        document.getElementsByClassName("pageContent")[0].classList.remove("hidden");
     }, 400);
     
 }
 
-//Navigate to animation
+//if from connection page
+else if (loadAnimation == 2) {
+    document.getElementById("primaryNav").classList.remove("hover");
+    const cover = document.getElementById("pageCover");
+    cover.style.animation = "1.8s forwards fullToHidden";
+    const activeEl = document.getElementsByClassName("navListItem active");
+    placeSelector(activeEl[0]);
+    setTimeout(function() {
+        document.getElementsByClassName("pageContent")[0].classList.remove("hidden");
+    }, 2200);
+    
+}
+
+//Quitting using nav
 let transition = false;
 function navTo(el, link, relative) {
     if (transition == false && !el.classList.contains("active")) {
@@ -90,5 +108,21 @@ function navTo(el, link, relative) {
             
         }, 500);
         
+    }
+}
+
+//Quitting using disconnect
+function disconnect(sendToLink) {
+    //DISCONNECT CODE HERE
+
+    //Page closing animation
+    if (transition == false) {
+        transition = true;
+        document.getElementById("primaryNav").classList.add("hover");
+        const cover = document.getElementById("pageCover");
+        cover.style.animation = "1.5s forwards hiddenToFull";
+        setTimeout(function() {
+            window.location.href = sendToLink;  
+        }, 1500);
     }
 }
