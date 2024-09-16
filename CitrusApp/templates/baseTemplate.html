@@ -1,4 +1,5 @@
 {% load static %}
+{% csrf_token %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,25 +16,25 @@
         </div>
         <div class="navLists">
             <ul class="navList">
-                <li class="navListItem active" onclick="navTo(this, 'page2.html?animation=1', true)">
+                <li class="navListItem active" onclick="navTo(this, '/Citrus/', false)">
                     <img src="../static/icons/home.png" alt="" class="navItemIcon">
                     <h2 class="navItemText">Accueil</h2>
                 </li>
-                <li class="navListItem" onclick="navTo(this, 'page2.html?animation=1', true)">
+                <li class="navListItem" onclick="navTo(this, '/Citrus/Equipes', false)">
                     <img src="../static/icons/teams.png" alt="" class="navItemIcon">
                     <h2 class="navItemText">Équipes</h2>
                 </li>
-                <li class="navListItem" onclick="navTo(this, 'page2.html?animation=1', true)">
+                <li class="navListItem" onclick="navTo(this, '/Citrus/Calendrier', false)">
                     <img src="../static/icons/calendar.png" alt="" class="navItemIcon">
                     <h2 class="navItemText">Calendrier</h2>
                 </li>
-                <li class="navListItem" onclick="navTo(this, 'page2.html?animation=1', true)">
+                <li class="navListItem" onclick="navTo(this, '/Citrus/', false)">
                     <img src="../static/icons/trophy.png" alt="" class="navItemIcon">
                     <h2 class="navItemText">Tournois</h2>
                 </li>
             </ul>
             <ul class="navList">
-                <li class="navListItem" onclick="disconnect('login.html')">
+                <li class="navListItem" onclick="disconnect('/Citrus/Deconnexion/')">
                     <img src="../static/icons/quit.png" alt="" class="navItemIcon">
                     <h2 class="navItemText">Déconnexion</h2>
                 </li>
@@ -43,12 +44,32 @@
     </nav>
     <main>
         <div class="pageContent hidden">
+            {% block content %}
             <h1>Page header</h1>
             <p>Page content Lorem ipsum dolor sit amet consectetur adipisicing elit. Consectetur, aliquam? Atque enim velit accusantium, earum a dolore ab, soluta, iste non sequi veniam quisquam officiis eum rem dolores. Ipsam, similique!</p>
+            {% endblock %}
         </div>
         
     </main>
     <div id="pageCover"></div>
     <script src="{% static 'javascript/nav.js' %}"></script>
+
+<script>
+function disconnect(sendToLink) {
+    //DISCONNECT CODE HERE
+
+    //Page closing animation
+    if (transition == false) {
+        transition = true;
+        document.getElementById("primaryNav").classList.add("hover");
+        const cover = document.getElementById("pageCover");
+        cover.style.animation = "1.5s forwards hiddenToFull";
+        setTimeout(function() {
+            window.location.href = sendToLink;  
+        }, 1500);
+    }
+}
+
+    </script>
 </body>
 </html>

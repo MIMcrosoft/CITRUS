@@ -8,44 +8,64 @@ from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from .models import Coach, Equipe, College, Interprete, Saison, Alignements, Match
 from .admin import CoachChangeForm
+from django.views.decorators.http import require_POST
+from .functions import *
 
 
 def components(request):
     return render(request, 'components.html')
 
+def test(request):
+    return render(request, 'resetPasswordEmail.html')
 
 """
 
 """
 
-
+@login_required
 def accueil(request):
     current_user = request.user
+    animation = request.GET.get('animation', None)
     if request.method == 'POST':
         pass
 
-    return render(request, 'baseTemplate.html', {"user": current_user})
+    return render(request, 'baseTemplate.html', {"user": current_user, 'animation' : animation})
 
 
 """
 
 """
 
+def resetPassword(request,id):
+    pass
 
 def loginUser(request):
     if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            return redirect('accueil')
-        else:
-            messages.error(request, 'Erreur')
-            return redirect('login')
-    else:
 
+        buttonClicked = request.POST.get('button')
+
+        if buttonClicked == 'connexion':
+
+            username = request.POST['username']
+            password = request.POST['password']
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                return redirect('/Citrus/?animation=2')  # Redirect to home on successful login
+            else:
+                messages.error(request, 'Erreur')
+                return redirect('connexion')  # Redirect to login page on error
+
+        elif buttonClicked == 'resetPassword':
+            email = request.POST['emailToReset']
+            sendCoachEmail(email,EmailType.RESETPASSWORD)
+
+        elif buttonClicked == "inscription":
+            pass
+
+    else:
         return render(request, "login.html", {})
+
 
 
 """
@@ -294,7 +314,7 @@ def archives(request):
     return render(request, "base.html", {})
 
 
-@login_required
+@login_required()
 def log_out(request):
     logout(request)
-    return redirect("login")
+    return redirect("/Citrus/Connexion/?animation=2")
