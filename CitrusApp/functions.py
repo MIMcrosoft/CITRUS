@@ -13,13 +13,20 @@ django.setup()
 from CitrusApp.admin import CoachCreationForm
 from CitrusApp.NOTPUBLIC import GMAIL_KEY
 from CitrusApp.models import Calendrier, Session, Semaine, Match, College, Equipe
+from enum import Enum, auto
+
+
+class EmailType(Enum):
+    INVITATION = auto()
+    RESETPASSWORD = auto()
+
 
 """
 
 """
 
 
-def sendCoachInvite(coachEmail):
+def sendCoachEmail(coachEmail, emailType: EmailType):
     # Création d'un compte temporaire
 
     coach = creationCompteCoach("UserTest", "UserTest", coachEmail, "IMPROMOMO8866887")
@@ -33,13 +40,25 @@ def sendCoachInvite(coachEmail):
     receiver_email = coachEmail
     password = GMAIL_KEY
 
-    with open("coachEmailInvite.html", 'r', encoding="utf-8") as file:
-        html_body = file.read()
+    if emailType == EmailType.INVITATION:
 
-    html_bodyParam = html_body.replace("{urlSignIn}", urlSignIn)
+        with open("coachEmailInvite.html", 'r', encoding="utf-8") as file:
+            html_body = file.read()
 
-    # Contenu du Email
-    subject = 'Invitation à la plateforme CITRUS'
+        html_bodyParam = html_body.replace("{urlSignIn}", urlSignIn)
+
+        # Contenu du Email
+        subject = 'Invitation à la plateforme CITRUS'
+
+    elif emailType == EmailType.RESETPASSWORD:
+
+        with open("resetPasswordCoach.html", 'r', encoding="utf-8") as file:
+            html_body = file.read()
+
+        html_bodyParam = html_body.replace("{urlSignIn}", urlSignIn)
+
+        # Contenu du Email
+        subject = 'Réinitialisation de ton mot de passe Citrus'
 
     # Création du message du email
     msg = MIMEMultipart('alternative')
@@ -95,8 +114,6 @@ def creationCompteCoach(nomCoach, prenomCoach, courrielCoach, coachPwd):
 
 
 def fillCalendrier():
-
-
     """
     calculateDistance
     Description : Calcul la distance entre un college en paramètre et le reste des colleges de la base de données.
@@ -340,9 +357,10 @@ def fillCalendrier():
             BYPASS_4 : Bypass pour check que l'équipe Receveuse n'a pas plus que 2 matchs receveurs et meme chose Vis
             BYPASS_5 : Bypass pour check que les équipes n'ont pas des matchs dans les 2 dernières semaines
             BYPASS_6 : Bypass pour check que les équipes n'ont pas deux matchs de suites
-        
+
         """
-        def ajoutMatchs(matchs, BYPASS_1, BYPASS_2, BYPASS_3, BYPASS_4, BYPASS_5,BYPASS_6):
+
+        def ajoutMatchs(matchs, BYPASS_1, BYPASS_2, BYPASS_3, BYPASS_4, BYPASS_5, BYPASS_6):
             for session in Session.objects.filter(calendrier_id=calendrier.calendrier_id):
                 print("NBSEMAINES", session.nb_semaine)
                 for semaine in Semaine.objects.filter(session=session).all():
@@ -371,8 +389,8 @@ def fillCalendrier():
                                     and isNotMaxMatchSession(session, equipeRec, equipeVis, BYPASS_3) \
                                     and isNotMaxTypeMatch(session, equipeRec, "R", BYPASS_4) \
                                     and isNotMaxTypeMatch(session, equipeRec, "V", BYPASS_4) \
-                                    and isNotThreeMatchStreak(semaine, equipeRec, equipeVis, BYPASS_5)\
-                                    and isNotTwoMatchStreak(semaine,equipeRec, equipeVis, BYPASS_6):
+                                    and isNotThreeMatchStreak(semaine, equipeRec, equipeVis, BYPASS_5) \
+                                    and isNotTwoMatchStreak(semaine, equipeRec, equipeVis, BYPASS_6):
                                 # Si toutes les conditions sont respectés, on ajoute le match à la semaine
                                 print('ADDMATCH')
                                 match.semaine = semaine
@@ -397,26 +415,26 @@ def fillCalendrier():
                     True,
                     True)
 
-        #Correction
+        # Correction
         print("CORRECTION FINALE")
 
         for match in Match.objects.filter(semaine=None).all():
             collegeRec = match.equipe1.college
             equipeRec = match.equipe1
             equipeVis = match.equipe2
-            print(match," : ",collegeRec)
+            print(match, " : ", collegeRec)
 
-            #Premièrement, on doit trouver une semaine libre qui peut recevoir un match du college receveur
+            # Premièrement, on doit trouver une semaine libre qui peut recevoir un match du college receveur
             for session in Session.objects.filter(calendrier_id=calendrier.calendrier_id):
                 for semaine in Semaine.objects.filter(session_id=session.session_id):
-                    if isNotCollegeReceveur(semaine,collegeRec,False):
-                        #Ensuite, on cherche un match déja placé qui pourrait switch
+                    if isNotCollegeReceveur(semaine, collegeRec, False):
+                        # Ensuite, on cherche un match déja placé qui pourrait switch
                         for matchToSwitch in Match.objects.filter().all():
                             if matchToSwitch.semaine is not None:
-                                if matchToSwitch.equipe1.division != match.equipe2.division\
-                                and areEquipeLibre(semaine,matchToSwitch.equipe1,matchToSwitch.equipe2,False)\
-                                and areEquipeLibre(matchToSwitch.semaine,match.equipe1,match.equipe2,False)\
-                                and matchToSwitch.equipe1.college == collegeRec:
+                                if matchToSwitch.equipe1.division != match.equipe2.division \
+                                        and areEquipeLibre(semaine, matchToSwitch.equipe1, matchToSwitch.equipe2, False) \
+                                        and areEquipeLibre(matchToSwitch.semaine, match.equipe1, match.equipe2, False) \
+                                        and matchToSwitch.equipe1.college == collegeRec:
                                     semaineToSwitch = matchToSwitch.semaine
                                     sessionToSwitch = matchToSwitch.session
                                     match.semaine = semaineToSwitch
@@ -425,8 +443,6 @@ def fillCalendrier():
                                     matchToSwitch.session = session
                                     match.save()
                                     matchToSwitch.save()
-
-
 
         return calendrier
 
@@ -580,7 +596,7 @@ def fillCalendrier():
         else:
             return True
 
-    def isNotTwoMatchStreak(semaine,equipeRec,equipeVis,BYPASS_6):
+    def isNotTwoMatchStreak(semaine, equipeRec, equipeVis, BYPASS_6):
         if BYPASS_6 == True:
             return True
 
@@ -602,13 +618,11 @@ def fillCalendrier():
         else:
             return True
 
-
     creationMatchs("Pamplemousse")
     creationMatchs("Tangerine")
     creationMatchs("Clementine")
 
     input(f"Matchs crées : {len(Match.objects.all())}. Continue ?")
-
 
     calendrier = creationCalendrier()
     for session in Session.objects.filter(calendrier=calendrier).all():
