@@ -20,7 +20,7 @@ class CoachAdmin(BaseUserAdmin):
     fieldsets = (
         (None, {'fields': ('courriel', 'password')}),
         ('Personal info', {'fields': ('nom_coach', 'prenom_coach','pronom_coach')}),
-        ('Permissions', {'fields': ('admin_flag',)}),
+        ('Permissions', {'fields': ('admin_flag',"validated_flag",)}),
         ('Team info', {'fields': ('equipe',)}),
     )
 
@@ -31,7 +31,7 @@ class CoachAdmin(BaseUserAdmin):
         }),
     )
 
-    list_display = ('courriel', 'nom_coach', 'prenom_coach', 'admin_flag')
+    list_display = ('courriel', 'nom_coach', 'prenom_coach', 'admin_flag',"validated_flag")
     search_fields = ('courriel', 'nom_coach', 'prenom_coach')
     ordering = ('courriel',)
 
