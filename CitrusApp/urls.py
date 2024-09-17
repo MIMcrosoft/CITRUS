@@ -7,7 +7,6 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('',views.accueil,name='accueil'),
     path('Connexion/', views.loginUser, name='connexion'),
-    path('CoachSignIn<int:id>/', views.coachSignIn, name='coach_sign_in'),
     path('Calendrier/',views.calendrierAdmin,name='calendrier'),
     path('components/', views.components,name='components'),
     path('test/',views.test,name='test'),
@@ -17,7 +16,8 @@ urlpatterns = [
     path('ModificationEquipe<int:idEquipe>/',views.modifEquipe, name='modifEquipe'),
     path('AjoutInterprete<int:equipeId>-<int:alignementID>/',views.ajoutInterprete, name='ajoutInterprete'),
     path('ModificationInterprete<int:interpreteID>-<int:equipeID>/',views.modifInterprete, name='modifInterprete'),
-    path('Deconnexion/',views.log_out,name='Déconnexion')
+    path('Deconnexion/',views.log_out,name='Déconnexion'),
+    path('Inscription/',views.coachSignUp,name='Inscription')
 ]
 
 if settings.DEBUG:

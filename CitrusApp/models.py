@@ -131,7 +131,7 @@ class College(models.Model):
     locationX = models.FloatField()
     locationY = models.FloatField()
     adresse = models.CharField(max_length=255)
-    indisponibilites = models.JSONField(null=True)
+    indisponibilites = models.JSONField(null=True,blank=True)
 
     @classmethod
     def createCollege(cls, nom_college, adresse):
@@ -214,7 +214,7 @@ class Equipe(models.Model):
     indisponibilites = models.JSONField(null=True,blank=True)
 
     college = models.ForeignKey(College, related_name="equipes", on_delete=models.CASCADE, null=True)
-    alignements = models.ForeignKey('Alignements', related_name="alignements", on_delete=models.SET_NULL, null=True)
+    alignements = models.ForeignKey('Alignements', related_name="alignements", on_delete=models.SET_NULL, null=True, blank=True)
     matchs = models.ManyToManyField('Match', null=True, blank=True)
 
     @classmethod
@@ -257,20 +257,36 @@ class Alignements(models.Model):
         return self.saison.nom_saison + "-" + self.equipe.nom_equipe
 
 class CoachManager(BaseUserManager):
-    def create_user(self, courriel, password=None, **extra_fields):
+    def create_user(self, prenom_coach, nom_coach, pronom_coach, courriel, password=None, equipe=None, **extra_fields):
         if not courriel:
-            raise ValueError("Le courriel n'existe pas")
+            raise ValueError("Le courriel est obligatoire")
         courriel = self.normalize_email(courriel)
-        user = self.model(courriel=courriel, **extra_fields)
+        user = self.model(
+            prenom_coach=prenom_coach,
+            nom_coach=nom_coach,
+            pronom_coach=pronom_coach,
+            courriel=courriel,
+            equipe=equipe,
+            **extra_fields
+        )
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, courriel, password=None, **extra_fields):
+    def create_superuser(self, prenom_coach, nom_coach,courriel, pronom_coach=None,  password=None, equipe=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
-        return self.create_user(courriel, password, **extra_fields)
+        extra_fields.setdefault('admin_flag', True)
 
+        return self.create_user(
+            prenom_coach=prenom_coach,
+            nom_coach=nom_coach,
+            pronom_coach=pronom_coach,
+            courriel=courriel,
+            password=password,
+            equipe=equipe,
+            **extra_fields
+        )
 
 class Coach(AbstractUser):
     coach_id = models.AutoField(primary_key=True)
@@ -279,13 +295,18 @@ class Coach(AbstractUser):
     pronom_coach = models.CharField(max_length=20, blank=True, null=True)
     courriel = models.EmailField(max_length=255, unique=True)
     admin_flag = models.BooleanField(default=False)
+    validated_flag = models.BooleanField(default=False)
+
     equipe = models.ForeignKey(Equipe, on_delete=models.SET_NULL, null=True, blank=True)
     objects = CoachManager()
+
+    # Removing the 'username' field entirely
+    username = None
 
     college = models.ForeignKey('College', on_delete=models.SET_NULL, null=True, blank=True, related_name='college')
 
     USERNAME_FIELD = 'courriel'
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS = ['prenom_coach', 'nom_coach']  # You can set other required fields here
 
     def __str__(self):
         return self.courriel

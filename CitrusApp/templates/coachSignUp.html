@@ -1,87 +1,195 @@
 {% load static %}
-{% csrf_token %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Base teamplate</title>
+    <title>Login</title>
     <link href="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.3/air-datepicker.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'stylesheets/components/generalStyles.css' %}">
 </head>
-<body class="basicPage">
-    <nav class="primaryNav hover" id="primaryNav">
-        <div class="navLogoContainer">
-            <img src="../static/icons/CitrusLogo.png" alt="" class="navLogo">
-            <h2 class="navLogoText">CITRUS</h2>
+<body class="hidden">
+    <a href="https://liguedespamplemousses.com" class="backButton">
+        <h2>🠈 Retour au site de la ligue</h2>
+    </a>
+    <form method="post">
+        {% csrf_token %}
+        <div class="loginContainer">
+            <div class="login">
+                <div>
+                    <img src="../static/icons/CitrusLogoText.png" alt="Logo CITRUS"  class="logo">
+                </div>
+                <section class="section signupFields">
+                    <h2 style="margin-bottom: -0.5rem;">S'inscrire</h2>
+                
+                    <input type="text" id="coachPrenom" name="coachPrenom" placeholder="Votre prénom">
+            
+                    <input type="text" id="coachNom" name="coachNom" placeholder="Votre nom">
+            
+                    <input type="text" id="coachPronom" name="coachPronoms" placeholder="Vos pronoms">
+            
+                    <input type="text" id="coachCourriel" name="coachCourriel" placeholder="Courriel">
+                
+                    <input type="password" id="coachPassword" name="coachPassword" placeholder="Mot de passe">
+                
+                    <input type="password" id="coachPassword2" name="coachPassword2" placeholder="Confirmer le mot de passe">
+                
+                    <div class="select select-search" style="width:400px;">
+                        <select name="teamCoach" id="teamCoach">
+                            <option value="">Choississez votre équipe</option>
+                            {% for equipe in allEquipes %}
+                                <option value="{{ equipe.id_equipe }}">{{ equipe.nom_equipe }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                
+                    <a style="gap: 0; margin-top: -0.5rem;" onclick="sectionReveal('teamAddFields')">Mon équipe n'est pas dans la liste</a>
+                    
+                    <button class="btnPrimary" onclick="sectionReveal('emailSent')"><span>S'inscrire</span></button>
+                </section>
+            
+                <section class="section teamAddFields hidden">
+                    <h2 style="margin-bottom: -0.5rem;">S'inscrire</h2>
+
+                    <input type="text" id="signupEmail" placeholder="Courriel">
+
+                    <a style="gap: 0; margin-top: -0.5rem;" onclick="sectionReveal('loginFields')">Se connecter</a>
+
+                    <button class="btnPrimary" onclick="sectionReveal('emailSent')"><span>S'inscrire</span></button>
+                </section>
+
+            </div>
+
         </div>
-        <div class="hamburger" onclick="toggleNav(this)">
-            <span></span>
-            <span></span>
-            <span></span>
-        </div>
-        <div class="navLists">
-            <ul class="navList">
-                <li class="navListItem active" onclick="navTo(this, '/Citrus/', false)">
-                    <img src="../static/icons/home.png" alt="" class="navItemIcon">
-                    <h2 class="navItemText">Accueil</h2>
-                </li>
-                <li class="navListItem" onclick="navTo(this, '/Citrus/Equipes', false)">
-                    <img src="../static/icons/teams.png" alt="" class="navItemIcon">
-                    <h2 class="navItemText">Équipes</h2>
-                </li>
-                <li class="navListItem" onclick="navTo(this, '/Citrus/Calendrier', false)">
-                    <img src="../static/icons/calendar.png" alt="" class="navItemIcon">
-                    <h2 class="navItemText">Calendrier</h2>
-                </li>
-                <li class="navListItem" onclick="navTo(this, '/Citrus/', false)">
-                    <img src="../static/icons/trophy.png" alt="" class="navItemIcon">
-                    <h2 class="navItemText">Tournois</h2>
-                </li>
-            </ul>
-            <ul class="navList">
-                <li class="navListItem" onclick="disconnect('/Citrus/Deconnexion/')">
-                    <img src="../static/icons/quit.png" alt="" class="navItemIcon">
-                    <h2 class="navItemText">Déconnexion</h2>
-                </li>
-            </ul>    
-        </div>
-        <div class="selector" id="selector"></div>
-    </nav>
-    <main>
-        <div class="pageContent hidden">
-            {% block content %}
-            <h1>Page header</h1>
-            <p>Page content Lorem ipsum dolor sit amet consectetur adipisicing elit. Consectetur, aliquam? Atque enim velit accusantium, earum a dolore ab, soluta, iste non sequi veniam quisquam officiis eum rem dolores. Ipsam, similique!</p>
-            {% endblock %}
-        </div>
-        
-    </main>
-    <div id="pageCover"></div>
-    <script src="../static/javascript/nav.js"></script>
+    </form>
+    <p class="credit">Plateforme réalisée par <a href="">Félix Robillard</a> et <a href="">Raphaël Dumont</a></p>
+    
+    <style>
+        body {
+            background: var(--gradient);
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding:4rem;
+        }
+
+        .loginContainer {
+            border-radius: 1.5rem;
+            background-color: rgba(240, 243, 237, 0.502);
+            margin: 1rem;
+            padding: clamp(2rem, 10%, 4rem);
+            padding-inline:clamp(0.5rem, 10%, 4rem);
+            transition: opacity 0.5s ease 0.25s;
+        }
+
+        .loginContainer * {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            transition: opacity 0.5s ease 0.25s;
+        }
+
+        .login {
+            max-width: 80vw;
+        }
+
+        .btnPrimary * {
+            margin:auto;
+        }
+
+        .btnPrimary:hover {
+            background: var(--white);
+        }
+
+        .logo {
+            padding: 1rem;
+        }
+
+        .backButton {
+            position: absolute;
+            left: 2rem;
+            top: 0.5rem;
+            transition: opacity 0.25s ease;
+        }
+
+        .backButton h2 {
+            color: var(--white);
+            font-weight: 600;
+        }
+
+        .credit {
+            position: absolute;
+            bottom: 1rem;
+            color: var(--white);
+            text-align: center;
+            padding-inline: 2rem;
+            transition: opacity 0.25s ease;
+        }
+
+        .credit a {
+            color: var(--white);
+            font-weight: 600;
+        }
+
+        body.hidden *{
+            opacity: 0;
+        }
+
+        section.hidden {
+            opacity: 0;
+            display: none;
+        }
+    </style>
+    
     <script src="{% static 'javascript/nav.js' %}"></script>
-
-<script>
-function disconnect(sendToLink) {
-    //DISCONNECT CODE HERE
-
-    //Page closing animation
-    if (transition == false) {
-        transition = true;
-        document.getElementById("primaryNav").classList.add("hover");
-        const cover = document.getElementById("pageCover");
-        cover.style.animation = "1.5s forwards hiddenToFull";
+    
+    <script>
         setTimeout(function() {
-            window.location.href = sendToLink;  
-        }, 1500);
-    }
-}
+            document.body.classList.remove("hidden");     
+        }, 10);
 
+        
+
+        function getBaseURL() {
+            let currentURL = window.location.href;
+            let lastSlashIndex = currentURL.lastIndexOf('/');
+            let baseURL = currentURL.substring(0, lastSlashIndex+1);
+        
+            return baseURL;
+        }
+
+        transtion = false;
+        function navTo(link, relative){
+            if(transtion == false){
+                transtion = true;
+                document.body.classList.add("hidden");
+                setTimeout(function() {
+                if (relative == true) {
+                    let baseUrl = getBaseURL(window.location.href);
+                    window.location.href = baseUrl + link; 
+                } else {
+                    window.location.href = link;     
+                }
+                
+            }, 750);
+            }
+            
+        }
+
+        function sectionReveal(section) {
+            const sections = document.getElementsByClassName("section");
+            for (i=0;i<sections.length;i++) {
+                sections[i].classList.add("hidden");
+            }
+            document.getElementsByClassName(section)[0].classList.remove("hidden");
+        }
     </script>
-<script>
+    
+    <script>
         /* À ajouter une fois si dropdowns présents */
         // Variables globales
         var selectContainers, selectElements, optionsCount, i, j;
@@ -250,6 +358,7 @@ function disconnect(sendToLink) {
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.3/air-datepicker.min.js"></script>
+    
     <script>
         const localeFr = {
             days: ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'],
@@ -320,4 +429,3 @@ function disconnect(sendToLink) {
         }
     </script>
 </body>
-</html>

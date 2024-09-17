@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
-from .models import Coach, Equipe, College, Interprete, Saison, Alignements, Match
+from .models import Coach, Equipe, College, Interprete, Saison, Alignements, Match,CoachManager
 from .admin import CoachChangeForm
 from django.views.decorators.http import require_POST
 from .functions import *
@@ -25,11 +25,17 @@ def test(request):
 @login_required
 def accueil(request):
     current_user = request.user
-    animation = request.GET.get('animation', None)
+    if current_user.is_superuser == True:
+        allMatchs = Match.objects.all()
+    else:
+        equipe = current_user.equipe
+        allMatchs = Match.objects.filter(Q(equipe1=equipe) | Q(equipe2=equipe)).all()
     if request.method == 'POST':
         pass
 
-    return render(request, 'baseTemplate.html', {"user": current_user, 'animation' : animation})
+    return render(request, 'Acceuil.html', {"user": current_user,
+                                            'allMatchs': allMatchs,
+                                            })
 
 
 """
@@ -49,7 +55,7 @@ def loginUser(request):
             username = request.POST['username']
             password = request.POST['password']
             user = authenticate(request, username=username, password=password)
-            if user is not None:
+            if user is not None and user.validated_flag:
                 login(request, user)
                 return redirect('/Citrus/?animation=2')  # Redirect to home on successful login
             else:
@@ -73,18 +79,44 @@ def loginUser(request):
 """
 
 
-def coachSignIn(request, id):
+def coachSignUp(request):
     if request.method == 'POST':
-        coach = get_object_or_404(Coach, id=id)
-        form = CoachChangeForm(request.POST, instance=coach)
-        if form.is_valid():
-            form.save()
-            return redirect('Accueil')
-        else:
-            # MSG ERREUR
-            return redirect('Accueil')
+        coachPrenom = request.POST.get('coachPrenom')
+        coachNom = request.POST['coachNom']
+        coachPronom = request.POST.get('coachPronom')
+        coachCourriel = request.POST['coachCourriel']
+        coachPassword = request.POST['coachPassword']
+        coachPassword2 = request.POST['coachPassword2']
+        coachTeamId = request.POST.get('teamCoach')  # Assuming this is the team ID from the form
 
-    return render(request, "coachSignIn.html", {id})
+        # Check if passwords match
+        if coachPassword != coachPassword2:
+            return render(request, "coachSignUp.html", {
+                'error': "Les mots de passe ne correspondent pas",
+                'allEquipes': Equipe.objects.all()
+            })
+
+        # Retrieve the team from the database
+        print(coachCourriel)
+        coachTeam = Equipe.objects.get(id_equipe=coachTeamId)
+
+
+        # Create the coach using CoachManager
+        coach = Coach.objects.create_user(
+            prenom_coach=coachPrenom,
+            nom_coach=coachNom,
+            pronom_coach=coachPronom,
+            courriel=coachCourriel,
+            password=coachPassword,
+            equipe=coachTeam
+        )
+        # Optionally redirect to a login or success page after successful signup
+        return redirect('connexion')  # Assuming you have a login view
+
+    # Render the signup form with all available teams
+    return render(request, "coachSignUp.html", {
+        'allEquipes': Equipe.objects.all()
+    })
 
 
 """
