@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+    <link rel="stylesheet" href="../static/stylesheets/components/generalStyles.css">
     <link rel="stylesheet" href="{% static 'stylesheets/components/generalStyles.css' %}">
 </head>
 <body class="hidden">
@@ -19,7 +20,7 @@
                     <img src="../static/icons/CitrusLogoText.png" alt="Logo CITRUS"  class="logo">
                 </div>
                 <section class="section loginFields">
-                    <input type="text" id="username" name="username" placeholder="Courriel">
+                    <input  style="margin-bottom: -0.5rem;" type="text" id="username" name="username" placeholder="Courriel">
                     <input type="text" id="password" name="password" placeholder="Mot de passe">
 
                     <a style="gap: 0; margin-top: -0.5rem;" onclick="sectionReveal('forgotFields')">Mot de passe oublié?</a>
