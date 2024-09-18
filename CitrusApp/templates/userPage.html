@@ -1,0 +1,18 @@
+{% extends 'baseTemplate.html'%}
+
+{% block content %}
+    
+    <h1>{{ user.prenom_coach }} {{ user.nom_coach }} ({{ user.pronom_coach }})</h1>
+    <h2>{{ user.equipe.nom_equipe }}</h2>
+    <h3>{{ user.equipe.college }}</h3>
+    <h3>{{ user.courriel }}</h3>
+    
+    
+    <button class="btnPrimary" onclick="navTo(this,'/Citrus/ModificationEquipe{{ equipe.id_equipe }}',false)"><span>Modifier</span></button>
+    
+    
+    
+    
+     
+    
+{% endblock %}

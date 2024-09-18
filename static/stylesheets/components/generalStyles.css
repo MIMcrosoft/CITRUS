@@ -787,6 +787,12 @@ tr.clems * {
   flex-grow: 1;
 }
 
+/* Error Messages */
+.errorMsg{
+    color: red;
+    font-weight: bold;
+}
+
 
 
 /*=====================================

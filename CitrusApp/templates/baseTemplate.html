@@ -36,8 +36,14 @@
                     <img src="../static/icons/trophy.png" alt="" class="navItemIcon">
                     <h2 class="navItemText">Tournois</h2>
                 </li>
+
             </ul>
+
             <ul class="navList">
+                <li class="navListItem" onclick="navTo(this, '/Citrus/UserManagement', false)">
+                    <img src="../static/icons/user.png" alt="" class="navItemIcon">
+                    <h2 class="navItemText">{{ request.user.prenom_coach }}</h2>
+                </li>
                 <li class="navListItem" onclick="disconnect('/Citrus/Deconnexion/')">
                     <img src="../static/icons/quit.png" alt="" class="navItemIcon">
                     <h2 class="navItemText">Déconnexion</h2>

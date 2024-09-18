@@ -22,7 +22,11 @@
                 <div>
                     <img src="../static/icons/CitrusLogoText.png" alt="Logo CITRUS"  class="logo">
                 </div>
+                {% for error in errors %}
+                    <label class="errorMsg">{{ error }}</label>
+                {% endfor %}
                 <section class="section signupFields">
+                    
                     <h2 style="margin-bottom: -0.5rem;">S'inscrire</h2>
                 
                     <input type="text" id="coachPrenom" name="coachPrenom" placeholder="Votre prénom">

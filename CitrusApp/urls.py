@@ -17,7 +17,9 @@ urlpatterns = [
     path('AjoutInterprete<int:equipeId>-<int:alignementID>/',views.ajoutInterprete, name='ajoutInterprete'),
     path('ModificationInterprete<int:interpreteID>-<int:equipeID>/',views.modifInterprete, name='modifInterprete'),
     path('Deconnexion/',views.log_out,name='Déconnexion'),
-    path('Inscription/',views.coachSignUp,name='Inscription')
+    path('Inscription/',views.coachSignUp,name='Inscription'),
+    path('UserManagement/',views.users,name='userManagement'),
+    path('MonUser-<int:userID>/',views.userPage,name='UserPage')
 ]
 
 if settings.DEBUG:

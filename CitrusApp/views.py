@@ -38,9 +38,33 @@ def accueil(request):
                                             })
 
 
+@login_required
+def users(request):
+    current_user = request.user
+    if request.method == 'POST':
+        pass
+
+    if current_user.is_superuser == True:
+
+        return render(request, "userManagement.html",{
+            'allUsers' : Coach.objects.all()
+        })
+
+    else:
+        return redirect("UserPage",current_user.coach_id)
 """
 
 """
+
+@login_required
+def userPage(request,userID):
+    current_user = request.user
+    if request.method == 'POST':
+        pass
+
+    return render(request,"userPage.html",{
+        'user' : Coach.objects.get(coach_id=userID)
+    })
 
 def resetPassword(request,id):
     pass
@@ -80,6 +104,7 @@ def loginUser(request):
 
 
 def coachSignUp(request):
+    errors = []
     if request.method == 'POST':
         coachPrenom = request.POST.get('coachPrenom')
         coachNom = request.POST['coachNom']
@@ -91,15 +116,20 @@ def coachSignUp(request):
 
         # Check if passwords match
         if coachPassword != coachPassword2:
+            errors.append('Les mots de passe sont différents.')
             return render(request, "coachSignUp.html", {
-                'error': "Les mots de passe ne correspondent pas",
+                'errors': errors,
                 'allEquipes': Equipe.objects.all()
             })
 
-        # Retrieve the team from the database
-        print(coachCourriel)
-        coachTeam = Equipe.objects.get(id_equipe=coachTeamId)
+        if Coach.objects.filter(courriel=coachCourriel).exists():
+            errors.append('Un utilisateur avec ce courriel existe déja !')
+            return render(request, "coachSignUp.html", {
+                'errors': errors
+            })
 
+        # Retrieve the team from the database
+        coachTeam = Equipe.objects.get(id_equipe=coachTeamId)
 
         # Create the coach using CoachManager
         coach = Coach.objects.create_user(
@@ -110,12 +140,14 @@ def coachSignUp(request):
             password=coachPassword,
             equipe=coachTeam
         )
+
         # Optionally redirect to a login or success page after successful signup
         return redirect('connexion')  # Assuming you have a login view
 
     # Render the signup form with all available teams
     return render(request, "coachSignUp.html", {
-        'allEquipes': Equipe.objects.all()
+        'allEquipes': Equipe.objects.all(),
+        'errors': errors
     })
 
 
