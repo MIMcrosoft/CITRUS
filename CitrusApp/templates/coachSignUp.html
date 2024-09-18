@@ -22,28 +22,37 @@
                 <div>
                     <img src="../static/icons/CitrusLogoText.png" alt="Logo CITRUS"  class="logo">
                 </div>
+
                 {% for error in errors %}
-                    <label class="errorMsg">{{ error }}</label>
+                    <label class="errorMsg"> {{ error }}</label>
                 {% endfor %}
+
                 <section class="section signupFields">
-                    
-                    <h2 style="margin-bottom: -0.5rem;">S'inscrire</h2>
+                    <h2 style="margin-bottom: 0rem;">S'inscrire</h2>
                 
                     <input type="text" id="coachPrenom" name="coachPrenom" placeholder="Votre prénom">
             
                     <input type="text" id="coachNom" name="coachNom" placeholder="Votre nom">
             
                     <input type="text" id="coachPronom" name="coachPronoms" placeholder="Vos pronoms">
-            
+                    
+                    <button class="btnPrimary" onclick="sectionReveal('signUpEmailAndPassword')"><span>Continuer</span></button>
+                </section>
+
+                <section class="section signUpEmailAndPassword hidden">
                     <input type="text" id="coachCourriel" name="coachCourriel" placeholder="Courriel">
-                
+                                            
                     <input type="password" id="coachPassword" name="coachPassword" placeholder="Mot de passe">
                 
                     <input type="password" id="coachPassword2" name="coachPassword2" placeholder="Confirmer le mot de passe">
-                
-                    <div class="select select-search" style="width:400px;">
+
+                    <button class="btnPrimary" onclick="sectionReveal('signupTeam')"><span>Continuer</span></button>
+                </section>
+
+                <section class="section signupTeam hidden">
+                    <div class="select select-search">
                         <select name="teamCoach" id="teamCoach">
-                            <option value="">Choississez votre équipe</option>
+                            <option value="">Choisissez votre équipe</option>
                             {% for equipe in allEquipes %}
                                 <option value="{{ equipe.id_equipe }}">{{ equipe.nom_equipe }}</option>
                             {% endfor %}
@@ -52,17 +61,7 @@
                 
                     <a style="gap: 0; margin-top: -0.5rem;" onclick="sectionReveal('teamAddFields')">Mon équipe n'est pas dans la liste</a>
                     
-                    <button class="btnPrimary" onclick="sectionReveal('emailSent')"><span>S'inscrire</span></button>
-                </section>
-            
-                <section class="section teamAddFields hidden">
-                    <h2 style="margin-bottom: -0.5rem;">S'inscrire</h2>
-
-                    <input type="text" id="signupEmail" placeholder="Courriel">
-
-                    <a style="gap: 0; margin-top: -0.5rem;" onclick="sectionReveal('loginFields')">Se connecter</a>
-
-                    <button class="btnPrimary" onclick="sectionReveal('emailSent')"><span>S'inscrire</span></button>
+                    <button class="btnPrimary" onclick="sectionReveal('emailSent')"><span>Continuer</span></button>
                 </section>
 
             </div>
@@ -88,17 +87,23 @@
             padding: clamp(2rem, 10%, 4rem);
             padding-inline:clamp(0.5rem, 10%, 4rem);
             transition: opacity 0.5s ease 0.25s;
+            max-height: 100%;
+            overflow: scroll;
         }
 
         .loginContainer * {
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
+            gap: 1rem;
             transition: opacity 0.5s ease 0.25s;
         }
 
         .login {
             max-width: 80vw;
+        }
+
+        .btnPrimary {
+            margin: 0;
         }
 
         .btnPrimary * {
@@ -110,7 +115,7 @@
         }
 
         .logo {
-            padding: 1rem;
+            padding: 0.5rem;
         }
 
         .backButton {
@@ -139,13 +144,16 @@
             font-weight: 600;
         }
 
-        body.hidden *{
-            opacity: 0;
+        .section {
+            gap: 0;
         }
 
         section.hidden {
-            opacity: 0;
             display: none;
+        }
+
+        input {
+            margin-bottom: 0.5rem !important;
         }
     </style>
     
@@ -189,6 +197,7 @@
             for (i=0;i<sections.length;i++) {
                 sections[i].classList.add("hidden");
             }
+            console.log("lol")
             document.getElementsByClassName(section)[0].classList.remove("hidden");
         }
     </script>
