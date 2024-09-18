@@ -18,6 +18,11 @@
             <img src="../static/icons/CitrusLogo.png" alt="" class="navLogo">
             <h2 class="navLogoText">CITRUS</h2>
         </div>
+        <div class="hamburger" onclick="toggleNav(this)">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
         <div class="navLists">
             <ul class="navList">
                 <li class="navListItem active" onclick="navTo(this, '/Citrus/', false)">
@@ -62,6 +67,7 @@
         
     </main>
     <div id="pageCover"></div>
+    <script src="../static/javascript/nav.js"></script>
     <script src="{% static 'javascript/nav.js' %}"></script>
 
 <script>
