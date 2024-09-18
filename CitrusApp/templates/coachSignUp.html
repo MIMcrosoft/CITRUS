@@ -91,6 +91,10 @@
             overflow: scroll;
         }
 
+        .loginContainer::-webkit-scrollbar {
+            display: none;
+        }
+
         .loginContainer * {
             display: flex;
             flex-direction: column;
@@ -156,8 +160,6 @@
             margin-bottom: 0.5rem !important;
         }
     </style>
-    
-    <script src="{% static 'javascript/nav.js' %}"></script>
     
     <script>
         setTimeout(function() {
