@@ -171,7 +171,7 @@ button, .btn {
     color: var(--mainPamps);
     padding: 0.4rem;
     margin: 0.15rem;
-    margin-bottom: 1.2rem;
+    /*margin-bottom: 1.2rem;*/
     padding-inline: 2.5rem;
 }
 
@@ -261,7 +261,7 @@ label.onTop + input {
 
 
 /* Text fields */
-input[type="text"] {
+input[type="text"], input[type="password"] {
     height: 2rem;
     border-radius: 2rem;
     padding-inline: 1rem;
