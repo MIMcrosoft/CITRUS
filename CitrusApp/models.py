@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager, PermissionsMixin
 from googlemaps import geocoding, Client
 from .NOTPUBLIC import API_KEY, GMAIL_KEY
+from datetime import datetime, timedelta
 
 DIVISION_CHOICES = [
     ("Pamplemousse", "Pamplemousse"),
@@ -86,7 +87,7 @@ class Calendrier(models.Model):
     saison_officiel = models.ForeignKey(Saison, on_delete=models.CASCADE, null=True)
 
     @classmethod
-    def createCalendrier(cls, annee, version, nbSemaineAut, nbSemaineHiv):
+    def createCalendrier(cls, annee,dateDepartAut,dateDepartHiv, version, nbSemaineAut, nbSemaineHiv):
         calendrier = cls(
             nom_calendrier=annee + "_V" + version
         )
@@ -95,10 +96,28 @@ class Calendrier(models.Model):
         sessionAut = Session.createSession("AUT", "Automne", nbSemaineAut, calendrier.calendrier_id)
         sessionHiv = Session.createSession("HIV", "Hiver", nbSemaineHiv, calendrier.calendrier_id)
 
+
+
+        def next_wednesday(current_date):
+            # Calculate how many days to add to reach the next Wednesday
+            days_ahead = 2 - current_date.weekday()  # Wednesday is 2 (Monday is 0)
+            if days_ahead <= 0:  # Target day already passed this week
+                days_ahead += 7
+            return current_date + timedelta(days=days_ahead)
+
+        # Example usage
+        dateAut = datetime.strptime(dateDepartAut, '%Y-%m-%d').date()
+        dateHiv = datetime.strptime(dateDepartHiv, '%Y-%m-%d').date()
+
+        # Loop for the autumn session
         for i in range(nbSemaineAut):
-            semaine = Semaine.createSemaine(session_id=sessionAut.session_id)
+            semaine = Semaine.createSemaine(session_id=sessionAut.session_id, date=dateAut)
+            dateAut = next_wednesday(dateAut)
+
+        # Loop for the winter session
         for i in range(nbSemaineHiv):
-            semaine = Semaine.createSemaine(session_id=sessionHiv.session_id)
+            semaine = Semaine.createSemaine(session_id=sessionHiv.session_id, date=dateHiv)
+            dateHiv = next_wednesday(dateHiv)
         return calendrier
 
     def __str__(self):
@@ -108,13 +127,15 @@ class Calendrier(models.Model):
 class Semaine(models.Model):
     semaine_id = models.AutoField(primary_key=True)
     nb_match = models.IntegerField()
+    date = models.DateField(blank=True, null=True)
 
     session = models.ForeignKey(Session, related_name="semaines", on_delete=models.CASCADE, null=True)
 
     @classmethod
-    def createSemaine(cls, nb_match=0, session_id=None):
+    def createSemaine(cls, nb_match=0, date=None, session_id=None):
         semaine = cls(
             nb_match=nb_match,
+            date=date,
             session_id=session_id
         )
         semaine.save()

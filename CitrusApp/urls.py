@@ -5,21 +5,22 @@ from django.conf.urls.static import static
 
 
 urlpatterns = [
-    path('',views.accueil,name='accueil'),
-    path('Connexion/', views.loginUser, name='connexion'),
-    path('Calendrier/',views.calendrierAdmin,name='calendrier'),
-    path('components/', views.components,name='components'),
-    path('test/',views.test,name='test'),
-    path('Equipe<int:idEquipe>-<int:idSaison>/', views.equipe,name='equipe'),
-    path('Equipes/', views.allEquipes, name='equipes'),
-    path('AjoutEquipe/', views.ajoutEquipe, name='ajoutEquipe'),
-    path('ModificationEquipe<int:idEquipe>/',views.modifEquipe, name='modifEquipe'),
-    path('AjoutInterprete<int:equipeId>-<int:alignementID>/',views.ajoutInterprete, name='ajoutInterprete'),
-    path('ModificationInterprete<int:interpreteID>-<int:equipeID>/',views.modifInterprete, name='modifInterprete'),
+    path('',views.accueil,name='Accueil'),
+    path('Connexion/', views.loginUser, name='Connexion'),
+    path('Calendrier/',views.calendrierAdmin,name='Calendrier'),
+    path('components/', views.components,name='Components'),
+    path('test/',views.test,name='Test'),
+    path('Equipe<int:idEquipe>-<int:idSaison>/', views.equipe,name='Equipe'),
+    path('Equipes/', views.allEquipes, name='Equipes'),
+    path('AjoutEquipe/', views.ajoutEquipe, name='AjoutEquipe'),
+    path('ModificationEquipe<int:idEquipe>/',views.modifEquipe, name='ModifEquipe'),
+    path('AjoutInterprete<int:equipeId>-<int:alignementID>/',views.ajoutInterprete, name='AjoutInterprete'),
+    path('ModificationInterprete<int:interpreteID>-<int:equipeID>/',views.modifInterprete, name='ModifInterprete'),
     path('Deconnexion/',views.log_out,name='Déconnexion'),
     path('Inscription/',views.coachSignUp,name='Inscription'),
-    path('UserManagement/',views.users,name='userManagement'),
-    path('MonUser-<int:userID>/',views.userPage,name='UserPage')
+    path('UserManagement/',views.users,name='UserManagement'),
+    path('MonUser-<int:userID>/',views.userPage,name='UserPage'),
+    path('ResetPassword-<str:hashedCoachID>/',views.resetPassword,name='ResetPassword')
 ]
 
 if settings.DEBUG:

@@ -6,6 +6,10 @@ from email.mime.text import MIMEText
 from math import sqrt
 import os
 import django
+from premailer import transform
+import hashlib
+import win32com.client as win32
+from datetime import datetime
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'CITRUS.settings')
 django.setup()
@@ -19,6 +23,7 @@ from enum import Enum, auto
 class EmailType(Enum):
     INVITATION = auto()
     RESETPASSWORD = auto()
+    VALIDATION = auto()
 
 
 """
@@ -26,14 +31,20 @@ class EmailType(Enum):
 """
 
 
-def sendCoachEmail(coachEmail, emailType: EmailType):
+def hash_code(code: str) -> str:
+    # Create a SHA-256 hash object
+    hash_object = hashlib.sha256()
+
+    # Encode the string and update the hash object
+    hash_object.update(code.encode('utf-8'))
+
+    # Get the hexadecimal representation of the hash
+    hash_hex = hash_object.hexdigest()
+
+    return hash_hex
+
+def sendCoachEmail(coachEmail, emailType: EmailType,coachCodeHash=""):
     # Création d'un compte temporaire
-
-    coach = creationCompteCoach("UserTest", "UserTest", coachEmail, "IMPROMOMO8866887")
-
-    # Création du lien vers le changement des infos
-    urlSignIn = f"localhost:8000/Citrus/CoachSignIn/{coach.id}"
-
     smtp_server = 'smtp.gmail.com'
     smtp_port = 587
     sender_email = 'felixrobillardwork@gmail.com'
@@ -41,6 +52,9 @@ def sendCoachEmail(coachEmail, emailType: EmailType):
     password = GMAIL_KEY
 
     if emailType == EmailType.INVITATION:
+        # Création du lien vers le changement des infos
+        coach = creationCompteCoach("UserTest", "UserTest", coachEmail, "IMPROMOMO8866887")
+        urlSignIn = f"localhost:8000/Citrus/CoachSignIn/{coach.id}"
 
         with open("coachEmailInvite.html", 'r', encoding="utf-8") as file:
             html_body = file.read()
@@ -51,14 +65,30 @@ def sendCoachEmail(coachEmail, emailType: EmailType):
         subject = 'Invitation à la plateforme CITRUS'
 
     elif emailType == EmailType.RESETPASSWORD:
-
-        with open("resetPasswordCoach.html", 'r', encoding="utf-8") as file:
+        with open(r"C:\Users\felix\Documents\work\Impro\CITRUS\CitrusApp\templates\templatesCourriel\resetPasswordEmail.html", 'r', encoding="utf-8") as file:
             html_body = file.read()
+            urlResetPassword = f"http://localhost:8000/Citrus/ResetPassword-"+coachCodeHash
+            html_bodyParam = html_body.replace("{urlResetPassword}", urlResetPassword)
+            html_bodyParam_with_style = transform(html_bodyParam)
 
-        html_bodyParam = html_body.replace("{urlSignIn}", urlSignIn)
+
+
 
         # Contenu du Email
         subject = 'Réinitialisation de ton mot de passe Citrus'
+
+
+
+    elif emailType == EmailType.VALIDATION:
+        with open("templates/templatesCourriel/validationEmail.html", 'r', encoding="utf-8") as file:
+            html_body = file.read()
+            html_body_with_inline_styles = transform(html_body)
+
+        urlSignIn = f"localhost:8000/Citrus/CoachSignIn"
+        html_bodyParam = html_body.replace("{urlValidation}", urlSignIn)
+
+        # Contenu du Email
+        subject = "Votre compte Citrus a été accepté par l'organisation"
 
     # Création du message du email
     msg = MIMEMultipart('alternative')
@@ -67,7 +97,7 @@ def sendCoachEmail(coachEmail, emailType: EmailType):
     msg['Subject'] = subject
 
     # Attacher le body du message à l'email
-    msg.attach(MIMEText(html_bodyParam, 'html'))
+    msg.attach(MIMEText(html_bodyParam_with_style, 'html'))
 
     # Connexion au serveur SMTP et l'envoi du email.
 
@@ -138,6 +168,8 @@ def fillCalendrier():
         # print(distances)
         return distances
 
+
+
     """
     matchupColleges
     Description : Crée les matchups des colleges pour ensuite les remplir avec des équipes.
@@ -146,6 +178,21 @@ def fillCalendrier():
     """
 
     def creationMatchs(division):
+
+        def doesMatchNotExist(equipe1, equipe2):
+            if (equipe1, equipe2) in matchs or (equipe2, equipe1) in matchs:
+                return False
+            else:
+                return True
+
+        def isTeamNotVisitingCollege(equipeVis, collegeRec, division):
+            for match in Match.objects.filter(division=division).all():
+                if match.equipe2 == equipeVis and match.equipe1.college == collegeRec:
+                    return False
+
+            return True
+
+
         matchs = []
         nb_equipes = len(Equipe.objects.filter(division=division).all())
         for equipe in Equipe.objects.all():
@@ -169,8 +216,10 @@ def fillCalendrier():
                         print(equipe, equipeAdv)
                         print(equipe, "H" + str(equipe.nb_matchHost), "V" + str(equipe.nb_matchVis))
                         print(equipeAdv, "H" + str(equipeAdv.nb_matchHost), "V" + str(equipeAdv.nb_matchVis))
-                        if (equipe, equipeAdv) not in matchs and (equipeAdv, equipe) not in matchs:
-                            if index % 2 == 0 and equipe.nb_matchHost < 4 and equipeAdv.nb_matchVis < 4 and equipeAdv.nb_matchVis + equipeAdv.nb_matchHost < 8:
+                        if doesMatchNotExist(equipe,equipeAdv):
+                            print(matchs)
+                            print((equipe, equipeAdv))
+                            if index % 2 == 0 and equipe.nb_matchHost < 4 and equipeAdv.nb_matchVis < 4 and equipeAdv.nb_matchVis + equipeAdv.nb_matchHost < 8 and isTeamNotVisitingCollege(equipeAdv,equipe.college,equipe.division):
                                 match = Match.createMatch(
                                     session=None,
                                     serie=None,
@@ -184,7 +233,7 @@ def fillCalendrier():
                                 matchs.append((equipeAdv, equipe))
 
                             # Les matchs visiteurs
-                            elif index % 2 != 0 and equipe.nb_matchVis < 4 and equipeAdv.nb_matchHost < 4 and equipeAdv.nb_matchVis + equipeAdv.nb_matchHost < 8:
+                            elif index % 2 != 0 and equipe.nb_matchVis < 4 and equipeAdv.nb_matchHost < 4 and equipeAdv.nb_matchVis + equipeAdv.nb_matchHost < 8 and isTeamNotVisitingCollege(equipe,equipeAdv.college,equipe.division):
                                 match = Match.createMatch(
                                     session=None,
                                     serie=None,
@@ -213,7 +262,7 @@ def fillCalendrier():
             print("NbMatchCorriger : ", nbMatchACorriger)
             for i in range(int(nbMatchACorriger)):
                 print("CORRECTION")
-
+                breaked = False
                 for equipe in Equipe.objects.filter(division=division).all():
 
                     # On trouve l'équipe qui lui manque des matchs
@@ -227,7 +276,10 @@ def fillCalendrier():
                         if equipe.nb_matchHost < 4 and equipe.nb_matchVis < 4:
                             for match in Match.objects.filter(division=division).all():
                                 # On check pour un match qui possède des équipes qui n'ont pas de match avec l'équipe choisie
-                                if (equipe, match.equipe1) not in matchs and (equipe, match.equipe2) not in matchs:
+                                if (doesMatchNotExist(equipe, match.equipe1) and doesMatchNotExist(match.equipe2,equipe)
+                                        and isTeamNotVisitingCollege(equipe,match.equipe1.college,division)
+                                        and isTeamNotVisitingCollege(match.equipe2,equipe.college,division)
+                                ):
                                     # On supprime le match et on en créée deux autres
                                     print("NEWMATCH #1 : ", match.equipe1, " VS ", equipe)
                                     match1 = Match.createMatch(
@@ -249,7 +301,18 @@ def fillCalendrier():
                                     )
                                     print("MatchDeleted : ", match.equipe1, " VS ", match.equipe2)
                                     matchDeleted = Match.deleteMatch(match.match_id)
+                                    matchs.append((match.equipe1, equipe))
+                                    matchs.append((equipe, match.equipe1))
+
+                                    matchs.append((match.equipe2, equipe))
+                                    matchs.append((equipe, match.equipe2))
+
+                                    matchs.remove((match.equipe1, match.equipe2))
+                                    matchs.remove((match.equipe2, match.equipe1))
+                                    breaked = True
                                     break
+
+                            break
 
 
                         # CAS #2 : Une équipe manque juste un match Visiteur
@@ -261,10 +324,12 @@ def fillCalendrier():
                             for equipeHost in Equipe.objects.filter(division=division).all():
                                 if equipeHost.nb_matchHost < 4 and equipeHost is not equipe:
                                     for match in Match.objects.filter(division=division).all():
-                                        if (equipe, match.equipe1) not in matchs \
-                                                and (equipe, match.equipe2) not in matchs \
-                                                and (equipeHost, match.equipe1) not in matchs \
-                                                and (equipeHost, match.equipe2) not in matchs:
+                                        if (doesMatchNotExist(equipe, match.equipe1)
+                                                and doesMatchNotExist(equipe, match.equipe2)
+                                                and doesMatchNotExist(equipeHost, match.equipe1)
+                                                and doesMatchNotExist(match.equipe2, equipeHost)
+                                                and isTeamNotVisitingCollege(match.equipe2,equipeHost.college, division)
+                                        ):
                                             # On delete le match et on en créée deux autres
                                             print("NEWMATCH #1 : ", equipeHost, " VS ", match.equipe2)
                                             match1 = Match.createMatch(
@@ -286,7 +351,20 @@ def fillCalendrier():
                                             )
                                             print("MatchDeleted : ", match.equipe1, " VS ", match.equipe2)
                                             matchDeleted = Match.deleteMatch(match.match_id)
+                                            matchs.append((equipeHost, match.equipe2))
+                                            matchs.append((match.equipe2, equipeHost))
+
+                                            matchs.append((match.equipe1, equipe))
+                                            matchs.append((equipe, match.equipe1))
+
+                                            matchs.remove((match.equipe1,match.equipe2))
+                                            matchs.remove((match.equipe2, match.equipe1))
+                                            breaked = True
                                             break
+                                break
+                            if breaked:
+                                break
+
 
 
 
@@ -299,10 +377,13 @@ def fillCalendrier():
                             for equipeVis in Equipe.objects.filter(division=division).all():
                                 if equipeVis.nb_matchVis < 4 and equipeVis is not equipe:
                                     for match in Match.objects.filter(division=division).all():
-                                        if (equipe, match.equipe1) not in matchs \
-                                                and (equipe, match.equipe2) not in matchs \
-                                                and (equipeVis, match.equipe1) not in matchs \
-                                                and (equipeVis, match.equipe2) not in matchs:
+                                        if (doesMatchNotExist(equipe, match.equipe1)
+                                                and doesMatchNotExist(equipe, match.equipe2)
+                                                and doesMatchNotExist(equipeVis, match.equipe1)
+                                                and doesMatchNotExist(match.equipe2, equipeVis)
+                                                and isTeamNotVisitingCollege(equipeVis,match.equipe1.college,division)
+                                                and isTeamNotVisitingCollege(match.equipe2,equipe.college,division)
+                                        ):
                                             print("NEWMATCH #1 : ", match.equipe1, " VS ", equipeVis)
                                             # On delete le match et on en créée deux autres
                                             match1 = Match.createMatch(
@@ -324,7 +405,19 @@ def fillCalendrier():
                                             )
                                             print("MatchDeleted : ", match.equipe1, " VS ", match.equipe2)
                                             matchDeleted = Match.deleteMatch(match.match_id)
+                                            matchs.append((equipeVis, match.equipe1))
+                                            matchs.append((match.equipe1, equipeVis))
+
+                                            matchs.append((match.equipe2, equipe))
+                                            matchs.append((equipe, match.equipe2))
+
+                                            matchs.remove((match.equipe1,match.equipe2))
+                                            matchs.remove((match.equipe2, match.equipe1))
+                                            breaked = True
                                             break
+                                    break
+                            if breaked:
+                                break
 
                 continue
 
@@ -333,6 +426,7 @@ def fillCalendrier():
 
         for equipe in Equipe.objects.filter(division=division).all():
             print(equipe.nom_equipe, equipe.nb_matchHost, equipe.nb_matchVis)
+
 
     """
     creationCalendrier
@@ -349,6 +443,8 @@ def fillCalendrier():
             version="1",
             nbSemaineAut=10,
             nbSemaineHiv=10,
+            dateDepartAut="2024-10-02",
+            dateDepartHiv="2025-01-22"
         )
         """
             BYPASS_1 : Bypass pour check si le collège ne reçoit pas de matchs cette semaine
@@ -357,10 +453,13 @@ def fillCalendrier():
             BYPASS_4 : Bypass pour check que l'équipe Receveuse n'a pas plus que 2 matchs receveurs et meme chose Vis
             BYPASS_5 : Bypass pour check que les équipes n'ont pas des matchs dans les 2 dernières semaines
             BYPASS_6 : Bypass pour check que les équipes n'ont pas deux matchs de suites
+            BYPASS_7 : Bypass pour
+            BYPASS_8 : Bypass
+            BYPASS_9 : Bypass
 
         """
-
-        def ajoutMatchs(matchs, BYPASS_1, BYPASS_2, BYPASS_3, BYPASS_4, BYPASS_5, BYPASS_6):
+        lastSemaineDate = "2025-03-26"
+        def ajoutMatchs(matchs, BYPASS_1, BYPASS_2, BYPASS_3, BYPASS_4, BYPASS_5, BYPASS_6,BYPASS_7,BYPASS_8,BYPASS_9):
             for session in Session.objects.filter(calendrier_id=calendrier.calendrier_id):
                 print("NBSEMAINES", session.nb_semaine)
                 for semaine in Semaine.objects.filter(session=session).all():
@@ -390,7 +489,12 @@ def fillCalendrier():
                                     and isNotMaxTypeMatch(session, equipeRec, "R", BYPASS_4) \
                                     and isNotMaxTypeMatch(session, equipeRec, "V", BYPASS_4) \
                                     and isNotThreeMatchStreak(semaine, equipeRec, equipeVis, BYPASS_5) \
-                                    and isNotTwoMatchStreak(semaine, equipeRec, equipeVis, BYPASS_6):
+                                    and isNotTwoMatchStreak(semaine, equipeRec, equipeVis, BYPASS_6)\
+                                    and cegepIsAvailable(collegeRec, semaine,BYPASS_7)\
+                                    and equipeIsAvailable(equipeRec,semaine,BYPASS_8)\
+                                    and equipeIsAvailable(equipeVis,semaine,BYPASS_8)\
+                                    and isNotTangException(equipeVis,semaine,lastSemaineDate,BYPASS_9) \
+                                    and isNotTangException(equipeRec, semaine, lastSemaineDate, BYPASS_9):
                                 # Si toutes les conditions sont respectés, on ajoute le match à la semaine
                                 print('ADDMATCH')
                                 match.semaine = semaine
@@ -404,16 +508,23 @@ def fillCalendrier():
                     False,
                     False,
                     False,
-                    False)
+                    False,
+                    False,
+                    False,
+                    False
+                    )
 
         # CORRECTION
         ajoutMatchs(Match.objects.filter(semaine=None).all(),
                     False,
                     False,
                     True,
+                    False,
                     True,
                     True,
-                    True)
+                    False,
+                    False,
+                    False)
 
         # Correction
         print("CORRECTION FINALE")
@@ -431,10 +542,21 @@ def fillCalendrier():
                         # Ensuite, on cherche un match déja placé qui pourrait switch
                         for matchToSwitch in Match.objects.filter().all():
                             if matchToSwitch.semaine is not None:
-                                if matchToSwitch.equipe1.division != match.equipe2.division \
-                                        and areEquipeLibre(semaine, matchToSwitch.equipe1, matchToSwitch.equipe2, False) \
-                                        and areEquipeLibre(matchToSwitch.semaine, match.equipe1, match.equipe2, False) \
-                                        and matchToSwitch.equipe1.college == collegeRec:
+                                if (matchToSwitch.equipe1.division != match.equipe2.division
+                                        and areEquipeLibre(semaine, matchToSwitch.equipe1, matchToSwitch.equipe2, False)
+                                        and areEquipeLibre(matchToSwitch.semaine, match.equipe1, match.equipe2, False)
+                                        and matchToSwitch.equipe1.college == collegeRec
+                                        and cegepIsAvailable(collegeRec, semaine, False)
+                                        and equipeIsAvailable(equipeRec, semaine, False)
+                                        and equipeIsAvailable(equipeVis, semaine, False)
+                                        and cegepIsAvailable(match.equipe1.college, matchToSwitch.semaine,False)
+                                        and equipeIsAvailable(match.equipe1,matchToSwitch.semaine,False)
+                                        and equipeIsAvailable(match.equipe2,matchToSwitch.semaine,False)
+                                        and isNotTangException(equipeVis,semaine,lastSemaineDate,False)
+                                        and isNotTangException(equipeRec, semaine, lastSemaineDate, False)
+
+                                ):
+                                    print("SWITCHED WITH " + str(matchToSwitch))
                                     semaineToSwitch = matchToSwitch.semaine
                                     sessionToSwitch = matchToSwitch.session
                                     match.semaine = semaineToSwitch
@@ -443,6 +565,12 @@ def fillCalendrier():
                                     matchToSwitch.session = session
                                     match.save()
                                     matchToSwitch.save()
+                                    break
+
+                        break
+
+
+
 
         return calendrier
 
@@ -522,6 +650,18 @@ def fillCalendrier():
             return True
         else:
             return False
+
+    """
+    creationCalendrier
+    description : 
+    Arguments :
+    Retour
+
+    """
+
+
+
+
 
     """
     creationCalendrier
@@ -618,9 +758,56 @@ def fillCalendrier():
         else:
             return True
 
-    creationMatchs("Pamplemousse")
-    creationMatchs("Tangerine")
-    creationMatchs("Clementine")
+    def cegepIsAvailable(college : College, semaine : Semaine, BYPASS_7):
+        if BYPASS_7 == True:
+            return True
+        if college.indisponibilites != None:
+            indispos = college.indisponibilites.get("dates",[])
+            print(indispos)
+            semaineDate = semaine.date.strftime("%Y-%m-%d")
+            if semaineDate in indispos:
+                return False
+            else:
+                return True
+        else :
+            return True
+
+    """
+    creationCalendrier
+    description :
+    Arguments :
+    Retour
+
+    """
+
+    def equipeIsAvailable(equipe : Equipe, semaine: Semaine,BYPASS_8):
+        if BYPASS_8 == True:
+            return True
+
+        if equipe.indisponibilites != None:
+            indispos = equipe.indisponibilites.get("dates",[])
+            print(indispos)
+            semaineDate = semaine.date.strftime("%Y-%m-%d")
+            if semaineDate in indispos:
+                return False
+            else:
+                return True
+        else:
+            return True
+
+    def isNotTangException(equipe,semaine, lastSemaineDate, BYPASS_9):
+
+        if BYPASS_9 == True:
+            return False
+        semaineDate = semaine.date.strftime("%Y-%m-%d")
+        if equipe.division == "Tangerine" and semaineDate == lastSemaineDate:
+            return False
+        else:
+            return True
+
+    #creationMatchs("Pamplemousse")
+    #creationMatchs("Tangerine")
+    #creationMatchs("Clementine")
 
     input(f"Matchs crées : {len(Match.objects.all())}. Continue ?")
 
@@ -636,6 +823,82 @@ def fillCalendrier():
         print("MATCH NONE", match)
     print("NB match non placés : ", len(Match.objects.filter(semaine=None)))
 
+def exportCalendrier(calendrier):
+    # Create a new instance of Excel
+    app = win32.gencache.EnsureDispatch("Excel.Application")
+
+    # Create a new workbook
+    workbook = app.Workbooks.Add()
+
+    # Specify the file path where you want to save the Excel file
+    file_path = r'C:\Users\felix\Downloads\calendrier2024'
+
+    # Save the workbook at the specified file path
+    workbook.SaveAs(file_path)
+    app.Visible = True
+    workbook = app.Workbooks.Open(file_path)
+    reportSheet = workbook.Worksheets(1)
+
+    reportSheet.Columns.Interior.Color = (255)+(52)*256+(95)*256*256
+
+    col = 2
+    for session in Session.objects.filter(calendrier=calendrier).all():
+        row = 2
+        for semaine in Semaine.objects.filter(session=session).all():
+            reportSheet.Cells(row, col).Value = str(semaine.date)
+            row += 1
+            reportSheet.Cells(row, col).Value = "Visiteur"
+            reportSheet.Cells(row, col+1).Value = "Vs"
+            reportSheet.Cells(row, col+2).Value = "Receveur"
+            reportSheet.Cells(row, col+3).Value = "Lieu"
+            row += 1
+            for match in Match.objects.filter(semaine=semaine).all():
+                colorCode = ""
+                if match.equipe1.division == "Pamplemousse":
+                    colorCode = "#d40000"
+                elif match.equipe1.division == "Tangerine":
+                    colorCode = "#fd0f02"
+                elif match.equipe1.division == "Clementine":
+                    colorCode = "#fe9400"
+
+                red = int(colorCode[1:3], 16)
+                green = int(colorCode[3:5], 16)
+                blue = int(colorCode[5:7], 16)
+                color_index = red + (green * 256) + (blue * 256 * 256)
+
+                reportSheet.Cells(row, col).Value = match.equipe2.nom_equipe
+                reportSheet.Cells(row, col).Interior.Color = color_index
+
+                reportSheet.Cells(row, col+1).Value = "Vs"
+                reportSheet.Cells(row, col+1).Interior.Color = color_index
+
+                reportSheet.Cells(row, col+2).Value = match.equipe1.nom_equipe
+                reportSheet.Cells(row, col+2).Interior.Color = color_index
+
+                reportSheet.Cells(row, col+3).Value = match.equipe1.college.nom_college
+                reportSheet.Cells(row, col+3).Interior.Color = color_index
+                row += 1
+
+            row += 1
+        col += 5
+
+
+
+
+    # Close the workbook
+    workbook.Close()
+
+    # Quit Excel application
+    app.Quit()
+
+
+
+
 
 if __name__ == "__main__":
+
     fillCalendrier()
+    calendrier = Calendrier.objects.all().first()
+    exportCalendrier(calendrier)
+    #sendCoachEmail("felixrobillard@gmail.com",EmailType.RESETPASSWORD)
+
