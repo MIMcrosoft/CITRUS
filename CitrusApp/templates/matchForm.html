@@ -135,7 +135,7 @@
     <section id="Match" class="hidden">
         <div class="impro">
             <p>1.</p>
-            <input type="text" id="impro1">
+            <input type="text" id="impro1" onchange="saveToDB(this)">
             <div class="select">
                 <select name="" id="">
                     <option value="">Point</option>
@@ -624,8 +624,8 @@
 
     <script>
         function saveToDB(el) {
-            let inputValue = event.target.value;
-            let inputID = event.target.id;
+            let inputValue = el.value;
+            let inputID = el.id;
             let userID = saveID;
             //To add link to DB
         }
