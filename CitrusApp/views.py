@@ -12,11 +12,12 @@ from django.views.decorators.http import require_POST
 from .functions import *
 
 
+
 def components(request):
     return render(request, 'components.html')
 
 def test(request):
-    return render(request, 'resetPasswordEmail.html')
+    return render(request, 'templatesCourriel/resetPasswordEmail.html')
 
 """
 
@@ -66,8 +67,39 @@ def userPage(request,userID):
         'user' : Coach.objects.get(coach_id=userID)
     })
 
-def resetPassword(request,id):
-    pass
+def resetPassword(request,hashedCoachID):
+    errors = []
+    coachIDToReset = -1
+    coachToReset = None
+    print(hashedCoachID)
+    for coach in Coach.objects.all():
+        code = str(coach.prenom_coach)+str(coach.nom_coach)+str(coach.coach_id)
+
+        if hashedCoachID == hash_code(code):
+            coachIDToReset = coach.coach_id
+            pass
+    if coachIDToReset != -1:
+        coachToReset = Coach.objects.get(coach_id=coachIDToReset)
+
+    if request.method == "POST" and coachToReset is not None:
+        newPassword = request.POST['newPassword']
+        newPassword2 = request.POST['newPassword2']
+
+        if newPassword != newPassword2:
+            errors.append('Les mots de passe sont différents.')
+            return render(request, "resetPassword.html", {
+                'errors': errors,
+                'allEquipes': Equipe.objects.all()
+            })
+
+        else:
+            coachToReset.password = newPassword
+            coachToReset.save()
+            return redirect("Connexion")
+
+    return render(request, "resetPassword.html",{
+        'errors' : errors,
+    })
 
 def loginUser(request):
     if request.method == 'POST':
@@ -88,7 +120,15 @@ def loginUser(request):
 
         elif buttonClicked == 'resetPassword':
             email = request.POST['emailToReset']
-            sendCoachEmail(email,EmailType.RESETPASSWORD)
+            coachToReset = Coach.objects.filter(courriel=email).first()
+            print(coachToReset)
+            if coachToReset:
+                code = str(coachToReset.prenom_coach) + str(coachToReset.nom_coach) + str(coachToReset.coach_id)
+                coachCodeHash = hash_code(code)
+                sendCoachEmail(email,EmailType.RESETPASSWORD,coachCodeHash)
+                print("COURRIEL ENVOYÉ")
+
+            return redirect('Connexion')
 
         elif buttonClicked == "inscription":
             pass
