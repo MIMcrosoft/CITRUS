@@ -11,6 +11,7 @@
     <table>
         <tr class="tableHeaderRow">
             <th>Nom du coach</th>
+            <th>Courriel</th>
             <th>Équipe</th>
             <th>College</th>
             <th>Validation</th>
@@ -20,6 +21,7 @@
             {% if coach.is_superuser != True and coach.equipe.division == "Pamplemousse" %}
                 <tr class="clems">
                     <td>{{ coach.prenom_coach }} {{ coach.nom_coach }}</td>
+                    <td>{{ coach.courriel }}</td>
                     <td>{{ coach.equipe }}</td>
                     <td>{{ coach.equipe.college }}</td>
                     <td>
@@ -44,7 +46,8 @@
     <h1>Coachs Tangerines</h1>
     <table>
         <tr class="tableHeaderRow">
-            <th>Nom du coach</th>
+            <th>Nom du coach</th>            
+            <th>Courriel</th>
             <th>Équipe</th>
             <th>College</th>
             <th>Validation</th>
@@ -54,6 +57,7 @@
             {% if coach.is_superuser != True and coach.equipe.division == "Tangerine" %}
                 <tr class="clems">
                     <td>{{ coach.prenom_coach }} {{ coach.nom_coach }}</td>
+                    <td>{{ coach.courriel }}</td>
                     <td>{{ coach.equipe }}</td>
                     <td>{{ coach.equipe.college }}</td>
                     <td>
@@ -79,6 +83,7 @@
     <table>
         <tr class="tableHeaderRow">
             <th>Nom du coach</th>
+            <th>Courriel</th>
             <th>Équipe</th>
             <th>College</th>
             <th>Validation</th>
@@ -88,6 +93,7 @@
             {% if coach.is_superuser != True and coach.equipe.division == "Clementine" %}
                 <tr class="clems">
                     <td>{{ coach.prenom_coach }} {{ coach.nom_coach }}</td>
+                    <td>{{ coach.courriel }}</td>
                     <td>{{ coach.equipe }}</td>
                     <td>{{ coach.equipe.college }}</td>
                     <td>
@@ -113,6 +119,7 @@
     <table>
         <tr class="tableHeaderRow">
             <th>Nom du coach</th>
+            <th>Courriel</th>
             <th>Équipe</th>
             <th>College</th>
             <th>Validation</th>
@@ -122,6 +129,7 @@
             {% if coach.is_superuser != True and coach.equipe.division == None %}
                 <tr class="">
                     <td>{{ coach.prenom_coach }} {{ coach.nom_coach }}</td>
+                    <td>{{ coach.courriel }}</td>
                     <td>{{ coach.equipe }}</td>
                     <td>{{ coach.equipe.college }}</td>
                     <td>

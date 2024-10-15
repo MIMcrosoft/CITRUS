@@ -20,7 +20,10 @@ urlpatterns = [
     path('Inscription/',views.coachSignUp,name='Inscription'),
     path('UserManagement/',views.users,name='UserManagement'),
     path('MonUser-<int:userID>/',views.userPage,name='UserPage'),
-    path('ResetPassword-<str:hashedCoachID>/',views.resetPassword,name='ResetPassword')
+    path('ResetPassword-<str:hashedCoachID>/',views.resetPassword,name='ResetPassword'),
+    path('Match-<str:hashedCode>/',views.match,name='Match'),
+    path('MesMatchs/',views.matchs,name='matchs'),
+    path('SaveToDB/',views.saveToDB,name='SaveToDB')
 ]
 
 if settings.DEBUG:

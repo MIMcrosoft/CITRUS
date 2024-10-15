@@ -2,78 +2,227 @@
 
 {% block content %}
     
-    <h1>Mon Équipe</h1>
-    <h2>{{ equipe.nom_equipe }}</h2>
-    <h3>{{ equipe.college }}</h3>
-    
-    <div class="select" style="width:200px;">
-        <select name="saisonAlignement" id="saisonAlignement">
-            {% for saison in allSaisons %}
-                
-                <option value="{{ saison.saison_id }}">{{ saison.nom_saison}}</option>
-            {% endfor %}
 
-        </select>
+    <header>
+        <h1>Mon équipe</h1>
+        <div class="buttonsTeams">
+            <button class="btnPrimary" onclick="navTo(this,'/Citrus/ModificationEquipe{{ equipe.id_equipe }}',false)"><span>Modifier</span></button>
+            <button class="btnPrimary" onclick="navTo(this, '/Citrus/AjoutInterprete{{ equipe.id_equipe }}-{{ alignement.id_alignement }}', false)"><span>Ajouter un interprète</span></button>
+        </div>
+    </header>
+
+    <div class="upperBody">
+
+        <div class="teamDetails">
+            <h1 id="teamName">{{ equipe.nom_equipe }}</h1>
+            <h3 id="collegeName">{{ equipe.college }}</h3>
+
+
+            <label class="division {{ equipe.division }}">{{ equipe.division }}</label>
+
+
+            <div class="select" style="width:200px;">
+                <select name="saisonAlignement" id="saisonAlignement">
+                    {% for saison in allSaisons %}
+
+                        <option value="{{ saison.saison_id }}">{{ saison.nom_saison}}</option>
+                    {% endfor %}
+
+                </select>
+            </div>
+
+        </div>
+
+        <img src="{% if equipe.logo %}{{ equipe.logo.url }}{% endif %}" alt="LOGO">
+
+    </div>
+
+    <div class="lowerBody">
+        
+        <div class="alignementsTeam">
+            <h1>Alignements</h1>
+            <table>
+                <tr class="tableHeaderRow">
+                    <th>#</th>
+                    <th>Prénom et nom</th>
+                    <th>C/A</th>
+                    <th>Pronoms</th>
+                </tr>
+                {% for interprete in alignement.interpretes.all %}
+                    <tr class="pamps">
+                        <td>{{ interprete.numero_interprete }}</td>
+                        <td>{{ interprete.nom_interprete }}</td>
+                        <td>{{ interprete.role_interprete }}</td>
+                        <td>{{ interprete.pronom_interprete }}</td>
+                        <!---<td><button class="btnSecondary btnInline" onclick="navTo(this,'/Citrus/ModificationInterprete{{ interprete.interprete_id }}-{{ equipe.id_equipe }}')"><span>Modifier</span></button></td>
+                        <td><button class="btnSecondary btnInline"><span>Supprimer</span></button></td>--->
+                    </tr>
+                {% endfor %}
+            </table>
+
+            <table>
+                <tr class="tableHeaderRow">
+                    <th></th>
+                    <th>Prénom et nom</th>
+                    <th>Courriel</th>
+                    <th>Pronoms</th>
+                </tr>
+                {% for coach in coachs %}
+                    <tr class="pamps">
+                        <td>Coach</td>
+                        <td>{{ coach.prenom_coach }} {{ coach.nom_coach }}</td>
+                        <td>{{ coach.courriel }}</td>
+                        <td>{{ coach.pronom_coach }}</td>
+                        <!---<td><button class="btnSecondary btnInline" onclick=""><span>Modifier</span></button></td>
+                        <td><button class="btnSecondary btnInline"><span>Supprimer</span></button></td>--->
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <div class="calendrier">
+            <h1 id="titleMatch">Matchs</h1>
+            <div class="matchs">
+                {% for match in allMatchs %}
+                    <div class="match">
+                        <div class="matchDate">{{ match.get_dateFormatted }}</div>
+                        <div class="matchDetails">
+                            <span>{{ match.equipe2.nom_equipe }} Vs {{ match.equipe1.nom_equipe }}</span>
+                            <span id="lieuMatch">{{ match.equipe1.college.nom_college }}</span>
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+            </div>
+        </div>
+
+
     </div>
     
-    <img src="{% if equipe.logo %}{{ equipe.logo.url }}{% endif %}" alt="LOGO">
-    
-    <button class="btnPrimary" onclick="navTo(this,'/Citrus/ModificationEquipe{{ equipe.id_equipe }}',false)"><span>Modifier</span></button>
-    
-    <button class="btnPrimary" onclick="navTo(this, '/Citrus/AjoutInterprete{{ equipe.id_equipe }}-{{ alignement.id_alignement }}', false)"><span>Ajouter un interprète</span></button>
-    <table>
-        <tr class="tableHeaderRow">
-            <th>Pos</th>
-            <th>Num</th>
-            <th>Nom de l'interprete</th>
-            <th>Pronoms</th>
-        </tr>
-        {% for interprete in alignement.interpretes.all %}
-            <tr class="pamps">
-                <td>{{ interprete.role_interprete }}</td>
-                <td>{{ interprete.numero_interprete }}</td>
-                <td>{{ interprete.nom_interprete }}</td>
-                <td>{{ interprete.pronom_interprete }}</td>
-                <td><button class="btnSecondary btnInline" onclick="navTo(this,'/Citrus/ModificationInterprete{{ interprete.interprete_id }}-{{ equipe.id_equipe }}')"><span>Modifier</span></button></td>
-                <td><button class="btnSecondary btnInline"><span>Supprimer</span></button></td>
-            </tr>
-        {% endfor %}
-        {% for coach in coachs %}
-            <tr class="pamps">
-                <td>Coach</td>
-                <td>{{ coach.prenom_coach }} {{ coach.nom_coach }}</td>
-                <td>{{ coach.courriel }}</td>
-                <td>{{ coach.pronom_coach }}</td>
-                <td><button class="btnSecondary btnInline" onclick=""><span>Modifier</span></button></td>
-                <td><button class="btnSecondary btnInline"><span>Supprimer</span></button></td>
-            </tr>
-        {% endfor %}
-    </table>
-    
-    <h2>Matchs</h2>
-    <table>
-        <tr class="tableHeaderRow">
-            <th>Visiteur</th>
-            <th>Match & lieu</th>
-            <th>Local</th>
-            <th>Date</th>
-        </tr>
-        {% for match in allMatchs %}
+    <style>
 
-            <tr class="pamps">
-                <td><img src="{% if match.equipe2.logo %}{{ match.equipe2.logo.url }}{% endif %}" alt=""></td>
-                <td>
-                    <span>{{ match.equipe2.nom_equipe }} VS {{ match.equipe1.nom_equipe }}</span>
-                    <span>{{ match.score_eq2 }} : {{ match.score_eq1 }}</span>
-                    <span>{{ match.equipe1.college.nom_college }}</span>
-                </td>
-                <td><img src="{% if match.equipe1.logo %}{{ match.equipe1.logo.url }}{% endif %}" alt=""></td>
-                <td>{{ match.date }}</td>
-            </tr>
+        header{
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
 
-            
-        {% endfor %}
-    </table>
+        .buttonsTeams{
+            display: flex;
+            flex-direction: row;
+        }
+
+        .upperBody{
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .teamDetails{
+            display: flex;
+            flex-direction: column;
+            align-content: center;
+        }
+
+        h1{
+            font-size: 2.5rem;
+            padding-bottom: 5px;
+            margin-bottom: 5px;
+        }
+        #collegeName{
+            padding-bottom: 0;
+            margin-top: 0;
+        }
+
+        .division{
+            font-family: "Maven Pro", sans-serif;
+            font-weight: 800;
+            background-color: var(--mainPamps);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 25px;
+            text-align: center;
+            margin: 0.5rem;
+        }
+
+        .lowerBody{
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .alignementsTeam{
+            width: 50%;
+        }
+        
+        .calendrier{
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            padding-left: 10rem;
+        }
+
+        .matchs{
+            display: flex;
+            flex-wrap: nowrap;
+            width: 100%;
+            flex-direction: column;
+            overflow-y: auto;
+            height: 500px;
+        }
+        
+        
+        .match{
+            display: flex;
+            flex-direction: row;
+            margin: 0.25rem;
+            width: 100%;
+        }
+
+        .matchDate{
+            display: flex;
+            justify-content: center;
+            text-align: center;
+            background-color: var(--mainPamps);
+            color: white;
+            font-family: "Maven Pro", sans-serif;
+            font-size: 2rem;
+            font-weight: 800;
+            padding: 2rem;
+            width: 10rem;
+            align-items: center;
+        }
+
+        .matchDetails{
+            display: flex;
+            flex-direction: column;
+            background-color: var(--tablePampsFade);
+            color: var(--mainPamps);
+            padding: 2rem;
+            font-family: "Maven Pro", sans-serif;
+            font-size: 1.5rem;
+            font-weight: 800;
+            text-align: center;
+            justify-content: center;
+            width: 100%;
+
+        }
+        #lieuMatch{
+            font-weight: 200;
+        }
+        
+        table tr{
+            padding: 1rem;
+        }
+
+
+    </style>
+    
+
     
     
      

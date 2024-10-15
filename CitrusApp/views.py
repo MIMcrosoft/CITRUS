@@ -5,12 +5,12 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
-from django.http import JsonResponse
 from .models import Coach, Equipe, College, Interprete, Saison, Alignements, Match,CoachManager
-from .admin import CoachChangeForm
-from django.views.decorators.http import require_POST
 from .functions import *
-
+from datetime import datetime
+import json
+from django.http import JsonResponse
+import segno
 
 
 def components(request):
@@ -71,7 +71,6 @@ def resetPassword(request,hashedCoachID):
     errors = []
     coachIDToReset = -1
     coachToReset = None
-    print(hashedCoachID)
     for coach in Coach.objects.all():
         code = str(coach.prenom_coach)+str(coach.nom_coach)+str(coach.coach_id)
 
@@ -81,21 +80,33 @@ def resetPassword(request,hashedCoachID):
     if coachIDToReset != -1:
         coachToReset = Coach.objects.get(coach_id=coachIDToReset)
 
-    if request.method == "POST" and coachToReset is not None:
-        newPassword = request.POST['newPassword']
-        newPassword2 = request.POST['newPassword2']
 
-        if newPassword != newPassword2:
-            errors.append('Les mots de passe sont différents.')
-            return render(request, "resetPassword.html", {
-                'errors': errors,
-                'allEquipes': Equipe.objects.all()
-            })
+    if request.method == "POST":
+        print(coachToReset)
+        if coachToReset is not None:
+            newPassword = request.POST['newPassword']
+            newPassword2 = request.POST['newPassword2']
 
-        else:
-            coachToReset.password = newPassword
-            coachToReset.save()
-            return redirect("Connexion")
+            print(newPassword)
+            print(newPassword2)
+
+            if newPassword != newPassword2:
+                errors.append('Les mots de passe sont différents.')
+                return render(request, "resetPassword.html", {
+                    'errors': errors,
+                    'allEquipes': Equipe.objects.all()
+                })
+            elif len(newPassword) < 8 :
+                errors.append('Le nouveau mot de passe est trop court.')
+                return render(request, "resetPassword.html", {
+                    'errors': errors,
+                    'allEquipes': Equipe.objects.all()
+                })
+
+            else:
+                coachToReset.set_password(newPassword)
+                coachToReset.save()
+                return redirect("Connexion")
 
     return render(request, "resetPassword.html",{
         'errors' : errors,
@@ -116,7 +127,7 @@ def loginUser(request):
                 return redirect('/Citrus/?animation=2')  # Redirect to home on successful login
             else:
                 messages.error(request, 'Erreur')
-                return redirect('connexion')  # Redirect to login page on error
+                return redirect('Connexion')  # Redirect to login page on error
 
         elif buttonClicked == 'resetPassword':
             email = request.POST['emailToReset']
@@ -182,7 +193,7 @@ def coachSignUp(request):
         )
 
         # Optionally redirect to a login or success page after successful signup
-        return redirect('connexion')  # Assuming you have a login view
+        return redirect('Connexion')  # Assuming you have a login view
 
     # Render the signup form with all available teams
     return render(request, "coachSignUp.html", {
@@ -206,7 +217,7 @@ def allEquipes(request):
         allEquipes = Equipe.objects.all()
         return render(request, "equipes.html", {'allEquipes': allEquipes, 'saisonActive': saisonActive})
     else:
-        return redirect('equipe')
+        return redirect('Equipe',current_user.equipe.id_equipe,0)
 
 
 @login_required
@@ -254,7 +265,7 @@ def modifEquipe(request, idEquipe):
 
         equipe.save()
 
-        return redirect('equipe', equipe.id_equipe, 0)
+        return redirect('Equipe', equipe.id_equipe, 0)
 
     print(equipe.logo.url)
     return render(request, "equipeModif.html", {
@@ -289,7 +300,7 @@ def ajoutEquipe(request):
         coach.equipe = equipe
         coach.save()
 
-        return redirect('equipes')
+        return redirect('Equipes')
     current_user = request.user
     allColleges = College.objects.all()
     allCoachs = Coach.objects.all()
@@ -341,7 +352,7 @@ def modifInterprete(request, interpreteID, equipeID):
         interprete.role_interprete = newRoleInterprete
         interprete.save()
 
-        return redirect('equipe',equipeID,0)
+        return redirect('Equipe',equipeID,0)
 
     return render(request, "ajoutInterprete.html", {
         'equipe': Equipe.objects.get(id_equipe=equipeID),
@@ -350,6 +361,45 @@ def modifInterprete(request, interpreteID, equipeID):
         'modifyFlag' : True
     })
 
+@login_required()
+def matchs(request):
+    current_user = request.user
+    if request.method == 'POST':
+        pass
+
+    equipe = current_user.equipe
+
+
+    return render(request, "matchs.html",{
+        'matchs' : Match.objects.filter(Q(equipe1=equipe) | Q(equipe2=equipe)).all()
+    })
+def match(request,hashedCode):
+    matchSelected = None
+
+    for match in Match.objects.all():
+        code = str(match.equipe1) + str(match.equipe2) + str(match.match_id)
+
+        if hashedCode == hash_code(code):
+            matchSelected = match
+
+    if request.method == 'POST':
+        pass
+
+    if matchSelected is not None:
+        equipe1Coachs = [coach for coach in Coach.objects.filter(equipe =matchSelected.equipe1)]
+        equipe2Coachs = [coach for coach in Coach.objects.filter(equipe=matchSelected.equipe2)]
+        currentSaison = Saison.objects.filter(est_active=True).first()
+        equipe1Alignements = matchSelected.equipe1.getAlignement(currentSaison.saison_id)
+        equipe2Alignements = matchSelected.equipe2.getAlignement(currentSaison.saison_id)
+
+        if matchSelected.date_match.strftime('%Y-%m-%d') == datetime.today().strftime('%Y-%m-%d') or True:
+            return render(request, 'matchForm.html',{
+                "match" : matchSelected,
+                'coachEquipe1' : equipe1Coachs,
+                'coachEquipe2' : equipe2Coachs,
+                'equipe1Alignement' : equipe1Alignements,
+                'equipe2Alignement' : equipe2Alignements
+            })
 
 """
 calendrierAdmin
@@ -422,3 +472,28 @@ def archives(request):
 def log_out(request):
     logout(request)
     return redirect("/Citrus/Connexion/?animation=2")
+
+
+
+
+
+def saveToDB(request):
+    if request.method == "POST":
+        print("YOUPI")
+        try:
+            # Parse the incoming JSON data
+            data = json.loads(request.body)
+            dataString = data.get('dataString')
+            userID = data.get('userID')
+
+            # Process the data as needed (e.g., save to the database)
+            print(f"Received data - dataString: {dataString}, userID: {userID}")
+
+            # Respond with a success message
+            return JsonResponse({'status': 'success', 'message': 'Data saved successfully!'})
+
+        except json.JSONDecodeError:
+            return JsonResponse({'status': 'error', 'message': 'Invalid JSON'}, status=400)
+
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
+
