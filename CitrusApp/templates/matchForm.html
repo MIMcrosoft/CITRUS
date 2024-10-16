@@ -216,7 +216,7 @@
             <p>12.</p>
             <input type="text" id="impro12">
             <div class="select">
-                <select name="" id="improPts12 lastPoint" class="point" onchange="saveToDB(this); updatePoint()">
+                <select name="" id="improPts12" class="point lastPoint" onchange="saveToDB(this); updatePoint()">
                     <option value="unset">Point</option>
                     <option value="team1">Équipe1</option>
                     <option value="team2">Équipe2</option>
@@ -729,7 +729,7 @@
                 score[0]++
                 tradePun[1] = tradePun[1]-3;
             }
-            if (document.getElementById("lastPoint").value != "unset" && score[0] == score[1]) {
+            if (document.querySelector(".lastPoint").value != "unset" && score[0] == score[1]) {
                 console.log(document.getElementById("lastPoint").value)
                 document.getElementById("prolong").style.display="flex";
             } else {
