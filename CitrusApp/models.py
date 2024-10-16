@@ -1,8 +1,27 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager, PermissionsMixin
 from googlemaps import geocoding, Client
+import segno
 from .NOTPUBLIC import API_KEY, GMAIL_KEY
 from datetime import datetime, timedelta
+from io import BytesIO
+import base64
+import hashlib
+import locale
+
+
+def hash_code(code: str) -> str:
+    # Create a SHA-256 hash object
+    hash_object = hashlib.sha256()
+
+    # Encode the string and update the hash object
+    hash_object.update(code.encode('utf-8'))
+
+    # Get the hexadecimal representation of the hash
+    hash_hex = hash_object.hexdigest()
+
+    return hash_hex
+
 
 DIVISION_CHOICES = [
     ("Pamplemousse", "Pamplemousse"),
@@ -30,7 +49,7 @@ class Saison(models.Model):
         )
         saison.save()
         for equipe in Equipe.objects.all():
-            alignements = Alignements.create_alignement(equipe,saison)
+            alignements = Alignements.create_alignement(equipe, saison)
             alignements.save()
 
         return saison
@@ -87,7 +106,7 @@ class Calendrier(models.Model):
     saison_officiel = models.ForeignKey(Saison, on_delete=models.CASCADE, null=True)
 
     @classmethod
-    def createCalendrier(cls, annee,dateDepartAut,dateDepartHiv, version, nbSemaineAut, nbSemaineHiv):
+    def createCalendrier(cls, annee, dateDepartAut, dateDepartHiv, version, nbSemaineAut, nbSemaineHiv):
         calendrier = cls(
             nom_calendrier=annee + "_V" + version
         )
@@ -95,8 +114,6 @@ class Calendrier(models.Model):
 
         sessionAut = Session.createSession("AUT", "Automne", nbSemaineAut, calendrier.calendrier_id)
         sessionHiv = Session.createSession("HIV", "Hiver", nbSemaineHiv, calendrier.calendrier_id)
-
-
 
         def next_wednesday(current_date):
             # Calculate how many days to add to reach the next Wednesday
@@ -152,7 +169,7 @@ class College(models.Model):
     locationX = models.FloatField()
     locationY = models.FloatField()
     adresse = models.CharField(max_length=255)
-    indisponibilites = models.JSONField(null=True,blank=True)
+    indisponibilites = models.JSONField(null=True, blank=True)
 
     @classmethod
     def createCollege(cls, nom_college, adresse):
@@ -184,13 +201,11 @@ class College(models.Model):
 class Interprete(models.Model):
     interprete_id = models.AutoField(primary_key=True)
     nom_interprete = models.CharField(max_length=100)
-    pronom_interprete = models.CharField(max_length=20, blank=True, null=True)
-    numero_interprete = models.CharField(max_length=20, blank=True, null=True)
+    pronom_interprete = models.CharField(max_length=20, blank=True, default="")
+    numero_interprete = models.CharField(max_length=20, blank=True, default="")
     role_interprete = models.CharField(max_length=1, blank=True, null=True)
 
-
     alignement = models.ManyToManyField('Alignements', related_name='interpretes')
-
 
     @classmethod
     def createInterprete(cls, nom_interprete, pronom_interprete, numero_interprete, role_interprete,
@@ -203,15 +218,14 @@ class Interprete(models.Model):
         )
         interprete.save()
 
-        if alignement :
+        if alignement:
             interprete.alignement.add(alignement)
             interprete.save()
             alignement.save()
 
-
         return interprete
 
-    def get_equipe(self,saison):
+    def get_equipe(self, saison):
 
         equipes = [alignement.equipe for alignement in self.alignement.all() if alignement.saison == saison]
 
@@ -232,10 +246,11 @@ class Equipe(models.Model):
     last_modified = models.DateTimeField(auto_now=True)
     nb_matchVis = models.IntegerField(default=0)
     nb_matchHost = models.IntegerField(default=0)
-    indisponibilites = models.JSONField(null=True,blank=True)
+    indisponibilites = models.JSONField(null=True, blank=True)
 
     college = models.ForeignKey(College, related_name="equipes", on_delete=models.CASCADE, null=True)
-    alignements = models.ForeignKey('Alignements', related_name="alignements", on_delete=models.SET_NULL, null=True, blank=True)
+    alignements = models.ForeignKey('Alignements', related_name="alignements", on_delete=models.SET_NULL, null=True,
+                                    blank=True)
     matchs = models.ManyToManyField('Match', null=True, blank=True)
 
     @classmethod
@@ -249,10 +264,12 @@ class Equipe(models.Model):
         equipe.save()
         return equipe
 
-    @classmethod
-    def getAlignement(cls, saisonID):
+    def getAlignement(self, saisonID):
         selectedSaison = Saison.objects.filter(saison_id=saisonID).first()
-        return [interprete for interprete in Alignements.objects.filter(saison=selectedSaison).first().interpretes]
+        alignement = Alignements.objects.filter(saison=selectedSaison, equipe=self).first().interpretes.all()
+        print(Alignements.objects.filter(saison=selectedSaison, equipe=self).first().interpretes.all())
+        return Alignements.objects.filter(saison=selectedSaison, equipe=self).first().interpretes.all()
+
 
     def __str__(self):
         return self.nom_equipe
@@ -264,9 +281,8 @@ class Alignements(models.Model):
     equipe = models.ForeignKey(Equipe, related_name="equipe", on_delete=models.CASCADE, null=False)
     saison = models.ForeignKey(Saison, related_name="saison", on_delete=models.CASCADE, null=False)
 
-
     @classmethod
-    def create_alignement(cls,equipe, saison):
+    def create_alignement(cls, equipe, saison):
         alignement = cls(
             equipe=equipe,
             saison=saison
@@ -276,6 +292,7 @@ class Alignements(models.Model):
 
     def __str__(self):
         return self.saison.nom_saison + "-" + self.equipe.nom_equipe
+
 
 class CoachManager(BaseUserManager):
     def create_user(self, prenom_coach, nom_coach, pronom_coach, courriel, password=None, equipe=None, **extra_fields):
@@ -294,7 +311,8 @@ class CoachManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, prenom_coach, nom_coach,courriel, pronom_coach=None,  password=None, equipe=None, **extra_fields):
+    def create_superuser(self, prenom_coach, nom_coach, courriel, pronom_coach=None, password=None, equipe=None,
+                         **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         extra_fields.setdefault('admin_flag', True)
@@ -309,6 +327,7 @@ class CoachManager(BaseUserManager):
             **extra_fields
         )
 
+
 class Coach(AbstractUser):
     coach_id = models.AutoField(primary_key=True)
     nom_coach = models.CharField(max_length=100)
@@ -317,11 +336,9 @@ class Coach(AbstractUser):
     courriel = models.EmailField(max_length=255, unique=True)
     admin_flag = models.BooleanField(default=False)
     validated_flag = models.BooleanField(default=False)
-
     equipe = models.ForeignKey(Equipe, on_delete=models.SET_NULL, null=True, blank=True)
     objects = CoachManager()
 
-    # Removing the 'username' field entirely
     username = None
 
     college = models.ForeignKey('College', on_delete=models.SET_NULL, null=True, blank=True, related_name='college')
@@ -355,10 +372,10 @@ class Match(models.Model):
     date_match = models.DateTimeField(auto_now=True)
     url_photo = models.URLField(blank=True, null=True)
     url_match = models.URLField(blank=True, null=True)
-    division = models.CharField(max_length=50, choices=DIVISION_CHOICES)
-    date = models.DateField(blank=True, null=True)
+    division = models.CharField(max_length=50, choices=DIVISION_CHOICES, default=DIVISION_CHOICES[0][0])
     completed_flag = models.BooleanField(default=False)
     validated_flag = models.BooleanField(default=False)
+    improvisations = models.CharField(max_length=5000, blank=True, null=True)
 
     session = models.ForeignKey(Session, on_delete=models.SET_NULL, null=True)
     serie = models.ForeignKey(Serie, on_delete=models.CASCADE, null=True)
@@ -387,6 +404,9 @@ class Match(models.Model):
         equipe1.save()
         equipe2.save()
 
+        code = str(equipe1.nom_equipe) + str(equipe2.nom_equipe) + str(match.match_id)
+        match.url_match = "http://localhost:8000/Citrus/match-" + hash_code(code)
+
         match.save()
         return match
 
@@ -404,6 +424,25 @@ class Match(models.Model):
             return True
         except cls.DoesNotExist:
             return False
+
+    def get_QrCode(self):
+        qr = segno.make(self.url_match)
+
+        buffer = BytesIO()
+        qr.save(buffer, kind='png', scale=7)
+        buffer.seek(0)
+
+        imageBase64 = base64.b64encode(buffer.read()).decode('utf-8')
+
+        return f"data:image/png;base64,{imageBase64}"
+
+    def get_dateFormatted(self, YEAR):
+        locale.setlocale(locale.LC_TIME, 'fr_FR')
+        if YEAR:
+            date_formatted = self.date_match.strftime("%d %b %Y")
+        else:
+            date_formatted = self.date_match.strftime("%d %b")
+        return date_formatted
 
     def __str__(self):
         date_formatted = self.date_match.strftime("%Y-%m-%d")

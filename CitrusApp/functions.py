@@ -10,13 +10,14 @@ from premailer import transform
 import hashlib
 import win32com.client as win32
 from datetime import datetime
+import segno
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'CITRUS.settings')
 django.setup()
 
 from CitrusApp.admin import CoachCreationForm
 from CitrusApp.NOTPUBLIC import GMAIL_KEY
-from CitrusApp.models import Calendrier, Session, Semaine, Match, College, Equipe
+from CitrusApp.models import Calendrier, Session, Semaine, Match, College, Equipe, Coach, Saison
 from enum import Enum, auto
 
 
@@ -805,9 +806,9 @@ def fillCalendrier():
         else:
             return True
 
-    #creationMatchs("Pamplemousse")
-    #creationMatchs("Tangerine")
-    #creationMatchs("Clementine")
+    creationMatchs("Pamplemousse")
+    creationMatchs("Tangerine")
+    creationMatchs("Clementine")
 
     input(f"Matchs crées : {len(Match.objects.all())}. Continue ?")
 
@@ -892,13 +893,20 @@ def exportCalendrier(calendrier):
     app.Quit()
 
 
+def createURLMatch():
+    for match in Match.objects.all():
+        code = str(match.equipe1.nom_equipe) + str(match.equipe2.nom_equipe) + str(match.match_id)
+        match.url_match = "http://localhost:8000/Citrus/Match-" + hash_code(code)
+        match.save()
+
 
 
 
 if __name__ == "__main__":
-
-    fillCalendrier()
-    calendrier = Calendrier.objects.all().first()
-    exportCalendrier(calendrier)
+    Saison.createSaison("2024-2025")
+    #createURLMatch()
+    #fillCalendrier()
+    #calendrier = Calendrier.objects.all().first()
+    #exportCalendrier(calendrier)
     #sendCoachEmail("felixrobillard@gmail.com",EmailType.RESETPASSWORD)
 

@@ -41,6 +41,10 @@
                     <img src="../static/icons/trophy.png" alt="" class="navItemIcon">
                     <h2 class="navItemText">Tournois</h2>
                 </li>
+                <li class="navListItem" onclick="navTo(this, '/Citrus/MesMatchs', false)">
+                    <img src="../static/icons/match.png" alt="" class="navItemIcon">
+                    <h2 class="navItemText">Matchs</h2>
+                </li>
 
             </ul>
 
@@ -73,9 +77,9 @@
 <script>
 function disconnect(sendToLink) {
     //DISCONNECT CODE HERE
-
+    let transition = false;
     //Page closing animation
-    if (transition == false) {
+    if (transition === false) {
         transition = true;
         document.getElementById("primaryNav").classList.add("hover");
         const cover = document.getElementById("pageCover");

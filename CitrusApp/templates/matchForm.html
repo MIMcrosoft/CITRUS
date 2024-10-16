@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
     <title>Formulaire de match</title>
     <link rel="stylesheet" href="../static/stylesheets/components/generalStyles.css">
 </head>
@@ -10,13 +11,13 @@
     <h2 class="formTitle">Formulaire de match</h2>
     <div class="topContainer">
         <div class="logoBoard">
-            <img src="../static/icons/CitrusLogo.png" alt="" class="logo">
-            <h2 class="logoX">X</h2>
-            <img src="../static/icons/CitrusLogo.png" alt="" class="logo">
+            <img src="{% if match.equipe2.logo %}{{ match.equipe2.logo.url }}{% else %}../static/icons/CitrusLogo.png{% endif %}" alt="" class="logo">
+            <h2 class="logoX">Vs</h2>
+            <img src="{% if match.equipe1.logo %}{{ match.equipe1.logo.url }}{% else %}../static/icons/CitrusLogo.png{% endif %}" alt="" class="logo">
         </div>
         <div class="teamBoard">
-            <p>Équipe 1 rc. Équipe 2</p>
-            <p>24 septembre 2024</p>
+            <p>{{ match.equipe2.nom_equipe }} Vs. {{ match.equipe1.nom_equipe }}</p>
+            <p>{{ match.get_dateFormatted }}</p>
         </div>
     </div>
     <div class="select tab-select" style="width: 100%;">
@@ -30,105 +31,51 @@
     </div>
     <section id="Alignement" class="">
         <div class="team" id="alignement1">
-            <h3>MIM de Montmorency</h3>
-            <div class="player player1">
-                <p></p>
-                <p>1</p>
-                <p>Il</p>
-                <p>Raphaël Dumont</p>
-            </div>
-            <div class="player player1">
-                <p></p>
-                <p>15</p>
-                <p>Elle/Iel</p>
-                <p>Raphaël Dumont</p>
-            </div>
-            <div class="player player1">
-                <p></p>
-                <p>23</p>
-                <p>Il/Iel</p>
-                <p>Raphaël Dumont</p>
-            </div>
-            <div class="player player1">
-                <p></p>
-                <p>37</p>
-                <p>Il/Elle</p>
-                <p>Raphaël Dumont</p>
-            </div>
-            <div class="player player1">
-                <p>A</p>
-                <p>13</p>
-                <p>Elle</p>
-                <p>Raphaël Dumont</p>
-            </div>
-            <div class="player player1">
-                <p>A</p>
-                <p>42</p>
-                <p>Il</p>
-                <p>Raphaël Dumont</p>
-            </div>
-            <div class="player player1">
-                <p>C</p>
-                <p>18</p>
-                <p>Il</p>
-                <p>Cédric Sirois-Tanguay</p>
-            </div>
-            <div class="coach">
-                <p>Coach</p>
-                <p>Elle</p>
-                <p>Adeline Gascon</p>
-            </div>
+            <h3>{{ match.equipe2.nom_equipe }}</h3>
+            <h3>{{ match.equipe2.college.nom_college }}</h3>
+            {% if equipe2Alignement %}
+                {% for interprete in equipe2Alignement %}
+                    <div class="player player1">
+                        <p>{{ interprete.role_interprete }}</p>
+                        <p>{{ interprete.numero_interprete }}</p>
+                        <p>{{ interprete.pronom_interprete }}</p>
+                        <p>{{ interprete.nom_interprete }}</p>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        
+            {% for coach in coachEquipe2 %}
+                <div class="coach">
+                    <p>Coach</p>
+                    <p>{{ coach.pronom_coach }}</p>
+                    <p>{{ coach.prenom_coach }} {{ coach.nom_coach }}</p>
+                </div>
+            {% endfor %}
+        
             <button class="btnPrimary btnStretch" onclick="openModal('addPlayerModal');document.getElementById('team').value = 1"><span>Ajouter un remplaçant</span></button>
         </div>
         <div class="team" id="alignement2">
-            <h3>MIM de Montmorency</h3>
-            <div class="player player2">
-                <p></p>
-                <p>1</p>
-                <p>Il</p>
-                <p>Raphaël Dumont</p>
-            </div>
-            <div class="player player2">
-                <p></p>
-                <p>15</p>
-                <p>Elle/Iel</p>
-                <p>Raphaël Dumont</p>
-            </div>
-            <div class="player player2">
-                <p></p>
-                <p>23</p>
-                <p>Il/Iel</p>
-                <p>Raphaël Dumont</p>
-            </div>
-            <div class="player player2">
-                <p></p>
-                <p>37</p>
-                <p>Il/Elle</p>
-                <p>Raphaël Dumont</p>
-            </div>
-            <div class="player player2">
-                <p>A</p>
-                <p>13</p>
-                <p>Elle</p>
-                <p>Raphaël Dumont</p>
-            </div>
-            <div class="player player2">
-                <p>A</p>
-                <p>42</p>
-                <p>Il</p>
-                <p>Raphaël Dumont</p>
-            </div>
-            <div class="player player2">
-                <p>C</p>
-                <p>18</p>
-                <p>Il</p>
-                <p>Cédric Sirois-Tanguay</p>
-            </div>
-            <div class="coach">
-                <p>Coach</p>
-                <p>Elle</p>
-                <p>Adeline Gascon</p>
-            </div>
+            <h3>{{ match.equipe1.nom_equipe }}</h3>
+            <h3>{{ match.equipe1.college.nom_college }}</h3>
+            
+            {% if equipe1Alignement %}
+                {% for interprete in equipe1Alignement %}
+                    <div class="player player{{ loop.index }}">
+                        <p>{{ interprete.role_interprete }}</p>
+                        <p>{{ interprete.numero_interprete }}</p>
+                        <p>{{ interprete.pronom_interprete }}</p>
+                        <p>{{ interprete.nom_interprete }}</p>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        
+            {% for coach in coachEquipe1 %}
+                <div class="coach">
+                    <p>Coach</p>
+                    <p>{{ coach.pronom_coach }}</p>
+                    <p>{{ coach.prenom_coach }} {{ coach.nom_coach }}</p>
+                </div>
+            {% endfor %}
             <button class="btnPrimary btnStretch" onclick="openModal('addPlayerModal');document.getElementById('team').value = 2"><span>Ajouter un remplaçant</span></button>
         </div>
     </section>
@@ -137,7 +84,7 @@
             <p>1.</p>
             <input type="text" id="impro1" onchange="saveToDB(this)">
             <div class="select">
-                <select name="" id="" class="point" onchange="saveToDB(this); updatePoint()">
+                <select name="" id="improPts1" class="point" onchange="saveToDB(this); updatePoint()">
                     <option value="">Point</option>
                     <option value="team1">Équipe1</option>
                     <option value="team2">Équipe2</option>
@@ -149,7 +96,7 @@
             <p>2.</p>
             <input type="text" id="impro2">
             <div class="select">
-                <select name="" id="" class="point" onchange="saveToDB(this); updatePoint()">
+                <select name="" id="improPts2" class="point" onchange="saveToDB(this); updatePoint()">
                     <option value="">Point</option>
                     <option value="team1">Équipe1</option>
                     <option value="team2">Équipe2</option>
@@ -161,7 +108,7 @@
             <p>3.</p>
             <input type="text" id="impro3">
             <div class="select">
-                <select name="" id="" class="point" onchange="saveToDB(this); updatePoint()">
+                <select name="" id="improPts3" class="point" onchange="saveToDB(this); updatePoint()">
                     <option value="">Point</option>
                     <option value="team1">Équipe1</option>
                     <option value="team2">Équipe2</option>
@@ -173,7 +120,7 @@
             <p>4.</p>
             <input type="text" id="impro4">
             <div class="select">
-                <select name="" id="" class="point" onchange="saveToDB(this); updatePoint()">
+                <select name="" id="improPts4" class="point" onchange="saveToDB(this); updatePoint()">
                     <option value="">Point</option>
                     <option value="team1">Équipe1</option>
                     <option value="team2">Équipe2</option>
@@ -185,7 +132,7 @@
             <p>5.</p>
             <input type="text" id="impro5">
             <div class="select">
-                <select name="" id="" class="point" onchange="saveToDB(this); updatePoint()">
+                <select name="" id="improPts5" class="point" onchange="saveToDB(this); updatePoint()">
                     <option value="">Point</option>
                     <option value="team1">Équipe1</option>
                     <option value="team2">Équipe2</option>
@@ -197,7 +144,7 @@
             <p>6.</p>
             <input type="text" id="impro6">
             <div class="select">
-                <select name="" id="" class="point" onchange="saveToDB(this); updatePoint()">
+                <select name="" id="improPts6" class="point" onchange="saveToDB(this); updatePoint()">
                     <option value="">Point</option>
                     <option value="team1">Équipe1</option>
                     <option value="team2">Équipe2</option>
@@ -209,7 +156,7 @@
             <p>7.</p>
             <input type="text" id="impro7">
             <div class="select">
-                <select name="" id="" class="point" onchange="saveToDB(this); updatePoint()">
+                <select name="" id="improPts7" class="point" onchange="saveToDB(this); updatePoint()">
                     <option value="">Point</option>
                     <option value="team1">Équipe1</option>
                     <option value="team2">Équipe2</option>
@@ -221,7 +168,7 @@
             <p>8.</p>
             <input type="text" id="impro8">
             <div class="select">
-                <select name="" id="" class="point" onchange="saveToDB(this); updatePoint()">
+                <select name="" id="improPts8" class="point" onchange="saveToDB(this); updatePoint()">
                     <option value="">Point</option>
                     <option value="team1">Équipe1</option>
                     <option value="team2">Équipe2</option>
@@ -233,7 +180,7 @@
             <p>9.</p>
             <input type="text" id="impro9">
             <div class="select">
-                <select name="" id="" class="point" onchange="saveToDB(this); updatePoint()">
+                <select name="" id="improPts9" class="point" onchange="saveToDB(this); updatePoint()">
                     <option value="">Point</option>
                     <option value="team1">Équipe1</option>
                     <option value="team2">Équipe2</option>
@@ -245,7 +192,7 @@
             <p>10.</p>
             <input type="text" id="impro10">
             <div class="select">
-                <select name="" id="" class="point" onchange="saveToDB(this); updatePoint()">
+                <select name="" id="improPts10" class="point" onchange="saveToDB(this); updatePoint()">
                     <option value="">Point</option>
                     <option value="team1">Équipe1</option>
                     <option value="team2">Équipe2</option>
@@ -257,7 +204,7 @@
             <p>11.</p>
             <input type="text" id="impro11">
             <div class="select">
-                <select name="" id="" class="point" onchange="saveToDB(this); updatePoint()">
+                <select name="" id="improPts11" class="point" onchange="saveToDB(this); updatePoint()">
                     <option value="">Point</option>
                     <option value="team1">Équipe1</option>
                     <option value="team2">Équipe2</option>
@@ -269,7 +216,7 @@
             <p>12.</p>
             <input type="text" id="impro12">
             <div class="select">
-                <select name="" id="lastPoint" class="point" onchange="saveToDB(this); updatePoint()">
+                <select name="" id="improPts12 lastPoint" class="point" onchange="saveToDB(this); updatePoint()">
                     <option value="unset">Point</option>
                     <option value="team1">Équipe1</option>
                     <option value="team2">Équipe2</option>
@@ -281,7 +228,7 @@
             <p>Pr.</p>
             <input type="text" id="impro13">
             <div class="select">
-                <select name="" class="point" onchange="saveToDB(this); updatePoint()">
+                <select name="" class="point" onchange="saveToDB(this); updatePoint()improPts13">
                     <option value="">Point</option>
                     <option value="team1">Équipe1</option>
                     <option value="team2">Équipe2</option>
@@ -632,12 +579,108 @@
     </style>
 
     <script>
-        function saveToDB(el) {
-            let inputValue = el.value;
-            let inputID = el.id;
-            let userID = saveID;
-            //To add link to DB
+        function getDataString(){
+            // On commence par prendre les alignements modifiés des équipes
+            let alignementEquipe1String = "[";
+            let alignementEquipe2String = "[";
+
+            let alignement1Div = document.getElementById('alignement1');
+            let childrenAlignement1 = alignement1Div.children;
+            
+            for(let i=0; i < childrenAlignement1.length; i++){
+                let player = childrenAlignement1[i];
+                if(player.classList.contains('player')){
+                    let playerInfo = player.children;
+                    alignementEquipe1String += "[" + playerInfo[0].innerHTML + ","+ playerInfo[1].innerHTML + ","+ playerInfo[2].innerHTML + ","+ playerInfo[3].innerHTML + "]";
+                    
+                    
+                }
+            }
+            alignementEquipe1String += "]"
+            
+            let alignement2Div = document.getElementById('alignement2');
+            let childrenAlignement2 = alignement2Div.children;
+            
+            for(let i=0; i < childrenAlignement2.length; i++){
+                let player = childrenAlignement2[i];
+                if(player.classList.contains('player')){
+                    let playerInfo = player.children;
+                    alignementEquipe2String += "[" + playerInfo[0].innerHTML + ","+ playerInfo[1].innerHTML + ","+ playerInfo[2].innerHTML + ","+ playerInfo[3].innerHTML + "]";
+                    
+                    
+                }
+            }
+            alignementEquipe2String += "]"
+            
+            // On va ensuite chercher les improvisations
+            let improString = "["
+            for(let i= 1; i <= 13; i++){
+                let improText = document.getElementById('impro' + i);
+                let improPts = document.getElementById('improPts' + i);
+                
+                improString += "[" + improText.value + "," + improPts.value + "]";
+                
+            }
+            improString += "]";
+            
+            // Ensuite, on va chercher les punitions 
+            let punitionsString = "[";
+            let punitionDiv = document.getElementById("Pénalités");
+            let punitions = punitionDiv.children;
+            
+            for(let i =0; i< punitions.length; i++){
+                let punition = punitions[i];
+                let punitionInfo = punition.children;
+                if(punition.classList.contains("pun")){
+                    punitionsString += "[" + punitionInfo[0].innerHTML + "," + punitionInfo[1].innerHTML + "," + punitionInfo[2].innerHTML + "]"
+                }
+            }
+            punitionsString += "]";
+            
+            // On va chercher les étoiles
+            let etoilesString = "[]";
+            
+            // Finalise
+            let finalString = "[" + alignementEquipe1String + "," + alignementEquipe2String + "," + improString + "," + punitionsString + "," + etoilesString + "]";
+            console.log(finalString);
+            return finalString;
         }
+        
+        function saveToDB(el) {
+            console.log("SAVING...");
+            let dataString = getDataString();
+            let userID = saveID;
+        
+            // Retrieve CSRF token from the meta tag
+            let csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        
+            let data = {
+                userID : userID,
+                dataString : dataString
+            };
+        
+            fetch('http://localhost:8000/Citrus/SaveToDB/', {
+                method: "POST",
+                headers: {
+                    "Content-Type": 'application/json',
+                    "X-CSRFToken": csrfToken  // Include the CSRF token here
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(result => {
+                console.log('SUCCESS', result);
+            })
+            .catch(error => {
+                console.error("ERROR:", error);
+            });
+        }
+
 
         let score = [0, 0];
         let points = [0, 0];
