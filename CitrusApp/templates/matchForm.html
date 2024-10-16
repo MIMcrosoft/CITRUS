@@ -582,8 +582,11 @@
                 let player = childrenAlignement1[i];
                 if(player.classList.contains('player')){
                     let playerInfo = player.children;
-                    alignementEquipe1String += "[" + playerInfo[0].innerHTML + ","+ playerInfo[1].innerHTML + ","+ playerInfo[2].innerHTML + ","+ playerInfo[3].innerHTML + "]";
+                    alignementEquipe1String += "['" + playerInfo[0].innerHTML + "','"+ playerInfo[1].innerHTML + "','"+ playerInfo[2].innerHTML + "','"+ playerInfo[3].innerHTML + "']";
                     
+                    if(i !== childrenAlignement1.length - 1 ){
+                        alignementEquipe2String += ","
+                    }
                     
                 }
             }
@@ -596,8 +599,11 @@
                 let player = childrenAlignement2[i];
                 if(player.classList.contains('player')){
                     let playerInfo = player.children;
-                    alignementEquipe2String += "[" + playerInfo[0].innerHTML + ","+ playerInfo[1].innerHTML + ","+ playerInfo[2].innerHTML + ","+ playerInfo[3].innerHTML + "]";
+                    alignementEquipe2String += "['" + playerInfo[0].innerHTML + "','"+ playerInfo[1].innerHTML + "','"+ playerInfo[2].innerHTML + "','"+ playerInfo[3].innerHTML + "']";
                     
+                    if(i !== childrenAlignement2.length - 1 ){
+                        alignementEquipe2String += ","
+                    }
                     
                 }
             }
@@ -609,8 +615,11 @@
                 let improText = document.getElementById('impro' + i);
                 let improPts = document.getElementById('improPts' + i);
                 
-                improString += "[" + improText.value + "," + improPts.value + "]";
+                improString += "['" + improText.value + "','" + improPts.value + "']";
                 
+                if(i !== 13 ){
+                    improString += ","
+                }
             }
             improString += "]";
             
@@ -623,8 +632,13 @@
                 let punition = punitions[i];
                 let punitionInfo = punition.children;
                 if(punition.classList.contains("pun")){
-                    punitionsString += "[" + punitionInfo[0].innerHTML + "," + punitionInfo[1].innerHTML + "," + punitionInfo[2].innerHTML + "]"
+                    punitionsString += "['" + punitionInfo[0].innerHTML + "','" + punitionInfo[1].innerHTML + "','" + punitionInfo[2].innerHTML + "']"
+                    if(i !== punitions.length - 1 ){
+                        punitionsString += ","
+                    }
                 }
+                
+
             }
             punitionsString += "]";
             

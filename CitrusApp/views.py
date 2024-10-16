@@ -1,3 +1,5 @@
+import ast
+
 from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
@@ -487,7 +489,16 @@ def saveToDB(request):
             userID = data.get('userID')
 
             # Process the data as needed (e.g., save to the database)
-            print(f"Received data - dataString: {dataString}, userID: {userID}")
+            #print(f"Received data - dataString: {dataString}, userID: {userID}")
+
+            data = ast.literal_eval(dataString)
+            alignementsEquipe1 = data[0]
+            alignementsEquipe2 = data[1]
+            impros = data[2]
+            punitions = data[3]
+            etoiles = data[4]
+
+            print(alignementsEquipe2)
 
             # Respond with a success message
             return JsonResponse({'status': 'success', 'message': 'Data saved successfully!'})
