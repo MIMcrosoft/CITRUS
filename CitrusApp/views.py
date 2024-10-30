@@ -12,6 +12,7 @@ from .functions import *
 from datetime import datetime
 import json
 from django.http import JsonResponse
+from django.contrib.auth.hashers import check_password
 import segno
 
 
@@ -84,13 +85,9 @@ def resetPassword(request,hashedCoachID):
 
 
     if request.method == "POST":
-        print(coachToReset)
         if coachToReset is not None:
             newPassword = request.POST['newPassword']
             newPassword2 = request.POST['newPassword2']
-
-            print(newPassword)
-            print(newPassword2)
 
             if newPassword != newPassword2:
                 errors.append('Les mots de passe sont différents.')
@@ -385,7 +382,7 @@ def match(request,hashedCode):
             matchSelected = match
 
     if request.method == 'POST':
-        pass
+        print("YOUPI")
 
     if matchSelected is not None:
         equipe1Coachs = [coach for coach in Coach.objects.filter(equipe =matchSelected.equipe1)]
@@ -394,13 +391,22 @@ def match(request,hashedCode):
         equipe1Alignements = matchSelected.equipe1.getAlignement(currentSaison.saison_id)
         equipe2Alignements = matchSelected.equipe2.getAlignement(currentSaison.saison_id)
 
+        print(matchSelected.improvisations)
+        if matchSelected.improvisations is not None:
+            matchData = ast.literal_eval(matchSelected.improvisations)
+        else:
+            matchData = None
+
         if matchSelected.date_match.strftime('%Y-%m-%d') == datetime.today().strftime('%Y-%m-%d') or True:
             return render(request, 'matchForm.html',{
                 "match" : matchSelected,
                 'coachEquipe1' : equipe1Coachs,
                 'coachEquipe2' : equipe2Coachs,
                 'equipe1Alignement' : equipe1Alignements,
-                'equipe2Alignement' : equipe2Alignements
+                'equipe2Alignement' : equipe2Alignements,
+                'matchData' : matchData,
+                'hashedPwdsCoach1':None,
+                'hashedPwdsCoach2':None
             })
 
 """
@@ -481,12 +487,14 @@ def log_out(request):
 
 def saveToDB(request):
     if request.method == "POST":
-        print("YOUPI")
         try:
             # Parse the incoming JSON data
             data = json.loads(request.body)
             dataString = data.get('dataString')
+            matchID = data.get('matchID')
             userID = data.get('userID')
+
+            match = Match.objects.get(match_id=matchID)
 
             # Process the data as needed (e.g., save to the database)
             #print(f"Received data - dataString: {dataString}, userID: {userID}")
@@ -498,8 +506,9 @@ def saveToDB(request):
             punitions = data[3]
             etoiles = data[4]
 
-            print(alignementsEquipe2)
-
+            print("MATCH SAVED")
+            match.improvisations = dataString
+            match.save()
             # Respond with a success message
             return JsonResponse({'status': 'success', 'message': 'Data saved successfully!'})
 
@@ -508,3 +517,19 @@ def saveToDB(request):
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
 
+def checkPassword(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        password = data.get('password')
+        teamID = data.get('teamID')
+
+
+
+        equipe = Equipe.objects.get(id_equipe=teamID)
+        for coach in Coach.objects.filter(equipe=equipe):
+            if check_password(password, coach.password):
+                return JsonResponse({'message': 'Password matched'},status=200)
+            else:
+                return JsonResponse({'message': 'Password invalid'},status=401)
+
+        return JsonResponse({'message': 'Invalid request'},status=404)

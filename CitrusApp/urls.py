@@ -23,7 +23,8 @@ urlpatterns = [
     path('ResetPassword-<str:hashedCoachID>/',views.resetPassword,name='ResetPassword'),
     path('Match-<str:hashedCode>/',views.match,name='Match'),
     path('MesMatchs/',views.matchs,name='matchs'),
-    path('SaveToDB/',views.saveToDB,name='SaveToDB')
+    path('SaveToDB/',views.saveToDB,name='SaveToDB'),
+    path('checkPassword/',views.checkPassword,name='checkPassword')
 ]
 
 if settings.DEBUG:

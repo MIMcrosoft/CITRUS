@@ -33,9 +33,18 @@
         <div class="team" id="alignement1">
             <h3>{{ match.equipe2.nom_equipe }}</h3>
             <h3>{{ match.equipe2.college.nom_college }}</h3>
-            {% if equipe2Alignement %}
+            {% if matchData and matchData.0|length >= equipe2Alignement|length %}
+                {% for interprete in matchData.0 %}
+                    <div class="player player{{ loop.index}}">
+                        <p>{{ interprete.0 }}</p>
+                        <p>{{ interprete.1 }}</p>
+                        <p>{{ interprete.2 }}</p>
+                        <p>{{ interprete.3 }}</p>
+                    </div>
+                {% endfor %}
+            {% elif equipe2Alignement %}
                 {% for interprete in equipe2Alignement %}
-                    <div class="player player1">
+                    <div class="player player{{ loop.index}}">
                         <p>{{ interprete.role_interprete }}</p>
                         <p>{{ interprete.numero_interprete }}</p>
                         <p>{{ interprete.pronom_interprete }}</p>
@@ -57,10 +66,18 @@
         <div class="team" id="alignement2">
             <h3>{{ match.equipe1.nom_equipe }}</h3>
             <h3>{{ match.equipe1.college.nom_college }}</h3>
-            
-            {% if equipe1Alignement %}
+            {% if matchData and matchData.1|length >= equipe1Alignement|length %}
+                {% for interprete in matchData.1 %}
+                    <div class="player player{{ loop.index}}">
+                        <p>{{ interprete.0 }}</p>
+                        <p>{{ interprete.1 }}</p>
+                        <p>{{ interprete.2 }}</p>
+                        <p>{{ interprete.3 }}</p>
+                    </div>
+                {% endfor %}
+            {% elif equipe1Alignement %}
                 {% for interprete in equipe1Alignement %}
-                    <div class="player player{{ loop.index }}">
+                    <div class="player player{{ loop.index}}">
                         <p>{{ interprete.role_interprete }}</p>
                         <p>{{ interprete.numero_interprete }}</p>
                         <p>{{ interprete.pronom_interprete }}</p>
@@ -79,166 +96,337 @@
             <button class="btnPrimary btnStretch" onclick="openModal('addPlayerModal');document.getElementById('team').value = 2"><span>Ajouter un remplaçant</span></button>
         </div>
     </section>
-    <section id="Match" class="hidden">
+    {% if matchData %}
+        <section id="Match" class="hidden">
         <div class="impro">
             <p>1.</p>
-            <input type="text" id="impro1" onchange="saveToDB(this)">
+            <input type="text" id="impro1" value="{{ matchData.2.0.0 }}" onchange="saveToDB()">
             <div class="select">
-                <select name="" id="improPts1" class="point" onchange="saveToDB(this); updatePoint()">
-                    <option value="">Point</option>
-                    <option value="team1">Équipe1</option>
-                    <option value="team2">Équipe2</option>
+                <select name="" id="improPts1" class="point" onchange="saveToDB(); updatePoint()">
+                    <option value="{% if matchData.2.0.1 != "" %}{{ matchData.2.0.1 }}{% else %}{% endif %}">{% if matchData.2.0.1 == "team1" %}{{ match.equipe1.nom_equipe }}{% elif matchData.2.0.1 == "team2" %}{{ match.equipe2.nom_equipe }}{% elif matchData.2.0.1 == "both" %}Les deux{% else %}Point{% endif %}</option>
+                    <option value="team1">{{ match.equipe1.nom_equipe }}</option>
+                    <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                     <option value="both">Les deux</option>
                 </select>
             </div>
         </div>
         <div class="impro">
             <p>2.</p>
-            <input type="text" id="impro2">
+            <input type="text" value="{{ matchData.2.1.0 }}" id="impro2" onchange="saveToDB()">
             <div class="select">
-                <select name="" id="improPts2" class="point" onchange="saveToDB(this); updatePoint()">
-                    <option value="">Point</option>
-                    <option value="team1">Équipe1</option>
-                    <option value="team2">Équipe2</option>
+                <select name="" id="improPts2" class="point" onchange="saveToDB(); updatePoint()">
+                    <option value="{% if matchData.2.1.1 != "" %}{{ matchData.2.1.1 }}{% else %}{% endif %}">{% if matchData.2.1.1 == "team1" %}{{ match.equipe1.nom_equipe }}{% elif matchData.2.1.1 == "team2" %}{{ match.equipe2.nom_equipe }}{% elif matchData.2.1.1 == "both" %}Les deux{% else %}Point{% endif %}</option>
+                    <option value="team1">{{ match.equipe1.nom_equipe }}</option>
+                    <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                     <option value="both">Les deux</option>
                 </select>
             </div>
         </div>
         <div class="impro">
             <p>3.</p>
-            <input type="text" id="impro3">
+            <input type="text" value="{{ matchData.2.2.0 }}" id="impro3" onchange="saveToDB()">
             <div class="select">
-                <select name="" id="improPts3" class="point" onchange="saveToDB(this); updatePoint()">
-                    <option value="">Point</option>
-                    <option value="team1">Équipe1</option>
-                    <option value="team2">Équipe2</option>
+                <select name="" id="improPts3" class="point" onchange="saveToDB(); updatePoint()">
+                    <option value="{% if matchData.2.2.1 != "" %}{{ matchData.2.2.1 }}{% else %}{% endif %}">{% if matchData.2.2.1 == "team1" %}{{ match.equipe1.nom_equipe }}{% elif matchData.2.2.1 == "team2" %}{{ match.equipe2.nom_equipe }}{% elif matchData.2.2.1 == "both" %}Les deux{% else %}Point{% endif %}</option>
+                    <option value="team1">{{ match.equipe1.nom_equipe }}</option>
+                    <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                     <option value="both">Les deux</option>
                 </select>
             </div>
         </div>
         <div class="impro">
             <p>4.</p>
-            <input type="text" id="impro4">
+            <input type="text" value="{{ matchData.2.3.0 }}" id="impro4" onchange="saveToDB()">
             <div class="select">
-                <select name="" id="improPts4" class="point" onchange="saveToDB(this); updatePoint()">
-                    <option value="">Point</option>
-                    <option value="team1">Équipe1</option>
-                    <option value="team2">Équipe2</option>
+                <select name="" id="improPts4" class="point" onchange="saveToDB(); updatePoint()">
+                    <option value="{% if matchData.2.3.1 != "" %}{{ matchData.2.3.1 }}{% else %}{% endif %}">{% if matchData.2.3.1 == "team1" %}{{ match.equipe1.nom_equipe }}{% elif matchData.2.3.1 == "team2" %}{{ match.equipe2.nom_equipe }}{% elif matchData.2.3.1 == "both" %}Les deux{% else %}Point{% endif %}</option>
+                    <option value="team1">{{ match.equipe1.nom_equipe }}</option>
+                    <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                     <option value="both">Les deux</option>
                 </select>
             </div>
         </div>
         <div class="impro">
             <p>5.</p>
-            <input type="text" id="impro5">
+            <input type="text" value="{{ matchData.2.4.0 }}" id="impro5" onchange="saveToDB()">
             <div class="select">
-                <select name="" id="improPts5" class="point" onchange="saveToDB(this); updatePoint()">
-                    <option value="">Point</option>
-                    <option value="team1">Équipe1</option>
-                    <option value="team2">Équipe2</option>
+                <select name="" id="improPts5" class="point" onchange="saveToDB(); updatePoint()">
+                    <option value="{% if matchData.2.4.1 != "" %}{{ matchData.2.4.1 }}{% else %}{% endif %}">{% if matchData.2.4.1 == "team1" %}{{ match.equipe1.nom_equipe }}{% elif matchData.2.4.1 == "team2" %}{{ match.equipe2.nom_equipe }}{% elif matchData.2.4.1 == "both" %}Les deux{% else %}Point{% endif %}</option>
+                    <option value="team1">{{ match.equipe1.nom_equipe }}</option>
+                    <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                     <option value="both">Les deux</option>
                 </select>
             </div>
         </div>
         <div class="impro">
             <p>6.</p>
-            <input type="text" id="impro6">
+            <input type="text" value="{{ matchData.2.5.0 }}" id="impro6" onchange="saveToDB()">
             <div class="select">
-                <select name="" id="improPts6" class="point" onchange="saveToDB(this); updatePoint()">
-                    <option value="">Point</option>
-                    <option value="team1">Équipe1</option>
-                    <option value="team2">Équipe2</option>
+                <select name="" id="improPts6" class="point" onchange="saveToDB(); updatePoint()">
+                    <option value="{% if matchData.2.5.1 != "" %}{{ matchData.2.5.1 }}{% else %}{% endif %}">{% if matchData.2.5.1 == "team1" %}{{ match.equipe1.nom_equipe }}{% elif matchData.2.5.1 == "team2" %}{{ match.equipe2.nom_equipe }}{% elif matchData.2.5.1 == "both" %}Les deux{% else %}Point{% endif %}</option>
+                    <option value="team1">{{ match.equipe1.nom_equipe }}</option>
+                    <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                     <option value="both">Les deux</option>
                 </select>
             </div>
         </div>
         <div class="impro">
             <p>7.</p>
-            <input type="text" id="impro7">
+            <input type="text" value="{{ matchData.2.6.0 }}" id="impro7" onchange="saveToDB()">
             <div class="select">
-                <select name="" id="improPts7" class="point" onchange="saveToDB(this); updatePoint()">
-                    <option value="">Point</option>
-                    <option value="team1">Équipe1</option>
-                    <option value="team2">Équipe2</option>
+                <select name="" id="improPts7" class="point" onchange="saveToDB(); updatePoint()">
+                    <option value="{% if matchData.2.6.1 != "" %}{{ matchData.2.6.1 }}{% else %}{% endif %}">{% if matchData.2.6.1 == "team1" %}{{ match.equipe1.nom_equipe }}{% elif matchData.2.6.1 == "team2" %}{{ match.equipe2.nom_equipe }}{% elif matchData.2.6.1 == "both" %}Les deux{% else %}Point{% endif %}</option>
+                    <option value="team1">{{ match.equipe1.nom_equipe }}</option>
+                    <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                     <option value="both">Les deux</option>
                 </select>
             </div>
         </div>
         <div class="impro">
             <p>8.</p>
-            <input type="text" id="impro8">
+            <input type="text" value="{{ matchData.2.7.0 }}" id="impro8" onchange="saveToDB()">
             <div class="select">
-                <select name="" id="improPts8" class="point" onchange="saveToDB(this); updatePoint()">
-                    <option value="">Point</option>
-                    <option value="team1">Équipe1</option>
-                    <option value="team2">Équipe2</option>
+                <select name="" id="improPts8" class="point" onchange="saveToDB(); updatePoint()">
+                    <option value="{% if matchData.2.7.1 != "" %}{{ matchData.2.7.1 }}{% else %}{% endif %}">{% if matchData.2.7.1 == "team1" %}{{ match.equipe1.nom_equipe }}{% elif matchData.2.7.1 == "team2" %}{{ match.equipe2.nom_equipe }}{% elif matchData.2.7.1 == "both" %}Les deux{% else %}Point{% endif %}</option>
+                    <option value="team1">{{ match.equipe1.nom_equipe }}</option>
+                    <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                     <option value="both">Les deux</option>
                 </select>
             </div>
         </div>
         <div class="impro">
             <p>9.</p>
-            <input type="text" id="impro9">
+            <input type="text" value="{{ matchData.2.8.0 }}" id="impro9" onchange="saveToDB()">
             <div class="select">
-                <select name="" id="improPts9" class="point" onchange="saveToDB(this); updatePoint()">
-                    <option value="">Point</option>
-                    <option value="team1">Équipe1</option>
-                    <option value="team2">Équipe2</option>
+                <select name="" id="improPts9" class="point" onchange="saveToDB(); updatePoint()">
+                    <option value="{% if matchData.2.8.1 != "" %}{{ matchData.2.8.1 }}{% else %}{% endif %}">{% if matchData.2.8.1 == "team1" %}{{ match.equipe1.nom_equipe }}{% elif matchData.2.8.1 == "team2" %}{{ match.equipe2.nom_equipe }}{% elif matchData.2.8.1 == "both" %}Les deux{% else %}Point{% endif %}</option>
+                    <option value="team1">{{ match.equipe1.nom_equipe }}</option>
+                    <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                     <option value="both">Les deux</option>
                 </select>
             </div>
         </div>
         <div class="impro">
             <p>10.</p>
-            <input type="text" id="impro10">
+            <input type="text" value="{{ matchData.2.9.0 }}" id="impro10" onchange="saveToDB()">
             <div class="select">
-                <select name="" id="improPts10" class="point" onchange="saveToDB(this); updatePoint()">
-                    <option value="">Point</option>
-                    <option value="team1">Équipe1</option>
-                    <option value="team2">Équipe2</option>
+                <select name="" id="improPts10" class="point" onchange="saveToDB(); updatePoint()">
+                    <option value="{% if matchData.2.9.1 != "" %}{{ matchData.2.9.1 }}{% else %}{% endif %}">{% if matchData.2.9.1 == "team1" %}{{ match.equipe1.nom_equipe }}{% elif matchData.2.9.1 == "team2" %}{{ match.equipe2.nom_equipe }}{% elif matchData.2.9.1 == "both" %}Les deux{% else %}Point{% endif %}</option>
+                    <option value="team1">{{ match.equipe1.nom_equipe }}</option>
+                    <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                     <option value="both">Les deux</option>
                 </select>
             </div>
         </div>
         <div class="impro">
             <p>11.</p>
-            <input type="text" id="impro11">
+            <input type="text" value="{{ matchData.2.10.0 }}" id="impro11" onchange="saveToDB()">
             <div class="select">
-                <select name="" id="improPts11" class="point" onchange="saveToDB(this); updatePoint()">
-                    <option value="">Point</option>
-                    <option value="team1">Équipe1</option>
-                    <option value="team2">Équipe2</option>
+                <select name="" id="improPts11" class="point" onchange="saveToDB(); updatePoint()">
+                    <option value="{% if matchData.2.10.1 != "" %}{{ matchData.2.10.1 }}{% else %}{% endif %}">{% if matchData.2.10.1 == "team1" %}{{ match.equipe1.nom_equipe }}{% elif matchData.2.10.1 == "team2" %}{{ match.equipe2.nom_equipe }}{% elif matchData.2.10.1 == "both" %}Les deux{% else %}Point{% endif %}</option>
+                    <option value="team1">{{ match.equipe1.nom_equipe }}</option>
+                    <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                     <option value="both">Les deux</option>
                 </select>
             </div>
         </div>
         <div class="impro">
             <p>12.</p>
-            <input type="text" id="impro12">
+            <input type="text" value="{{ matchData.2.11.0 }}" id="impro12" onchange="saveToDB()">
             <div class="select">
-                <select name="" id="improPts12" class="point lastPoint" onchange="saveToDB(this); updatePoint()">
-                    <option value="unset">Point</option>
-                    <option value="team1">Équipe1</option>
-                    <option value="team2">Équipe2</option>
+                <select name="" id="improPts12" class="point lastPoint" onchange="saveToDB(); updatePoint()">
+                    <option value="{% if matchData.2.11.1 != "" %}{{ matchData.2.11.1 }}{% else %}{% endif %}">{% if matchData.2.11.1 == "team1" %}{{ match.equipe1.nom_equipe }}{% elif matchData.2.11.1 == "team2" %}{{ match.equipe2.nom_equipe }}{% elif matchData.2.11.1 == "both" %}Les deux{% else %}Point{% endif %}</option>
+                    <option value="team1">{{ match.equipe1.nom_equipe }}</option>
+                    <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                     <option value="both">Les deux</option>
                 </select>
             </div>
         </div>
         <div class="impro" id="prolong">
             <p>Pr.</p>
-            <input type="text" id="impro13">
+            <input type="text" value="{{ matchData.2.12.0 }}" id="impro13" onchange="saveToDB()">
             <div class="select">
-                <select name="" class="point" onchange="saveToDB(this); updatePoint()improPts13">
+                <select name="" id="improPts13" class="point" onchange="saveToDB(); updatePoint()">
+                    <option value="{% if matchData.2.12.1 != "" %}{{ matchData.2.12.1 }}{% else %}{% endif %}">{% if matchData.2.12.1 == "team1" %}{{ match.equipe1.nom_equipe }}{% elif matchData.2.12.1 == "team2" %}{{ match.equipe2.nom_equipe }}{% else %}Point{% endif %}</option>
+                    <option value="team1">{{ match.equipe1.nom_equipe }}</option>
+                    <option value="team2">{{ match.equipe2.nom_equipe }}</option>
+                </select>
+            </div>
+        </div>
+
+    </section>
+    {% else %}
+        <section id="Match" class="hidden">
+        <div class="impro">
+            <p>1.</p>
+            <input type="text" id="impro1" value="" onchange="saveToDB()">
+            <div class="select">
+                <select name="" id="improPts1" class="point" onchange="saveToDB(); updatePoint()">
                     <option value="">Point</option>
-                    <option value="team1">Équipe1</option>
-                    <option value="team2">Équipe2</option>
+                    <option value="team1">{{ match.equipe1.nom_equipe }}</option>
+                    <option value="team2">{{ match.equipe2.nom_equipe }}</option>
+                    <option value="both">Les deux</option>
+                </select>
+            </div>
+        </div>
+        <div class="impro">
+            <p>2.</p>
+            <input type="text" value="" id="impro2" onchange="saveToDB()">
+            <div class="select">
+                <select name="" id="improPts2" class="point" onchange="saveToDB(); updatePoint()">
+                    <option value="">Point</option>
+                    <option value="team1">{{ match.equipe1.nom_equipe }}</option>
+                    <option value="team2">{{ match.equipe2.nom_equipe }}</option>
+                    <option value="both">Les deux</option>
+                </select>
+            </div>
+        </div>
+        <div class="impro">
+            <p>3.</p>
+            <input type="text" value="" id="impro3" onchange="saveToDB()">
+            <div class="select">
+                <select name="" id="improPts3" class="point" onchange="saveToDB(); updatePoint()">
+                    <option value="">Point</option>
+                    <option value="team1">{{ match.equipe1.nom_equipe }}</option>
+                    <option value="team2">{{ match.equipe2.nom_equipe }}</option>
+                    <option value="both">Les deux</option>
+                </select>
+            </div>
+        </div>
+        <div class="impro">
+            <p>4.</p>
+            <input type="text" value="" id="impro4" onchange="saveToDB()">
+            <div class="select">
+                <select name="" id="improPts4" class="point" onchange="saveToDB(); updatePoint()">
+                    <option value="">Point</option>
+                    <option value="team1">{{ match.equipe1.nom_equipe }}</option>
+                    <option value="team2">{{ match.equipe2.nom_equipe }}</option>
+                    <option value="both">Les deux</option>
+                </select>
+            </div>
+        </div>
+        <div class="impro">
+            <p>5.</p>
+            <input type="text" value="" id="impro5" onchange="saveToDB()">
+            <div class="select">
+                <select name="" id="improPts5" class="point" onchange="saveToDB(); updatePoint()">
+                    <option value="">Point</option>
+                    <option value="team1">{{ match.equipe1.nom_equipe }}</option>
+                    <option value="team2">{{ match.equipe2.nom_equipe }}</option>
+                    <option value="both">Les deux</option>
+                </select>
+            </div>
+        </div>
+        <div class="impro">
+            <p>6.</p>
+            <input type="text" value="" id="impro6" onchange="saveToDB()">
+            <div class="select">
+                <select name="" id="improPts6" class="point" onchange="saveToDB(); updatePoint()">
+                    <option value="">Point</option>
+                    <option value="team1">{{ match.equipe1.nom_equipe }}</option>
+                    <option value="team2">{{ match.equipe2.nom_equipe }}</option>
+                    <option value="both">Les deux</option>
+                </select>
+            </div>
+        </div>
+        <div class="impro">
+            <p>7.</p>
+            <input type="text" value="" id="impro7" onchange="saveToDB()">
+            <div class="select">
+                <select name="" id="improPts7" class="point" onchange="saveToDB(); updatePoint()">
+                    <option value="">Point</option>
+                    <option value="team1">{{ match.equipe1.nom_equipe }}</option>
+                    <option value="team2">{{ match.equipe2.nom_equipe }}</option>
+                    <option value="both">Les deux</option>
+                </select>
+            </div>
+        </div>
+        <div class="impro">
+            <p>8.</p>
+            <input type="text" value="" id="impro8" onchange="saveToDB()">
+            <div class="select">
+                <select name="" id="improPts8" class="point" onchange="saveToDB(); updatePoint()">
+                    <option value="">Point</option>
+                    <option value="team1">{{ match.equipe1.nom_equipe }}</option>
+                    <option value="team2">{{ match.equipe2.nom_equipe }}</option>
+                    <option value="both">Les deux</option>
+                </select>
+            </div>
+        </div>
+        <div class="impro">
+            <p>9.</p>
+            <input type="text" value="" id="impro9" onchange="saveToDB()">
+            <div class="select">
+                <select name="" id="improPts9" class="point" onchange="saveToDB(); updatePoint()">
+                    <option value="">Point</option>
+                    <option value="team1">{{ match.equipe1.nom_equipe }}</option>
+                    <option value="team2">{{ match.equipe2.nom_equipe }}</option>
+                    <option value="both">Les deux</option>
+                </select>
+            </div>
+        </div>
+        <div class="impro">
+            <p>10.</p>
+            <input type="text" value="" id="impro10" onchange="saveToDB()">
+            <div class="select">
+                <select name="" id="improPts10" class="point" onchange="saveToDB(); updatePoint()">
+                    <option value="">Point</option>
+                    <option value="team1">{{ match.equipe1.nom_equipe }}</option>
+                    <option value="team2">{{ match.equipe2.nom_equipe }}</option>
+                    <option value="both">Les deux</option>
+                </select>
+            </div>
+        </div>
+        <div class="impro">
+            <p>11.</p>
+            <input type="text" value="" id="impro11" onchange="saveToDB()">
+            <div class="select">
+                <select name="" id="improPts11" class="point" onchange="saveToDB(); updatePoint()">
+                    <option value="">Point</option>
+                    <option value="team1">{{ match.equipe1.nom_equipe }}</option>
+                    <option value="team2">{{ match.equipe2.nom_equipe }}</option>
+                    <option value="both">Les deux</option>
+                </select>
+            </div>
+        </div>
+        <div class="impro">
+            <p>12.</p>
+            <input type="text" value="" id="impro12" onchange="saveToDB()">
+            <div class="select">
+                <select name="" id="improPts12" class="point lastPoint" onchange="saveToDB(); updatePoint()">
+                    <option value="">Point</option>
+                    <option value="team1">{{ match.equipe1.nom_equipe }}</option>
+                    <option value="team2">{{ match.equipe2.nom_equipe }}</option>
+                    <option value="both">Les deux</option>
+                </select>
+            </div>
+        </div>
+        <div class="impro" id="prolong">
+            <p>Pr.</p>
+            <input type="text" value="" id="impro13" onchange="saveToDB()">
+            <div class="select">
+                <select name="" id="improPts13" class="point" onchange="saveToDB(); updatePoint()">
+                    <option value="">Point</option>
+                    <option value="team1">{{ match.equipe1.nom_equipe }}</option>
+                    <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                 </select>
             </div>
         </div>
         <button class="btnPrimary btnStretch" style="margin-top: 1rem;"><span>Terminer le match</span></button>
     </section>
+    {% endif %}
     <section id="Pénalités" class="hidden">
         <h3 class="nopenalty">Aucune pénalité</h3>
+        {% if matchData %}
+            {% for punition in matchData.3 %}
+                <div class="pun" data-pun="" data-punvalue="">
+                    <p>{{ punition.0 }}</p>
+                    <p>{{ punition.1 }}</p>
+                    <p>{{ punition.2 }}</p>
+                    <i class="fa-solid fa-trash" onclick="removePun(this)" aria-hidden="true"></i>
+                </div>
+            {% endfor %}
+        {% endif %}
         <button class="btnPrimary btnStretch addPun" style="margin-top: 1rem;" onclick="openModal('addPunModal')"><span>Ajouter une pénalité</span></button>
     </section>
     <section id="Score" class="hidden">
@@ -248,29 +436,31 @@
                 <img src="../static/icons/CitrusLogo.png" alt="" class="logo">
             </div>
             <div class="results">
-                <span id="team1Points">0</span>
+                <span id="subTotalTeam1">{% if matchData %}{{ matchData.5.0.0 }}{% else %}0{% endif %}</span>
                 <span>Points</span>
-                <span id="team2Points">0</span>
+                <span id="subTotalTeam2">{% if matchData %}{{ matchData.5.0.1 }}{% else %}0{% endif %}</span>
             </div>
             <div class="results">
-                <span id="team1Puns">0</span>
+                <span id="team1Puns">{% if matchData %}{{ matchData.5.1.1 }}{% else %}0{% endif %}</span>
                 <span>Pénalités</span>
-                <span id="team2Puns">0</span>
+                <span id="team2Puns">{% if matchData %}{{ matchData.5.1.1 }}{% else %}0{% endif %}</span>
             </div>
             <div class="results">
-                <span class="biggerNum" id="team1Score">0</span>
+                <span class="biggerNum" id="team1Score">{% if matchData %}{{ matchData.5.2.0 }}{% else %}0{% endif %}</span>
                 <span class="biggerNum">Score</span>
-                <span class="biggerNum" id="team2Score">0</span>
+                <span class="biggerNum" id="team2Score">{% if matchData %}{{ matchData.5.2.1 }}{% else %}0{% endif %}</span>
             </div>
         </div>
-        <div class="sign">
-            <h3 style="margin-top: 2rem; margin-bottom: 1rem;">Signatures</h3>
-            <label for="coach1" class="label onTop">Nom du Coach, Équipe</label>
-            <input type="text" id="coach1">
-            <label for="coach2" class="label onTop">Nom du Coach, Équipe</label>
-            <input type="text" id="coach2">
-            <button type="submit" class="btnPrimary btnInline"><span>Confirmer l'envoi</span></button>
-        </div>
+        <form method="post">
+            <div class="sign">
+                <h3 style="margin-top: 2rem; margin-bottom: 1rem;">Signatures</h3>
+                <label for="coach1" class="label onTop">Signature coach {{ match.equipe1.nom_equipe }}</label>
+                <button type="button" id="signatureCoachBtn1" class="btnPrimary signBtn" onclick=openModal("signatureCoachModal1")>Signer</button>
+                <label for="coach2" class="label onTop">Signature coach {{ match.equipe2.nom_equipe }}</label>
+                <button type="button" class="btnPrimary signBtn" id="signatureCoachBtn2" onclick=openModal("signatureCoachModal2")>Signer</button>
+                <button type="submit" id="finalizeMatchBtn" class="btnPrimary btnInline disabled-btn"><span>Confirmer l'envoi</span></button>
+            </div>
+        </form>
         
     </section>
     <div id="modal" class="modal" data-modal="addPlayerModal">
@@ -296,6 +486,46 @@
             </form>
         </div>
     </div>
+    <div id="modal" class="modal" data-modal="signatureCoachModal1">
+        <div class="modalContent">
+            <div class="modalHeader">
+                <h1>Signer le formulaire</h1>
+                <span class="close" id="modalClose" onclick="closeModal('signatureCoachModal1')">&times;</span>
+            </div>
+            <form id="signatureCoachForm2">
+            <div class="modalBody">
+                    <h2>Coach {{ match.equipe1.nom_equipe }}</h2>
+                    <label for="passwordCoachTeam1" class="label onTop">Entrez votre mot de passe</label>
+                    <input type="password" id="passwordCoachTeam1">
+                    <label id="msgPasswordChangeTeam1" class="divMsgError"></label>
+            </div>
+            <div class="modalFooter">
+                <button type="button" class="btnSecondary btnInline" onclick="closeModal('signatureCoachModal1')"><span>Annuler</span></button>
+                <button type="button" class="btnPrimary btnInline" onclick="signCoach({{ match.equipe1.id_equipe }},1)"><span>Confirmer</span></button>
+            </div>
+            </form>
+        </div>
+    </div>
+    <div id="modal" class="modal" data-modal="signatureCoachModal2">
+        <div class="modalContent">
+            <div class="modalHeader">
+                <h1>Signer le formulaire</h1>
+                <span class="close" id="modalClose" onclick="closeModal('signatureCoachModal2')">&times;</span>
+            </div>
+            <form id="signatureCoachForm2">
+            <div class="modalBody">
+                    <h2>Coach {{ match.equipe2.nom_equipe }}</h2>
+                    <label for="passwordCoachTeam2" class="label onTop">Entrez votre mot de passe</label>
+                    <input type="password" id="passwordCoachTeam2">
+                    <label id="msgPasswordChangeTeam2" class="divMsgError"></label>
+            </div>
+            <div class="modalFooter">
+                <button type="button" class="btnSecondary btnInline" onclick="closeModal('signatureCoachModal2')"><span>Annuler</span></button>
+                <button type="button" class="btnPrimary btnInline" onclick="signCoach({{ match.equipe2.id_equipe }},2)"><span>Confirmer</span></button>
+            </div>
+            </form>
+        </div>
+    </div>
     <div id="modal" class="modal" data-modal="addPunModal">
         <div class="modalContent">
             <div class="modalHeader">
@@ -308,18 +538,29 @@
                 <div class="select select-search">
                     <select name="" id="who">
                         <option value=""></option>
-                        <option value="team1">Équipe1</option>
-                        <option value="team2">Équipe2</option>
-                        <option value="team1">Inteprète</option>
+                        <option value="team1">{{ match.equipe1.nom_equipe }}</option>
+                        <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                     </select>  
                 </div>
                 <label for="pun" class="label onTop">Punition</label>
                 <div class="select select-search">
                     <select name="" id="pun">
                         <option value=""></option>
+                        <option value="Cabotinage">Cabotinage</option>
                         <option value="Rudesse">Rudesse</option>
-                        <option value="Refus de personnagee">Refus de personnage</option>
-                        <option value="Pun">Pun</option>
+                        <option value="Refus de personnage">Refus de personnage</option>
+                        <option value="Obstruction">Obstruction (Majeure)</option>
+                        <option value="Décrochage">Décrochage</option>
+                        <option value="Manque d'écoute">Manque d'écoute</option>
+                        <option value="Confusion">Confusion</option>
+                        <option value="Cliché">Cliché</option>
+                        
+                        <option value="Mauvaise conduite">Mauvaise conduite (Majeure)</option>
+                        <option value="Nombre illégal">Nombre illégal d'interprètes</option>
+                        <option value="Accesoire illégal">Accesoire illégal</option>
+                        <option value="Retard de jeu">Retard de jeu</option>
+                        <option value="Procédure illégale">Procédure illégale</option>
+                        <option value="Non-respect de la carte">Non-respect de la carte</option>
                     </select>
                 </div>
                 <label for="maj" class="label onTop">Majeure</label>
@@ -451,6 +692,7 @@
             top: 50%;
         }
         
+
         @media (hover:hover) {
             .player:hover::after, .coach:hover::after, .pun:hover::after {
                 content: "";
@@ -493,6 +735,13 @@
 
         #prolong {
             display: none;
+        }
+
+        .divMsgError{
+            text-align: center;
+            font-weight: 400;
+            padding-bottom: 2px;
+            color: red;
         }
 
         .impro .select .select-selected {
@@ -564,6 +813,13 @@
             font-weight: 600;
         }
 
+        .sign{
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
         .sign input {
             width: 100%;
         }
@@ -574,11 +830,89 @@
         }
 
         .sign button {
-            width: 100%;
+            width: fit-content;
         }
+
+        .disabled-btn {
+            background-color: grey;
+            color: white;
+            cursor: default;
+            opacity: 0.6; /* Adds a dimmed look */
+            pointer-events: none; /* Disables hover animations */
+            transition: none; /* Disables any transition animations */
+        }
+
     </style>
 
     <script>
+        
+        const formSign1 = document.getElementById("signatureCoachForm2");
+
+        formSign1.addEventListener("submit", function(event) {
+            event.preventDefault(); // Prevents the page from refreshing
+        });
+        
+        const formSign2 = document.getElementById("signatureCoachForm1");
+
+        formSign2.addEventListener("submit", function(event) {
+            event.preventDefault(); // Prevents the page from refreshing
+        });
+        
+        async function signCoach(teamID,teamNum) {
+            let passwordElement = document.getElementById("passwordCoachTeam" + teamNum);
+            let password = passwordElement.value;
+            let divMsgError = document.getElementById('msgPasswordChangeTeam' + teamNum);
+            let btnSignCoach = document.getElementById('signatureCoachBtn' + teamNum);
+
+            // Hash the input password
+            let csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            // Send a POST request with hashed password and team ID
+            try {
+                const response = await fetch('http://localhost:8000/Citrus/checkPassword/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        "X-CSRFToken": csrfToken  // Include the CSRF token here
+                    },
+                    body: JSON.stringify({
+                        password: password,
+                        teamID: teamID
+                    })
+                });
+
+                // Check the status of the response
+                if (response.ok) {
+                    const data = await response.json();
+                    closeModal('signatureCoachModal' + teamNum);
+                    btnSignCoach.innerText = "Signature enregistrée";
+                    btnSignCoach.disabled = true;
+
+                    btnSignCoach.classList.add("disabled-btn");
+                    
+                    let btn1 = document.getElementById('signatureCoachBtn1');
+                    let btn2 = document.getElementById('signatureCoachBtn2');
+                    let submitBtn = document.getElementById('finalizeMatchBtn');
+                    if(btn1.disabled === true && btn2.disabled === true){
+                        submitBtn.disabled = false;
+                        submitBtn.classList.remove("disabled-btn");
+                    }
+
+
+                } else if (response.status === 401) {
+                    console.log("Password does not match.");
+                    divMsgError.innerText = 'Le mot de passe est incorrect !'
+
+                } else {
+                    console.log("An error occurred:", response.status);
+                    divMsgError.innerText = "Une erreur s'est produite !"
+                }
+            } catch (error) {
+                console.error("Network error:", error);
+                divMsgError.innerText = "Une erreur s'est produite !"
+                // Handle network error, e.g., server is unreachable
+            }
+        }
+        
         function getDataString(){
             // On commence par prendre les alignements modifiés des équipes
             let alignementEquipe1String = "[";
@@ -594,7 +928,7 @@
                     alignementEquipe1String += "['" + playerInfo[0].innerHTML + "','"+ playerInfo[1].innerHTML + "','"+ playerInfo[2].innerHTML + "','"+ playerInfo[3].innerHTML + "']";
                     
                     if(i !== childrenAlignement1.length - 1 ){
-                        alignementEquipe2String += ","
+                        alignementEquipe1String += ","
                     }
                     
                 }
@@ -637,10 +971,13 @@
             let punitionDiv = document.getElementById("Pénalités");
             let punitions = punitionDiv.children;
             
+            
+            
             for(let i =0; i< punitions.length; i++){
                 let punition = punitions[i];
                 let punitionInfo = punition.children;
                 if(punition.classList.contains("pun")){
+                    console.log(punition);
                     punitionsString += "['" + punitionInfo[0].innerHTML + "','" + punitionInfo[1].innerHTML + "','" + punitionInfo[2].innerHTML + "']"
                     if(i !== punitions.length - 1 ){
                         punitionsString += ","
@@ -651,26 +988,46 @@
             }
             punitionsString += "]";
             
+            
+            let subTotalTeam1 = document.getElementById("subTotalTeam1").innerText;
+            let subTotalTeam2 = document.getElementById("subTotalTeam2").innerText;
+            
+            let team1Puns = document.getElementById("team1Puns").innerText;
+            let team2Puns = document.getElementById("team2Puns").innerText;
+            
+            let totalTeam1 = document.getElementById("team1Score").innerText;
+            let totalTeam2 = document.getElementById("team2Score").innerText;
+            
+            
+            
+            let subtotalString = "[" + subTotalTeam1 + "," + subTotalTeam2 + "]";
+            let totalPunString = "[" + team1Puns + "," + team2Puns + "]";
+            let totalString = "[" + totalTeam1 + "," + totalTeam2 + "]";
+            
+            let scoreString = "[" + subtotalString + "," + totalPunString + "," + totalString + "]";
+            
             // On va chercher les étoiles
             let etoilesString = "[]";
             
             // Finalise
-            let finalString = "[" + alignementEquipe1String + "," + alignementEquipe2String + "," + improString + "," + punitionsString + "," + etoilesString + "]";
+            let finalString = "[" + alignementEquipe1String + "," + alignementEquipe2String + "," + improString + "," + punitionsString + "," + etoilesString + "," + scoreString + "]";
             console.log(finalString);
             return finalString;
         }
         
-        function saveToDB(el) {
+        function saveToDB() {
             console.log("SAVING...");
             let dataString = getDataString();
             let userID = saveID;
+            let matchID = {{ match.match_id }};
         
             // Retrieve CSRF token from the meta tag
             let csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         
             let data = {
                 userID : userID,
-                dataString : dataString
+                dataString : dataString,
+                matchID : matchID
             };
         
             fetch('http://localhost:8000/Citrus/SaveToDB/', {
@@ -752,8 +1109,8 @@
                 document.getElementById("prolong").getElementsByClassName("input").value="";
             }
 
-            document.getElementById("team1Points").innerText = points[0];
-            document.getElementById("team2Points").innerText = points[1];
+            document.getElementById("subTotalTeam1").innerText = points[0];
+            document.getElementById("subTotalTeam2").innerText = points[1];
             document.getElementById("team1Puns").innerText = puns[0];
             document.getElementById("team2Puns").innerText = puns[1];
             document.getElementById("team1Score").innerText = score[0];
@@ -1127,7 +1484,7 @@
                 punMajValue = 1
             }
 
-            const newPunHtml = `
+            let newPunHtml = `
                 <div class="pun" data-pun=${punValue} data-punValue=${punMajValue}>
                     <p>${punWho}</p>
                     <p>${punName}</p>
@@ -1143,14 +1500,17 @@
             closeModal('addPunModal');
             
             // Optionally, clear the form for future use
-            updatePun()
+            saveToDB();
+            updatePun();
+            
             });
         
         function removePun(el) {
             el.parentNode.remove();
-            if (document.getElementsByClassName("pun").length == 0) {
+            if (document.getElementsByClassName("pun").length === 0) {
                 document.querySelector(".nopenalty").style.display="block";
             }
+            saveToDB();
             updatePun();
         }
 
