@@ -6,7 +6,9 @@
     <header>
         <h1>Mon équipe</h1>
         <div class="buttonsTeams">
+            {% if request.user.admin_flag == True %}
             <button class="btnPrimary" onclick="navTo(this,'/Citrus/ModificationEquipe{{ equipe.id_equipe }}',false)"><span>Modifier</span></button>
+            {% endif %}
             <button class="btnPrimary" onclick="navTo(this, '/Citrus/AjoutInterprete{{ equipe.id_equipe }}-{{ alignement.id_alignement }}', false)"><span>Ajouter un interprète</span></button>
         </div>
     </header>

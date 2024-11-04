@@ -903,10 +903,14 @@ def createURLMatch():
 
 
 if __name__ == "__main__":
-    Saison.createSaison("2024-2025")
+    #Saison.createSaison("2024-2025")
     #createURLMatch()
     #fillCalendrier()
     #calendrier = Calendrier.objects.all().first()
     #exportCalendrier(calendrier)
     #sendCoachEmail("felixrobillard@gmail.com",EmailType.RESETPASSWORD)
+
+    for match in Match.objects.all():
+        print(match.equipe1.nom_equipe + " VS " + match.equipe2.nom_equipe+",",match.semaine)
+
 

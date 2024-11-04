@@ -25,7 +25,7 @@
             </select>
         </div>
         
-        <img id="logoEquipe" src="{{ equipe.logo.url }}" alt="LogoEquipe">
+        <img id="logoEquipe" src="{% if equipe.logo.url != None %}{{ equipe.logo.url }}{% endif %}" alt="LogoEquipe">
         <input type="file">
     
         

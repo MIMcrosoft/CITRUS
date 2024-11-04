@@ -378,11 +378,11 @@ class Match(models.Model):
     improvisations = models.CharField(max_length=5000, blank=True, null=True)
 
     session = models.ForeignKey(Session, on_delete=models.SET_NULL, null=True)
-    serie = models.ForeignKey(Serie, on_delete=models.CASCADE, null=True)
+    serie = models.ForeignKey(Serie, on_delete=models.CASCADE, null=True,blank=True)
     equipe1 = models.ForeignKey(Equipe, on_delete=models.CASCADE, related_name='equipe_hote', null=True)
     equipe2 = models.ForeignKey(Equipe, on_delete=models.CASCADE, related_name='equipe_visiteure', null=True)
     semaine = models.ForeignKey(Semaine, related_name="matchs", on_delete=models.SET_NULL, null=True)
-    punitions = models.ManyToManyField(Punition)
+    punitions = models.ManyToManyField(Punition,blank=True,related_name='punitions', null=True)
 
     @classmethod
     def validate_match(self):

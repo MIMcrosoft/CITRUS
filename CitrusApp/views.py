@@ -266,7 +266,7 @@ def modifEquipe(request, idEquipe):
 
         return redirect('Equipe', equipe.id_equipe, 0)
 
-    print(equipe.logo.url)
+
     return render(request, "equipeModif.html", {
         'equipe': equipe,
         'allSaisons': Saison.objects.all(),
@@ -311,6 +311,9 @@ def ajoutEquipe(request):
 def ajoutInterprete(request, equipeId, alignementID):
     allInterpretes = Interprete.objects.all()
     if request.method == 'POST':
+
+        buttonClicked = request.POST.get('button')
+
         nomInterprete = request.POST['nomInterprete']
         pronomsInterprete = request.POST['pronomsInterprete']
         numInterprete = request.POST['numInterprete']
@@ -327,6 +330,10 @@ def ajoutInterprete(request, equipeId, alignementID):
             alignement=alignement
         )
         interprete.save()
+
+        if buttonClicked == "addAndReturn":
+            print("RETURNING")
+            return redirect('Equipe',equipeId,0)
 
     return render(request, "ajoutInterprete.html",
                   {

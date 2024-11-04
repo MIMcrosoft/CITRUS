@@ -7,7 +7,7 @@
     <form method="post">
         {% csrf_token %}
 
-        <div class="select select-search" style="width:400px;">
+        <!---<div class="select select-search" style="width:400px;">
         <select name="nomInterprete" id="nomInterprete">
             <option value="">Nom de l'interprète</option>
             <option value="">Ajoutez l'interprète</option>
@@ -15,7 +15,7 @@
                 <option value="{{ interprete.interprete_id }}">{{ interprete.nom_interprete }}</option>
             {% endfor %}
         </select>
-        </div>
+        </div>--->
         {% if modifyFlag == True %}
             <h2>{{ interprete.nom_interprete }}</h2>
             <label for="pronomsInterprete" >Pronoms</label>
@@ -66,7 +66,7 @@
             </label>
         
             <button type="submit" class="btnPrimary" id="btnAjoutEquipe"><span>Ajouter et Continuer</span></button>
-            <button type="submit" class="btnPrimary" id="btnAjoutEquipe"><span>Ajouter et Retourner</span></button>
+            <button type="submit" class="btnPrimary" name="button" value="addAndReturn"><span>Ajouter et Retourner</span></button>
             <button type="button" class="btnSecondary" onclick="navTo(this,'/Citrus/Equipe{{ equipe.id_equipe }}-0/',false)">Retour</button>
         {% endif %}
         
