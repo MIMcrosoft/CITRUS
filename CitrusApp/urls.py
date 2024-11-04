@@ -24,7 +24,8 @@ urlpatterns = [
     path('Match-<str:hashedCode>/',views.match,name='Match'),
     path('MesMatchs/',views.matchs,name='matchs'),
     path('SaveToDB/',views.saveToDB,name='SaveToDB'),
-    path('checkPassword/',views.checkPassword,name='checkPassword')
+    path('checkPassword/',views.checkPassword,name='checkPassword'),
+    path('validateCoach/',views.validateCoach,name='validateCoach')
 ]
 
 if settings.DEBUG:

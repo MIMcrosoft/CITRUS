@@ -48,7 +48,7 @@ def users(request):
     if request.method == 'POST':
         pass
 
-    if current_user.is_superuser == True:
+    if current_user.admin_flag == True:
 
         return render(request, "userManagement.html",{
             'allUsers' : Coach.objects.all()
@@ -538,5 +538,20 @@ def checkPassword(request):
                 return JsonResponse({'message': 'Password matched'},status=200)
             else:
                 return JsonResponse({'message': 'Password invalid'},status=401)
+
+        return JsonResponse({'message': 'Invalid request'},status=404)
+
+
+def validateCoach(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        coachID = data.get('coachID')
+
+        coach = Coach.objects.get(coach_id=coachID)
+
+        if coach:
+            coach.validated_flag = True
+            sendCoachEmail(coach.courriel,EmailType.VALIDATION)
+            return JsonResponse({'message': 'Coach validated'},status=200)
 
         return JsonResponse({'message': 'Invalid request'},status=404)

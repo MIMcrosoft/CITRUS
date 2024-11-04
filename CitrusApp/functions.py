@@ -81,15 +81,15 @@ def sendCoachEmail(coachEmail, emailType: EmailType,coachCodeHash=""):
 
 
     elif emailType == EmailType.VALIDATION:
-        with open("templates/templatesCourriel/validationEmail.html", 'r', encoding="utf-8") as file:
+        with open(r"C:\Users\felix\Documents\work\Impro\CITRUS\CitrusApp\templates\templatesCourriel\validationCompteEmail.html", 'r', encoding="utf-8") as file:
             html_body = file.read()
-            html_body_with_inline_styles = transform(html_body)
+            urlSignIn = f"http://localhost:8000/Citrus/Connexion/"
+            html_bodyParam = html_body.replace("{urlSignIn}", urlSignIn)
+            html_bodyParam_with_style = transform(html_bodyParam)
 
-        urlSignIn = f"localhost:8000/Citrus/CoachSignIn"
-        html_bodyParam = html_body.replace("{urlValidation}", urlSignIn)
 
         # Contenu du Email
-        subject = "Votre compte Citrus a été accepté par l'organisation"
+        subject = "Votre compte Citrus a été accepté par l'organisation!"
 
     # Création du message du email
     msg = MIMEMultipart('alternative')
