@@ -8,7 +8,7 @@ import os
 import django
 from premailer import transform
 import hashlib
-import win32com.client as win32
+
 from datetime import datetime
 import segno
 
@@ -824,73 +824,7 @@ def fillCalendrier():
         print("MATCH NONE", match)
     print("NB match non placés : ", len(Match.objects.filter(semaine=None)))
 
-def exportCalendrier(calendrier):
-    # Create a new instance of Excel
-    app = win32.gencache.EnsureDispatch("Excel.Application")
 
-    # Create a new workbook
-    workbook = app.Workbooks.Add()
-
-    # Specify the file path where you want to save the Excel file
-    file_path = r'C:\Users\felix\Downloads\calendrier2024'
-
-    # Save the workbook at the specified file path
-    workbook.SaveAs(file_path)
-    app.Visible = True
-    workbook = app.Workbooks.Open(file_path)
-    reportSheet = workbook.Worksheets(1)
-
-    reportSheet.Columns.Interior.Color = (255)+(52)*256+(95)*256*256
-
-    col = 2
-    for session in Session.objects.filter(calendrier=calendrier).all():
-        row = 2
-        for semaine in Semaine.objects.filter(session=session).all():
-            reportSheet.Cells(row, col).Value = str(semaine.date)
-            row += 1
-            reportSheet.Cells(row, col).Value = "Visiteur"
-            reportSheet.Cells(row, col+1).Value = "Vs"
-            reportSheet.Cells(row, col+2).Value = "Receveur"
-            reportSheet.Cells(row, col+3).Value = "Lieu"
-            row += 1
-            for match in Match.objects.filter(semaine=semaine).all():
-                colorCode = ""
-                if match.equipe1.division == "Pamplemousse":
-                    colorCode = "#d40000"
-                elif match.equipe1.division == "Tangerine":
-                    colorCode = "#fd0f02"
-                elif match.equipe1.division == "Clementine":
-                    colorCode = "#fe9400"
-
-                red = int(colorCode[1:3], 16)
-                green = int(colorCode[3:5], 16)
-                blue = int(colorCode[5:7], 16)
-                color_index = red + (green * 256) + (blue * 256 * 256)
-
-                reportSheet.Cells(row, col).Value = match.equipe2.nom_equipe
-                reportSheet.Cells(row, col).Interior.Color = color_index
-
-                reportSheet.Cells(row, col+1).Value = "Vs"
-                reportSheet.Cells(row, col+1).Interior.Color = color_index
-
-                reportSheet.Cells(row, col+2).Value = match.equipe1.nom_equipe
-                reportSheet.Cells(row, col+2).Interior.Color = color_index
-
-                reportSheet.Cells(row, col+3).Value = match.equipe1.college.nom_college
-                reportSheet.Cells(row, col+3).Interior.Color = color_index
-                row += 1
-
-            row += 1
-        col += 5
-
-
-
-
-    # Close the workbook
-    workbook.Close()
-
-    # Quit Excel application
-    app.Quit()
 
 
 def createURLMatch():
@@ -900,7 +834,16 @@ def createURLMatch():
         match.save()
 
 
+def updateMatchDate():
+    for match in Match.objects.all():
+        dateSemaine = match.semaine.date
+        print(dateSemaine,"-",match.date_match)
+        match.date_match = dateSemaine
+        print(match.date_match)
+        match.save()
 
+    for match in Match.objects.all():
+        print(match.date_match)
 
 if __name__ == "__main__":
     #Saison.createSaison("2024-2025")
@@ -909,8 +852,7 @@ if __name__ == "__main__":
     #calendrier = Calendrier.objects.all().first()
     #exportCalendrier(calendrier)
     #sendCoachEmail("felixrobillard@gmail.com",EmailType.RESETPASSWORD)
-
-    for match in Match.objects.all():
-        print(match.equipe1.nom_equipe + " VS " + match.equipe2.nom_equipe+",",match.semaine)
+    #updateMatchDate()
+    pass
 
 

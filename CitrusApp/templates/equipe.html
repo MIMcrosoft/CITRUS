@@ -87,11 +87,28 @@
             <div class="matchs">
                 {% for match in allMatchs %}
                     <div class="match">
-                        <div class="matchDate">{{ match.get_dateFormatted }}</div>
-                        <div class="matchDetails">
-                            <span>{{ match.equipe2.nom_equipe }} Vs {{ match.equipe1.nom_equipe }}</span>
-                            <span id="lieuMatch">{{ match.equipe1.college.nom_college }}</span>
-                        </div>
+                        <div class="matchDate">{{ match.get_dateFormatted}}</div>
+                        {% if match.validated_flag == False %}
+                            <div class="matchDetailsValidated">
+                                <div class="teamDetailsMatch">
+                                    <span>{{ match.equipe2.nom_equipe }}</span>
+                                    <span>{{ match.score_eq2 }}</span>
+                                </div>
+                                <span id="lieuMatch">{{ match.equipe1.college.nom_college }}</span>
+                                <div class="teamDetailsMatch">
+                                    <span>{{ match.equipe1.nom_equipe }}</span>
+                                    <span>{{ match.score_eq1 }}</span>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="matchDetails">
+                                <span>{{ match.score_eq2 }}</span>
+                                <span>{{ match.equipe2.nom_equipe }} Vs {{ match.equipe1.nom_equipe }}</span>
+                                <span id="lieuMatch">{{ match.equipe1.college.nom_college }}</span>
+                                <span>{{ match.score_eq1 }}</span>
+                            </div>
+                        {% endif %}
+                        
 
                     </div>
 
@@ -199,9 +216,24 @@
             align-items: center;
         }
 
-        .matchDetails{
+        .teamDetailsMatch{
             display: flex;
             flex-direction: column;
+            color: var(--mainPamps);
+            padding: 2rem;
+            font-family: "Maven Pro", sans-serif;
+            font-size: 1.5rem;
+            font-weight: 800;
+            text-align: center;
+            justify-content: center;
+            width: 30%;
+            align-items: center;
+            
+
+        }
+        .matchDetailsValidated{
+            display: flex;
+            flex-direction: row;
             background-color: var(--tablePampsFade);
             color: var(--mainPamps);
             padding: 2rem;
@@ -211,7 +243,7 @@
             text-align: center;
             justify-content: center;
             width: 100%;
-
+            align-items: center;
         }
         #lieuMatch{
             font-weight: 200;

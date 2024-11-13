@@ -112,6 +112,7 @@ def resetPassword(request,hashedCoachID):
     })
 
 def loginUser(request):
+    errors = []
     if request.method == 'POST':
 
         buttonClicked = request.POST.get('button')
@@ -121,12 +122,15 @@ def loginUser(request):
             username = request.POST['username']
             password = request.POST['password']
             user = authenticate(request, username=username, password=password)
-            if user is not None and user.validated_flag:
-                login(request, user)
-                return redirect('/Citrus/?animation=2')  # Redirect to home on successful login
+            if user is not None:
+                if user.validated_flag:
+                    login(request, user)
+                    return redirect('/Citrus/?animation=2')  # Redirect to home on successful login
+                else:
+                    errors.append("Votre compte est en attente de validation par l'administration.")
             else:
-                messages.error(request, 'Erreur')
-                return redirect('Connexion')  # Redirect to login page on error
+                errors.append("Aucun compte n'est associé à cette adresse courriel.")
+
 
         elif buttonClicked == 'resetPassword':
             email = request.POST['emailToReset']
@@ -143,8 +147,9 @@ def loginUser(request):
         elif buttonClicked == "inscription":
             pass
 
-    else:
-        return render(request, "login.html", {})
+    return render(request, "login.html", {
+        'errors' : errors
+    })
 
 
 
@@ -389,7 +394,9 @@ def match(request,hashedCode):
             matchSelected = match
 
     if request.method == 'POST':
-        print("YOUPI")
+        matchData = ast.literal_eval(matchSelected.improvisations)
+        matchSelected.score_eq1 = matchData[5][2][0]
+        matchSelected.score_eq2 = matchData[5][2][1]
 
     if matchSelected is not None:
         equipe1Coachs = [coach for coach in Coach.objects.filter(equipe =matchSelected.equipe1)]
