@@ -369,7 +369,7 @@ class Match(models.Model):
     etoile3 = models.CharField(max_length=255, blank=True, null=True)
     etoile4 = models.CharField(max_length=255, blank=True, null=True)
     nom_arbitre = models.CharField(max_length=100, blank=True, null=True)
-    date_match = models.DateTimeField(auto_now=True)
+    date_match = models.DateTimeField(null=True, blank=True)
     url_photo = models.URLField(blank=True, null=True)
     url_match = models.URLField(blank=True, null=True)
     division = models.CharField(max_length=50, choices=DIVISION_CHOICES, default=DIVISION_CHOICES[0][0])
@@ -436,12 +436,16 @@ class Match(models.Model):
 
         return f"data:image/png;base64,{imageBase64}"
 
-    def get_dateFormatted(self, YEAR):
+    def get_dateFormatted(self):
         locale.setlocale(locale.LC_TIME, 'fr_FR')
-        if YEAR:
-            date_formatted = self.date_match.strftime("%d %b %Y")
-        else:
-            date_formatted = self.date_match.strftime("%d %b")
+
+        date_formatted = self.date_match.strftime("%d %b")
+        return date_formatted
+
+    def get_dateFormattedWithYear(self):
+        locale.setlocale(locale.LC_TIME, 'fr_FR')
+        date_formatted = self.date_match.strftime("%d %b %Y")
+
         return date_formatted
 
     def __str__(self):
