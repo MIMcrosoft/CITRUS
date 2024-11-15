@@ -8,6 +8,7 @@ import os
 import django
 from premailer import transform
 import hashlib
+from django.conf import settings
 
 from datetime import datetime
 import segno
@@ -52,10 +53,14 @@ def sendCoachEmail(coachEmail, emailType: EmailType,coachCodeHash=""):
     receiver_email = coachEmail
     password = GMAIL_KEY
 
+    if settings.DEBUG:
+        domain = "http://localhost:8000"
+    else:
+        domain = "https://citrus.liguedespamplemousses.com"
     if emailType == EmailType.INVITATION:
         # Création du lien vers le changement des infos
         coach = creationCompteCoach("UserTest", "UserTest", coachEmail, "IMPROMOMO8866887")
-        urlSignIn = f"localhost:8000/Citrus/CoachSignIn/{coach.id}"
+        urlSignIn = f"{domain}/Citrus/CoachSignIn/{coach.id}"
 
         with open("coachEmailInvite.html", 'r', encoding="utf-8") as file:
             html_body = file.read()
@@ -68,7 +73,7 @@ def sendCoachEmail(coachEmail, emailType: EmailType,coachCodeHash=""):
     elif emailType == EmailType.RESETPASSWORD:
         with open(r"C:\Users\felix\Documents\work\Impro\CITRUS\CitrusApp\templates\templatesCourriel\resetPasswordEmail.html", 'r', encoding="utf-8") as file:
             html_body = file.read()
-            urlResetPassword = f"http://localhost:8000/Citrus/ResetPassword-"+coachCodeHash
+            urlResetPassword = f"{domain}/Citrus/ResetPassword-"+coachCodeHash
             html_bodyParam = html_body.replace("{urlResetPassword}", urlResetPassword)
             html_bodyParam_with_style = transform(html_bodyParam)
 
@@ -83,7 +88,7 @@ def sendCoachEmail(coachEmail, emailType: EmailType,coachCodeHash=""):
     elif emailType == EmailType.VALIDATION:
         with open(r"C:\Users\felix\Documents\work\Impro\CITRUS\CitrusApp\templates\templatesCourriel\validationCompteEmail.html", 'r', encoding="utf-8") as file:
             html_body = file.read()
-            urlSignIn = f"http://localhost:8000/Citrus/Connexion/"
+            urlSignIn = f"{domain}/Citrus/Connexion/"
             html_bodyParam = html_body.replace("{urlSignIn}", urlSignIn)
             html_bodyParam_with_style = transform(html_bodyParam)
 
@@ -826,12 +831,6 @@ def fillCalendrier():
 
 
 
-
-def createURLMatch():
-    for match in Match.objects.all():
-        code = str(match.equipe1.nom_equipe) + str(match.equipe2.nom_equipe) + str(match.match_id)
-        match.url_match = "http://localhost:8000/Citrus/Match-" + hash_code(code)
-        match.save()
 
 
 def updateMatchDate():
