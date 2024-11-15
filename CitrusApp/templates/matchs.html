@@ -22,7 +22,7 @@
                 <td>{{ match.equipe2.nom_equipe }}</td>
                 <td>{{ match.equipe1.college.nom_college }}</td>
                 <td>{{ match.get_dateFormatted }}</td>
-                <td><button id="modalBtn" onclick="createModal('QrModal','','{{ match.get_QrCode }}','{{ match.url_match }}')">Lien du match</button></td>
+                <td><button id="modalBtn" onclick="createModal('QrModal','','{{ match.get_QrCode }}','{{ match.get_urlMatch }}')">Lien du match</button></td>
             
             
             </tr>
