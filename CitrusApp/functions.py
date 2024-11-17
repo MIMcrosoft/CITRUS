@@ -9,7 +9,7 @@ import django
 from premailer import transform
 import hashlib
 from django.conf import settings
-
+from pathlib import Path
 from datetime import datetime
 import segno
 
@@ -53,6 +53,9 @@ def sendCoachEmail(coachEmail, emailType: EmailType,coachCodeHash=""):
     receiver_email = coachEmail
     password = GMAIL_KEY
 
+    base_dir = Path(__file__).resolve().parent
+
+
     if settings.DEBUG:
         domain = "http://localhost:8000"
     else:
@@ -71,7 +74,8 @@ def sendCoachEmail(coachEmail, emailType: EmailType,coachCodeHash=""):
         subject = 'Invitation à la plateforme CITRUS'
 
     elif emailType == EmailType.RESETPASSWORD:
-        with open(r".\templates\templatesCourriel\resetPasswordEmail.html", 'r', encoding="utf-8") as file:
+        template_path = base_dir / "templates" / "templatesCourriel" / "resetPasswordEmail.html"
+        with open(template_path, 'r', encoding="utf-8") as file:
             html_body = file.read()
             urlResetPassword = f"{domain}/Citrus/ResetPassword-"+coachCodeHash
             html_bodyParam = html_body.replace("{urlResetPassword}", urlResetPassword)
@@ -86,7 +90,8 @@ def sendCoachEmail(coachEmail, emailType: EmailType,coachCodeHash=""):
 
 
     elif emailType == EmailType.VALIDATION:
-        with open(r".\templates\templatesCourriel\validationCompteEmail.html", 'r', encoding="utf-8") as file:
+        template_path = base_dir / "templates" / "templatesCourriel" / "validationCompteEmail.html"
+        with open(template_path, 'r', encoding="utf-8") as file:
             html_body = file.read()
             urlSignIn = f"{domain}/Citrus/Connexion/"
             html_bodyParam = html_body.replace("{urlSignIn}", urlSignIn)
