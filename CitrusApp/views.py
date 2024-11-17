@@ -436,7 +436,7 @@ def match(request,hashedCode):
         else:
             matchData = None
 
-        if matchSelected.date_match.strftime('%Y-%m-%d') == datetime.today().strftime('%Y-%m-%d') and matchSelected.completed_flag == False or request.user.admin_flag == True or TEST:
+        if (matchSelected.date_match.strftime('%Y-%m-%d') == datetime.today().strftime('%Y-%m-%d') and matchSelected.completed_flag == False) or getattr(request.user, 'admin_flag',False) or TEST:
             return render(request, 'matchForm.html',{
                 "match" : matchSelected,
                 'coachEquipe1' : equipe1Coachs,
