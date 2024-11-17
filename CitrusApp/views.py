@@ -51,7 +51,7 @@ def users(request):
     if settings.DEBUG:
         domain = "http://localhost:8000"
     else:
-        domain = "https://citrus.liguedespamplemousses"
+        domain = "https://citrus.liguedespamplemousses.com"
 
     if current_user.admin_flag == True:
 
@@ -72,7 +72,7 @@ def userPage(request,userID):
     if settings.DEBUG:
         domain = "http://localhost:8000"
     else:
-        domain = "https://citrus.liguedespamplemousses"
+        domain = "https://citrus.liguedespamplemousses.com"
     if request.method == 'POST':
         pass
 
@@ -401,7 +401,7 @@ def match(request,hashedCode):
     if settings.DEBUG:
         domain = "http://localhost:8000"
     else:
-        domain = "https://citrus.liguedespamplemousses"
+        domain = "https://citrus.liguedespamplemousses.com"
     for match in Match.objects.all():
         code = str(match.equipe1) + str(match.equipe2) + str(match.match_id)
 
