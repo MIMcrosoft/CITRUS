@@ -159,7 +159,7 @@
             let csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             // Send a POST request with hashed password and team ID
             try {
-                const response = await fetch('http://localhost:8000/Citrus/validateCoach/', {
+                const response = await fetch('{{domain}}/Citrus/validateCoach/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

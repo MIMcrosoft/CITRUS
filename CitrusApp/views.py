@@ -48,10 +48,16 @@ def users(request):
     if request.method == 'POST':
         pass
 
+    if settings.DEBUG:
+        domain = "http://localhost:8000"
+    else:
+        domain = "https://citrus.liguedespamplemousses"
+
     if current_user.admin_flag == True:
 
         return render(request, "userManagement.html",{
-            'allUsers' : Coach.objects.all()
+            'allUsers' : Coach.objects.all(),
+            'domain' : domain
         })
 
     else:
@@ -63,11 +69,16 @@ def users(request):
 @login_required
 def userPage(request,userID):
     current_user = request.user
+    if settings.DEBUG:
+        domain = "http://localhost:8000"
+    else:
+        domain = "https://citrus.liguedespamplemousses"
     if request.method == 'POST':
         pass
 
     return render(request,"userPage.html",{
-        'user' : Coach.objects.get(coach_id=userID)
+        'user' : Coach.objects.get(coach_id=userID),
+        'domain' : domain
     })
 
 def resetPassword(request,hashedCoachID):
