@@ -25,26 +25,26 @@
         </div>
         <div class="navLists">
             <ul class="navList">
-                <li class="navListItem active" onclick="navTo(this, '/Citrus/', false)">
+                <li class="navListItem {% if activeTab == "ACCUEIL" %}active{% endif %}" onclick="navTo(this, '/Citrus/', false)">
                     <img src="../static/icons/home.png" alt="" class="navItemIcon">
                     <h2 class="navItemText">Accueil</h2>
                 </li>
-                <li class="navListItem" onclick="navTo(this, '/Citrus/Equipes', false)">
+                <li class="navListItem {% if activeTab == "EQUIPE" %}active{% endif %}" onclick="navTo(this, '/Citrus/Equipes', false)">
                     <img src="../static/icons/teams.png" alt="" class="navItemIcon">
                     <h2 class="navItemText">Équipes</h2>
                 </li>
                 {% if request.user.admin_flag == True %}
-                <li class="navListItem" onclick="navTo(this, '/Citrus/Calendrier', false)">
+                <li class="navListItem {% if activeTab == "CALENDRIER" %}active{% endif %}" onclick="navTo(this, '/Citrus/Calendrier', false)">
                     <img src="../static/icons/calendar.png" alt="" class="navItemIcon">
                     <h2 class="navItemText">Calendrier</h2>
                 </li>
 
-                <li class="navListItem" onclick="navTo(this, '/Citrus/', false)">
+                <li class="navListItem {% if activeTab == "TOURNOI" %}active{% endif %}" onclick="navTo(this, '/Citrus/', false)">
                     <img src="../static/icons/trophy.png" alt="" class="navItemIcon">
                     <h2 class="navItemText">Tournois</h2>
                 </li>
                 {% endif %}
-                <li class="navListItem" onclick="navTo(this, '/Citrus/MesMatchs', false)">
+                <li class="navListItem {% if activeTab == "MATCH" %}active{% endif %}" onclick="navTo(this, '/Citrus/MesMatchs', false)">
                     <img src="../static/icons/match.png" alt="" class="navItemIcon">
                     <h2 class="navItemText">Matchs</h2>
                 </li>
@@ -52,7 +52,7 @@
             </ul>
 
             <ul class="navList">
-                <li class="navListItem" onclick="navTo(this, '/Citrus/UserManagement', false)">
+                <li class="navListItem {% if activeTab == "USER" %}active{% endif %}" onclick="navTo(this, '/Citrus/UserManagement', false)">
                     <img src="../static/icons/user.png" alt="" class="navItemIcon">
                     <h2 class="navItemText">{{ request.user.prenom_coach }}</h2>
                 </li>

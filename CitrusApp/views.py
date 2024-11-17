@@ -39,6 +39,7 @@ def accueil(request):
 
     return render(request, 'Acceuil.html', {"user": current_user,
                                             'allMatchs': allMatchs,
+                                            'activeTab' : "ACCUEIL"
                                             })
 
 
@@ -57,7 +58,8 @@ def users(request):
 
         return render(request, "userManagement.html",{
             'allUsers' : Coach.objects.all(),
-            'domain' : domain
+            'domain' : domain,
+            'activeTab': "USER"
         })
 
     else:
@@ -78,7 +80,8 @@ def userPage(request,userID):
 
     return render(request,"userPage.html",{
         'user' : Coach.objects.get(coach_id=userID),
-        'domain' : domain
+        'domain' : domain,
+        'activeTab': "USER"
     })
 
 def resetPassword(request,hashedCoachID):
@@ -230,7 +233,11 @@ def allEquipes(request):
         pass
     if current_user.is_superuser == True:
         allEquipes = Equipe.objects.all()
-        return render(request, "equipes.html", {'allEquipes': allEquipes, 'saisonActive': saisonActive})
+        return render(request, "equipes.html", {
+            'allEquipes': allEquipes,
+            'saisonActive': saisonActive,
+            'activeTab': "EQUIPE"
+        })
     else:
         return redirect('Equipe',current_user.equipe.id_equipe,0)
 
@@ -257,7 +264,8 @@ def equipe(request, idEquipe, idSaison=None):
                    'allSaisons': Saison.objects.all(),
                    'alignement': alignement,
                    'coachs': Coach.objects.filter(equipe=equipe),
-                   'allMatchs' : Match.objects.filter(Q(equipe1=equipe) | Q(equipe2=equipe)).all()
+                   'allMatchs' : Match.objects.filter(Q(equipe1=equipe) | Q(equipe2=equipe)).all(),
+                   'activeTab': "EQUIPE"
                    })
 
 
@@ -287,7 +295,8 @@ def modifEquipe(request, idEquipe):
         'equipe': equipe,
         'allSaisons': Saison.objects.all(),
         'alignement': alignement,
-        'allColleges': College.objects.all()
+        'allColleges': College.objects.all(),
+        'activeTab': "EQUIPE"
     })
 
 
@@ -320,7 +329,12 @@ def ajoutEquipe(request):
     allColleges = College.objects.all()
     allCoachs = Coach.objects.all()
     if current_user.is_superuser == True:
-        return render(request, "ajoutEquipe.html", {'allColleges': allColleges, 'allCoachs': allCoachs})
+        return render(request, "ajoutEquipe.html", {
+            'allColleges': allColleges,
+            'allCoachs': allCoachs,
+            'activeTab': "EQUIPE"
+
+        })
 
 
 @login_required
@@ -356,7 +370,8 @@ def ajoutInterprete(request, equipeId, alignementID):
                       'equipe': Equipe.objects.get(id_equipe=equipeId),
                       'alignement': Alignements.objects.get(id_alignement=alignementID),
                       'allInterpretes': allInterpretes,
-                      'modifyFlag': False
+                      'modifyFlag': False,
+                      'activeTab': "EQUIPE"
                   })
 
 
@@ -380,7 +395,8 @@ def modifInterprete(request, interpreteID, equipeID):
         'equipe': Equipe.objects.get(id_equipe=equipeID),
         'interprete' : Interprete.objects.get(interprete_id=interpreteID),
         'allInterpretes': allInterpretes,
-        'modifyFlag' : True
+        'modifyFlag' : True,
+        'activeTab': "EQUIPE"
     })
 
 @login_required()
@@ -393,7 +409,8 @@ def matchs(request):
 
 
     return render(request, "matchs.html",{
-        'matchs' : Match.objects.filter(Q(equipe1=equipe) | Q(equipe2=equipe)).all()
+        'matchs' : Match.objects.filter(Q(equipe1=equipe) | Q(equipe2=equipe)).all(),
+        'activeTab': "MATCH"
     })
 def match(request,hashedCode):
     matchSelected = None
@@ -470,7 +487,9 @@ def calendrierAdmin(request):
     if request.method == 'POST':
         pass
 
-    return render(request, "calendrier/calendrier-step0.html", {})
+    return render(request, "calendrier/calendrier-step0.html", {
+        'activeTab': "CALENDRIER"
+    })
 
 
 """
@@ -484,7 +503,9 @@ def calendrier(request):
     if request.method == 'POST':
         pass
 
-    return render(request, "", {})
+    return render(request, "", {
+        'activeTab': "CALENDRIER"
+    })
 
 
 """
@@ -497,7 +518,9 @@ def classements(request):
     if request.method == 'POST':
         pass
 
-    return render(request, "base.html", {})
+    return render(request, "base.html", {
+        'activeTab': "CLASSEMENT"
+    })
 
 
 """
@@ -510,7 +533,9 @@ def tournois(request):
     if request.method == 'POST':
         pass
 
-    return render(request, "base.html", {})
+    return render(request, "base.html", {
+        'activeTab': "TOURNOI"
+    })
 
 
 """
@@ -523,7 +548,9 @@ def archives(request):
     if request.method == 'POST':
         pass
 
-    return render(request, "base.html", {})
+    return render(request, "base.html", {
+        'activeTab': "ARCHIVE"
+    })
 
 
 @login_required()
