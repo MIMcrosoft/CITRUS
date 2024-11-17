@@ -397,7 +397,7 @@ def matchs(request):
     })
 def match(request,hashedCode):
     matchSelected = None
-
+    TEST = False
     if settings.DEBUG:
         domain = "http://localhost:8000"
     else:
@@ -409,11 +409,15 @@ def match(request,hashedCode):
             print(code)
             matchSelected = match
 
+    if matchSelected.equipe1.nom_equipe == "EQUIPE TEST" or matchSelected.equipe2.nom_equipe == "EQUIPE TEST":
+        TEST = True
+
     if request.method == 'POST':
         matchData = ast.literal_eval(matchSelected.improvisations)
         matchSelected.score_eq1 = matchData[5][2][0]
         matchSelected.score_eq2 = matchData[5][2][1]
-        matchSelected.completed_flag = True
+        if not TEST:
+            matchSelected.completed_flag = True
         matchSelected.save()
         print("MATCHSAVED")
 
@@ -424,13 +428,15 @@ def match(request,hashedCode):
         equipe1Alignements = matchSelected.equipe1.getAlignement(currentSaison.saison_id)
         equipe2Alignements = matchSelected.equipe2.getAlignement(currentSaison.saison_id)
 
+
+
         print(matchSelected.improvisations)
         if matchSelected.improvisations is not None:
             matchData = ast.literal_eval(matchSelected.improvisations)
         else:
             matchData = None
 
-        if matchSelected.date_match.strftime('%Y-%m-%d') == datetime.today().strftime('%Y-%m-%d') and matchSelected.completed_flag == False or request.user.admin_flag == True:
+        if matchSelected.date_match.strftime('%Y-%m-%d') == datetime.today().strftime('%Y-%m-%d') and matchSelected.completed_flag == False or request.user.admin_flag == True or TEST:
             return render(request, 'matchForm.html',{
                 "match" : matchSelected,
                 'coachEquipe1' : equipe1Coachs,
