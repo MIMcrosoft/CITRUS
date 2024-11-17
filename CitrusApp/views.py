@@ -579,19 +579,31 @@ def checkPassword(request):
         return JsonResponse({'message': 'Invalid request'},status=404)
 
 
+
+
 def validateCoach(request):
     if request.method == "POST":
-        data = json.loads(request.body)
-        coachID = data.get('coachID')
+        try:
+            data = json.loads(request.body)
+            coachID = data.get('coachID')
 
-        coach = Coach.objects.get(coach_id=coachID)
+            # Ensure `Coach.objects.get` does not raise an exception
+            coach = Coach.objects.get(coach_id=coachID)
 
-        if coach:
-            coach.validated_flag = True
-            sendCoachEmail(coach.courriel,EmailType.VALIDATION)
-            coach.save()
-            return JsonResponse({'message': 'Coach validated'},status=200)
+            if coach:
+                coach.validated_flag = True
+                sendCoachEmail(coach.courriel, EmailType.VALIDATION)
+                coach.save()
+                return JsonResponse({'message': 'Coach validated'}, status=200)
 
-        return JsonResponse({'message': 'Invalid request'},status=404)
+        except Coach.DoesNotExist:
+            return JsonResponse({'message': 'Coach not found'}, status=404)
+        except KeyError:
+            return JsonResponse({'message': 'Invalid data'}, status=400)
+        except json.JSONDecodeError:
+            return JsonResponse({'message': 'Invalid JSON'}, status=400)
 
-    return JsonResponse({'message': 'Invalid request'}, status=404)
+    # If the request method is not POST
+    return JsonResponse({'message': 'Invalid request method'}, status=405)
+
+
