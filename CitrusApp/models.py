@@ -390,14 +390,15 @@ class Match(models.Model):
         pass
 
     @classmethod
-    def createMatch(cls, division, session=None, serie=None, equipe1=None, equipe2=None, semaine=None, ):
+    def createMatch(cls, division, session=None, serie=None, equipe1=None, equipe2=None, semaine=None, date_match=None):
         match = cls(
             session=session,
             serie=serie,
             equipe1=equipe1,
             equipe2=equipe2,
             semaine=semaine,
-            division=division
+            division=division,
+            date_match=date_match
         )
         equipe1.nb_matchHost += 1
         equipe2.nb_matchVis += 1
@@ -433,6 +434,7 @@ class Match(models.Model):
         else:
             self.url_match = "https://citrus.liguedespamplemousses.com/Citrus/Match-" + hash_code(code)
         self.save()
+        print(self.url_match)
         return self.url_match
     def get_QrCode(self):
         qr = segno.make(self.get_urlMatch())

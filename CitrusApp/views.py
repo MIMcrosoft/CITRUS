@@ -387,16 +387,24 @@ def matchs(request):
 def match(request,hashedCode):
     matchSelected = None
 
+    if settings.DEBUG:
+        domain = "http://localhost:8000"
+    else:
+        domain = "https://citrus.liguedespamplemousses"
     for match in Match.objects.all():
         code = str(match.equipe1) + str(match.equipe2) + str(match.match_id)
 
         if hashedCode == hash_code(code):
+            print(code)
             matchSelected = match
 
     if request.method == 'POST':
         matchData = ast.literal_eval(matchSelected.improvisations)
         matchSelected.score_eq1 = matchData[5][2][0]
         matchSelected.score_eq2 = matchData[5][2][1]
+        matchSelected.completed_flag = True
+        matchSelected.save()
+        print("MATCHSAVED")
 
     if matchSelected is not None:
         equipe1Coachs = [coach for coach in Coach.objects.filter(equipe =matchSelected.equipe1)]
@@ -411,7 +419,7 @@ def match(request,hashedCode):
         else:
             matchData = None
 
-        if matchSelected.date_match.strftime('%Y-%m-%d') == datetime.today().strftime('%Y-%m-%d') or True:
+        if matchSelected.date_match.strftime('%Y-%m-%d') == datetime.today().strftime('%Y-%m-%d') and matchSelected.completed_flag == False or request.user.admin_flag == True:
             return render(request, 'matchForm.html',{
                 "match" : matchSelected,
                 'coachEquipe1' : equipe1Coachs,
@@ -420,7 +428,18 @@ def match(request,hashedCode):
                 'equipe2Alignement' : equipe2Alignements,
                 'matchData' : matchData,
                 'hashedPwdsCoach1':None,
-                'hashedPwdsCoach2':None
+                'hashedPwdsCoach2':None,
+                'domain': domain
+            })
+        else :
+            errorMsg = "Ce match n'est pas disponible!"
+            print(matchSelected)
+            if matchSelected.date_match.strftime('%Y-%m-%d') != datetime.today().strftime('%Y-%m-%d'):
+                errorMsg = f"Ce match n'est pas encore disponible! \n Il sera disponible le {matchSelected.date_match.strftime('%Y-%m-%d')}"
+            if matchSelected.completed_flag == True:
+                errorMsg = "Ce match à déjà été complété!"
+            return render(request, 'errorWindow.html',{
+                "errorMsg" : errorMsg
             })
 
 """

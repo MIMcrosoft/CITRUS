@@ -830,9 +830,6 @@ def fillCalendrier():
     print("NB match non placés : ", len(Match.objects.filter(semaine=None)))
 
 
-
-
-
 def updateMatchDate():
     for match in Match.objects.all():
         dateSemaine = match.semaine.date
@@ -844,7 +841,19 @@ def updateMatchDate():
     for match in Match.objects.all():
         print(match.date_match)
 
+def createMatchTEST():
+    equipeTest = Equipe.objects.get(nom_equipe="EQUIPE TEST")
+    for equipe in Equipe.objects.all():
+        match = Match.createMatch("Pamplemousse",None,None,equipe,equipeTest,None,datetime.today())
+        print(match)
+
+
+def updateUrlMatch():
+    for match in Match.objects.all():
+        print(match.get_urlMatch())
+
 if __name__ == "__main__":
+    updateUrlMatch()
     #Saison.createSaison("2024-2025")
     #createURLMatch()
     #fillCalendrier()

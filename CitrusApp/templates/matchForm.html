@@ -454,6 +454,7 @@
         </div>
         <form method="post">
             <div class="sign">
+                {% csrf_token %}
                 <h3 style="margin-top: 2rem; margin-bottom: 1rem;">Signatures</h3>
                 <label for="coach1" class="label onTop">Signature coach {{ match.equipe1.nom_equipe }}</label>
                 <button type="button" id="signatureCoachBtn1" class="btnPrimary signBtn" onclick=openModal("signatureCoachModal1")>Signer</button>
@@ -493,7 +494,7 @@
                 <h1>Signer le formulaire</h1>
                 <span class="close" id="modalClose" onclick="closeModal('signatureCoachModal1')">&times;</span>
             </div>
-            <form id="signatureCoachForm2">
+            <form id="signatureCoachForm1">
             <div class="modalBody">
                     <h2>Coach {{ match.equipe1.nom_equipe }}</h2>
                     <label for="passwordCoachTeam1" class="label onTop">Entrez votre mot de passe</label>
@@ -847,13 +848,13 @@
 
     <script>
         
-        const formSign1 = document.getElementById("signatureCoachForm2");
+        const formSign1 = document.getElementById("signatureCoachForm1");
 
         formSign1.addEventListener("submit", function(event) {
             event.preventDefault(); // Prevents the page from refreshing
         });
         
-        const formSign2 = document.getElementById("signatureCoachForm1");
+        const formSign2 = document.getElementById("signatureCoachForm2");
 
         formSign2.addEventListener("submit", function(event) {
             event.preventDefault(); // Prevents the page from refreshing
@@ -869,7 +870,7 @@
             let csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             // Send a POST request with hashed password and team ID
             try {
-                const response = await fetch('http://localhost:8000/Citrus/checkPassword/', {
+                const response = await fetch('{{domain}}/Citrus/checkPassword/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1031,7 +1032,7 @@
                 matchID : matchID
             };
         
-            fetch('http://localhost:8000/Citrus/SaveToDB/', {
+            fetch('{{domain}}/Citrus/SaveToDB/', {
                 method: "POST",
                 headers: {
                     "Content-Type": 'application/json',

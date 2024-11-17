@@ -1,0 +1,50 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>Mauvaise page</title>
+    <link rel="stylesheet" href="{% static 'stylesheets/components/generalStyles.css' %}">
+</head>
+<body>
+    <h1>Mauvaise page !</h1>
+    <h3>{{ errorMsg }}</h3>
+
+    <a href="/Citrus" ><button type="button" class="btnPrimary">Retour à l'accueil</button></a>
+
+    <style>
+        body {
+            background: var(--gradient);
+            background-attachment: fixed;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            padding: 1.5rem;
+            font-size: 15px !important;
+        }
+
+        h3 {
+            text-align: center;
+            margin: 0.75rem;
+        }
+
+        h1{
+            color: white;
+        }
+
+        p {
+            color: var(--white);
+            font-weight: 500;
+            font-size: 1rem;
+            margin: 0.2rem;
+        }
+
+
+    </style>
+
+</body>
+</html>
