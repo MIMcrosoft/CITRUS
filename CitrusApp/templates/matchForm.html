@@ -12,9 +12,9 @@
     <h2 class="formTitle">Formulaire de match</h2>
     <div class="topContainer">
         <div class="logoBoard">
-            <img src="{% if match.equipe2.logo %}{{ match.equipe2.logo.url }}{% else %}../static/icons/CitrusLogo.png{% endif %}" alt="" class="logo">
+            <img src="{% if match.equipe2.logo %}{{ match.equipe2.logo.url }}{% else %}{% static 'icons/CitrusLogo.png' %}{% endif %}" alt="" class="logo">
             <h2 class="logoX">Vs</h2>
-            <img src="{% if match.equipe1.logo %}{{ match.equipe1.logo.url }}{% else %}../static/icons/CitrusLogo.png{% endif %}" alt="" class="logo">
+            <img src="{% if match.equipe1.logo %}{{ match.equipe1.logo.url }}{% else %}{% static 'icons/CitrusLogo.png' %}{% endif %}" alt="" class="logo">
         </div>
         <div class="teamBoard">
             <p>{{ match.equipe2.nom_equipe }} Vs. {{ match.equipe1.nom_equipe }}</p>
@@ -433,8 +433,8 @@
     <section id="Score" class="hidden">
         <div class="scoreBoard">
             <div class="logos">
-                <img src="../static/icons/CitrusLogo.png" alt="" class="logo">
-                <img src="../static/icons/CitrusLogo.png" alt="" class="logo">
+                <img src="{% static 'icons/CitrusLogo.png' %}" alt="" class="logo">
+                <img src="{% static 'icons/CitrusLogo.png' %}" alt="" class="logo">
             </div>
             <div class="results">
                 <span id="subTotalTeam1">{% if matchData %}{{ matchData.5.0.0 }}{% else %}0{% endif %}</span>
