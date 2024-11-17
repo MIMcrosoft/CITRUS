@@ -589,6 +589,9 @@ def validateCoach(request):
         if coach:
             coach.validated_flag = True
             sendCoachEmail(coach.courriel,EmailType.VALIDATION)
+            coach.save()
             return JsonResponse({'message': 'Coach validated'},status=200)
 
         return JsonResponse({'message': 'Invalid request'},status=404)
+
+    return JsonResponse({'message': 'Invalid request'}, status=404)
