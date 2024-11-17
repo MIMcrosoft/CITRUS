@@ -71,7 +71,7 @@ def sendCoachEmail(coachEmail, emailType: EmailType,coachCodeHash=""):
         subject = 'Invitation à la plateforme CITRUS'
 
     elif emailType == EmailType.RESETPASSWORD:
-        with open(r"C:\Users\felix\Documents\work\Impro\CITRUS\CitrusApp\templates\templatesCourriel\resetPasswordEmail.html", 'r', encoding="utf-8") as file:
+        with open(r".\templates\templatesCourriel\resetPasswordEmail.html", 'r', encoding="utf-8") as file:
             html_body = file.read()
             urlResetPassword = f"{domain}/Citrus/ResetPassword-"+coachCodeHash
             html_bodyParam = html_body.replace("{urlResetPassword}", urlResetPassword)
@@ -86,7 +86,7 @@ def sendCoachEmail(coachEmail, emailType: EmailType,coachCodeHash=""):
 
 
     elif emailType == EmailType.VALIDATION:
-        with open(r"C:\Users\felix\Documents\work\Impro\CITRUS\CitrusApp\templates\templatesCourriel\validationCompteEmail.html", 'r', encoding="utf-8") as file:
+        with open(r".\templates\templatesCourriel\validationCompteEmail.html", 'r', encoding="utf-8") as file:
             html_body = file.read()
             urlSignIn = f"{domain}/Citrus/Connexion/"
             html_bodyParam = html_body.replace("{urlSignIn}", urlSignIn)
@@ -853,13 +853,13 @@ def updateUrlMatch():
         print(match.get_urlMatch())
 
 if __name__ == "__main__":
-    updateUrlMatch()
+    #updateUrlMatch()
     #Saison.createSaison("2024-2025")
     #createURLMatch()
     #fillCalendrier()
     #calendrier = Calendrier.objects.all().first()
     #exportCalendrier(calendrier)
-    #sendCoachEmail("felixrobillard@gmail.com",EmailType.RESETPASSWORD)
+    sendCoachEmail("felixrobillard@gmail.com",EmailType.RESETPASSWORD)
     #updateMatchDate()
     pass
 
