@@ -149,7 +149,7 @@ def loginUser(request):
         elif buttonClicked == 'resetPassword':
             email = request.POST['emailToReset']
             coachToReset = Coach.objects.filter(courriel=email).first()
-            print(coachToReset)
+            #print(coachToReset)
             if coachToReset:
                 code = str(coachToReset.prenom_coach) + str(coachToReset.nom_coach) + str(coachToReset.coach_id)
                 coachCodeHash = hash_code(code)
@@ -280,7 +280,7 @@ def modifEquipe(request, idEquipe):
             newLogoEquipe = request.FILES['logoEquipe']
         # Ajouter un check erreur de Unique
         newCollegeID = request.POST.get('newCollegeEquipe')
-        print(newCollegeID)
+        #print(newCollegeID)
 
         equipe.nom_equipe = newNomEquipe
         equipe.college = College.objects.get(college_id=newCollegeID)
@@ -310,7 +310,7 @@ def ajoutEquipe(request):
         coachIDEquipe = int(request.POST['coachEquipe'])
         # indispoEquipe
 
-        print(nomEquipe, divisionEquipe, collegeIDEquipe, coachIDEquipe)
+        #print(nomEquipe, divisionEquipe, collegeIDEquipe, coachIDEquipe)
         collegeEquipe = College.objects.get(college_id=collegeIDEquipe)
         coach = Coach.objects.get(coach_id=coachIDEquipe)
 
@@ -423,7 +423,7 @@ def match(request,hashedCode):
         code = str(match.equipe1) + str(match.equipe2) + str(match.match_id)
 
         if hashedCode == hash_code(code):
-            print(code)
+            #print(code)
             matchSelected = match
 
     if matchSelected.equipe1.nom_equipe == "EQUIPE TEST" or matchSelected.equipe2.nom_equipe == "EQUIPE TEST":
@@ -447,7 +447,7 @@ def match(request,hashedCode):
 
 
 
-        print(matchSelected.improvisations)
+        #print(matchSelected.improvisations)
         if matchSelected.improvisations is not None:
             matchData = ast.literal_eval(matchSelected.improvisations)
         else:
@@ -467,7 +467,7 @@ def match(request,hashedCode):
             })
         else :
             errorMsg = "Ce match n'est pas disponible!"
-            print(matchSelected)
+            #print(matchSelected)
             if matchSelected.date_match.strftime('%Y-%m-%d') != datetime.today().strftime('%Y-%m-%d'):
                 errorMsg = f"Ce match n'est pas encore disponible! \n Il sera disponible le {matchSelected.date_match.strftime('%Y-%m-%d')}"
             if matchSelected.completed_flag == True:
