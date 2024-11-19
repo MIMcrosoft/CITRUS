@@ -234,14 +234,14 @@
         }
 
         function validatePassword() {
-            const password = document.getElementById("coachPassword");
+            const password = document.getElementById("coachPassword").value;
             const isLengthValid = password.length >= 8;
             const hasNumberOrSpecialChar = /[0-9!@#$%^&*(),.?":{}|<>]/.test(password);
 
             if (isLengthValid && hasNumberOrSpecialChar) {
                 errorMsg.textContent = "";
             } else {
-                errorMsg.textContent = "Votre mot de passe doit faire plus de 6 caractères et contenir au moins un chiffre ou caractère spécial.";
+                errorMsg.textContent = "Votre mot de passe doit faire plus de 8 caractères et contenir au moins un chiffre ou caractère spécial.";
             }
         }
 
