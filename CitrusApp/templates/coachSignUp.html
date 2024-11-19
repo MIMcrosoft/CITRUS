@@ -24,35 +24,35 @@
                 </div>
 
                 {% for error in errors %}
-                    <label class="errorMsg"> {{ error }}</label>
+                    <label class="errorMsg" style="font-size: 15px;"> {{ error }}</label>
                 {% endfor %}
 
                 <section class="section signupFields">
                     <h2 style="margin-bottom: 0rem;">S'inscrire</h2>
                 
-                    <input type="text" id="coachPrenom" name="coachPrenom" placeholder="Votre prénom" autocomplete="one-time-code">
+                    <input type="text" id="coachPrenom" name="coachPrenom" placeholder="Votre prénom" autocomplete="one-time-code" required>
             
-                    <input type="text" id="coachNom" name="coachNom" placeholder="Votre nom" autocomplete="one-time-code">
+                    <input type="text" id="coachNom" name="coachNom" placeholder="Votre nom" autocomplete="one-time-code" required>
             
                     
-                    <input type="text" id="coachPronom" name="coachPronom" placeholder="Vos pronoms" autocomplete="one-time-code">
+                    <input type="text" id="coachPronom" name="coachPronom" placeholder="Vos pronoms" autocomplete="one-time-code" required>
                     
                     <button type="button" class="btnPrimary" onclick="sectionReveal('signUpEmailAndPassword')"><span>Continuer</span></button>
                 </section>
 
                 <section class="section signUpEmailAndPassword hidden">
-                    <input type="text" id="coachCourriel" name="coachCourriel" placeholder="Courriel">
+                    <input type="text" id="coachCourriel" name="coachCourriel" placeholder="Courriel" onchange="emailToLowercase()" onblur="validateEmail()" autocomplete="email" required>
                                             
-                    <input type="password" id="coachPassword" name="coachPassword" placeholder="Mot de passe">
+                    <input type="password" id="coachPassword" name="coachPassword" placeholder="Mot de passe" onchange="validatePasswords()" autocomplete="new-password" required>
                 
-                    <input type="password" id="coachPassword2" name="coachPassword2" placeholder="Confirmer le mot de passe">
+                    <input type="password" id="coachPassword2" name="coachPassword2" placeholder="Confirmer le mot de passe" onchange="validatePasswords()" autocomplete="off" required>
 
                     <button type="button" class="btnPrimary" onclick="sectionReveal('signupTeam')"><span>Continuer</span></button>
                 </section>
 
                 <section class="section signupTeam hidden">
                     <div class="select select-search">
-                        <select name="teamCoach" id="teamCoach">
+                        <select name="teamCoach" id="teamCoach" required>
                             <option value="">Choisissez votre équipe</option>
                             {% for equipe in allEquipes %}
                                 <option value="{{ equipe.id_equipe }}">{{ equipe.nom_equipe }}</option>
@@ -202,6 +202,35 @@
             }
             console.log("lol")
             document.getElementsByClassName(section)[0].classList.remove("hidden");
+        }
+
+        const emailField = document.getElementById("coachEmail");
+        const errorMsg = document.querySelector(".errorMsg");
+
+        function emailToLowercase() {
+            const email = emailField.value.trim().toLowerCase();
+            emailField.value = email;
+        }
+
+        function validateEmail() {
+            const email = emailField.value.trim().toLowerCase();
+            const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!emailRegex.test(email)) {
+                errorMsg.textContent = "Veuillez entrer une adresse courriel valide.";
+            } else {
+                errorMsg.textContent = "";
+            }
+        }
+
+        function validatePasswords() {
+            const pass1 = document.getElementById("coachPassword");
+            const pass2 = document.getElementById("coachPassword2");
+
+            if (pass1 !== pass2) {
+                errorMsg.textContent = "Les mots de passe ne correspondent pas.";
+            } else {
+                errorMsg.textContent = "";
+            }
         }
     </script>
     
