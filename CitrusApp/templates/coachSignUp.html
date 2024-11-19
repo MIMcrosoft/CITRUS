@@ -22,7 +22,8 @@
                 <div>
                     <img src="{% static 'icons/CitrusLogoText.png' %}" alt="Logo CITRUS"  class="logo">
                 </div>
-
+                    
+                    <label class="errorMsg" style="font-size: 15px;"></label>
                 {% for error in errors %}
                     <label class="errorMsg" style="font-size: 15px;"> {{ error }}</label>
                 {% endfor %}
@@ -89,7 +90,6 @@
             padding-inline:clamp(0.5rem, 10%, 4rem);
             transition: opacity 0.5s ease 0.25s;
             max-height: 100%;
-            overflow: scroll;
         }
 
         .loginContainer::-webkit-scrollbar {
@@ -105,10 +105,6 @@
 
         .login {
             max-width: 80vw;
-        }
-
-        .btnPrimary {
-            margin: 0;
         }
 
         .btnPrimary * {
