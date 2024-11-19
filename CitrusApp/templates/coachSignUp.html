@@ -44,9 +44,9 @@
                 <section class="section signUpEmailAndPassword hidden">
                     <input type="text" id="coachCourriel" name="coachCourriel" placeholder="Courriel" onchange="emailToLowercase()" onblur="validateEmail()" autocomplete="email" required>
                                             
-                    <input type="password" id="coachPassword" name="coachPassword" placeholder="Mot de passe" onchange="validatePasswords()" autocomplete="new-password" required>
+                    <input type="password" id="coachPassword" name="coachPassword" placeholder="Mot de passe" onchange="matchingPasswords()" onblur="validatePassword()" autocomplete="new-password" required>
                 
-                    <input type="password" id="coachPassword2" name="coachPassword2" placeholder="Confirmer le mot de passe" onchange="validatePasswords()" autocomplete="off" required>
+                    <input type="password" id="coachPassword2" name="coachPassword2" placeholder="Confirmer le mot de passe" onchange="matchingPasswords()" autocomplete="off" required>
 
                     <button type="button" class="btnPrimary" onclick="sectionReveal('signupTeam')"><span>Continuer</span></button>
                 </section>
@@ -200,7 +200,7 @@
             document.getElementsByClassName(section)[0].classList.remove("hidden");
         }
 
-        const emailField = document.getElementById("coachEmail");
+        const emailField = document.getElementById("coachCourriel");
         const errorMsg = document.querySelector(".errorMsg");
 
         function emailToLowercase() {
@@ -218,16 +218,29 @@
             }
         }
 
-        function validatePasswords() {
+        function matchingPasswords() {
             const pass1 = document.getElementById("coachPassword");
             const pass2 = document.getElementById("coachPassword2");
 
-            if (pass1 !== pass2) {
+            if (pass1.value !== pass2.value) {
                 errorMsg.textContent = "Les mots de passe ne correspondent pas.";
             } else {
                 errorMsg.textContent = "";
             }
         }
+
+        function validatePassword() {
+            const password = document.getElementById("coachPassword");
+            const isLengthValid = password.length >= 8;
+            const hasNumberOrSpecialChar = /[0-9!@#$%^&*(),.?":{}|<>]/.test(password);
+
+            if (isLengthValid && hasNumberOrSpecialChar) {
+                errorMsg.textContent = "";
+            } else {
+                errorMsg.textContent = "Votre mot de passe doit faire plus de 6 caractères et contenir au moins un chiffre ou caractère spécial.";
+            }
+        }
+
     </script>
     
     <script>
