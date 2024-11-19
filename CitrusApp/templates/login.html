@@ -19,7 +19,7 @@
                     <img src="{% static 'icons/CitrusLogoText.png' %}" alt="Logo CITRUS"  class="logo">
                 </div>
                 {% for error in errors %}
-                    <label class="errorMsg">{{ error }}</label>
+                    <label class="errorMsg" style="font-size: 15px;">{{ error }}</label>
                 {% endfor %}
                 <section class="section loginFields">
                     <input  style="margin-bottom: -0.5rem;" type="text" id="username" name="username" placeholder="Courriel">
