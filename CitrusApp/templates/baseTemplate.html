@@ -31,7 +31,7 @@
                 </li>
                 <li class="navListItem {% if activeTab == "EQUIPE" %}active{% endif %}" onclick="navTo(this, '/Citrus/Equipes', false)">
                     <img src="{% static 'icons/teams.png' %}" alt="" class="navItemIcon">
-                    <h2 class="navItemText">Équipes</h2>
+                    <h2 class="navItemText">Équipe</h2>
                 </li>
                 {% if request.user.admin_flag == True %}
                 <li class="navListItem {% if activeTab == "CALENDRIER" %}active{% endif %}" onclick="navTo(this, '/Citrus/Calendrier', false)">
