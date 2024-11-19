@@ -457,9 +457,9 @@
                 {% csrf_token %}
                 <h3 style="margin-top: 2rem; margin-bottom: 1rem;">Signatures</h3>
                 <label for="coach1" class="label onTop">Signature coach {{ match.equipe1.nom_equipe }}</label>
-                <button type="button" id="signatureCoachBtn1" class="btnPrimary signBtn" onclick=openModal("signatureCoachModal1")>Signer</button>
+                <button type="button" id="signatureCoachBtn1" class="btnPrimary signBtn" onclick="openModal('signatureCoachModal1')">Signer</button>
                 <label for="coach2" class="label onTop">Signature coach {{ match.equipe2.nom_equipe }}</label>
-                <button type="button" class="btnPrimary signBtn" id="signatureCoachBtn2" onclick=openModal("signatureCoachModal2")>Signer</button>
+                <button type="button" class="btnPrimary signBtn" id="signatureCoachBtn2" onclick="openModal('signatureCoachModal2')">Signer</button>
                 <button type="submit" id="finalizeMatchBtn" class="btnPrimary btnInline disabled-btn"><span>Confirmer l'envoi</span></button>
             </div>
         </form>
@@ -503,7 +503,7 @@
             </div>
             <div class="modalFooter">
                 <button type="button" class="btnSecondary btnInline" onclick="closeModal('signatureCoachModal1')"><span>Annuler</span></button>
-                <button type="button" class="btnPrimary btnInline" onclick="signCoach({{ match.equipe1.id_equipe }},1)"><span>Confirmer</span></button>
+                <button type="button" class="btnPrimary btnInline" onclick="signCoach({{match.equipe1.id_equipe}},1)"><span>Confirmer</span></button>
             </div>
             </form>
         </div>
@@ -1103,7 +1103,7 @@
                 tradePun[1] = tradePun[1]-3;
             }
             if (document.querySelector(".lastPoint").value != "unset" && score[0] == score[1]) {
-                console.log(document.getElementById("lastPoint").value)
+                console.log(document.querySelector("lastPoint").value)
                 document.getElementById("prolong").style.display="flex";
             } else {
                 document.getElementById("prolong").style.display="none";
