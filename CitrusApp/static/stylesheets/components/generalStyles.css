@@ -911,6 +911,7 @@ tr.clems * {
     line-height: 1rem;
     height: 1rem;
     margin-left: 0rem;
+    padding-bottom: 1.5rem;
     color: var(--white);
     transition:opacity 0.2s ease, margin 0.2s ease;
     vertical-align: middle;
