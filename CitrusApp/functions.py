@@ -46,11 +46,11 @@ def hash_code(code: str) -> str:
 
 def sendCoachEmail(coachEmail, emailType: EmailType,coachCodeHash=""):
     # Création d'un compte temporaire
-    smtp_server = 'smtp.gmail.com'
-    smtp_port = 587
-    sender_email = 'felixrobillardwork@gmail.com'
+    smtp_server = 'mail.liguedespamplemousses.com'
+    smtp_port = 465
+    sender_email = 'citrus@liguedespamplemousses.com'
     receiver_email = coachEmail
-    password = GMAIL_KEY
+    password = EMAIL_KEY
 
     if emailType == EmailType.INVITATION:
         # Création du lien vers le changement des infos
