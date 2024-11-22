@@ -111,16 +111,16 @@ def sendCoachEmail(coachEmail, emailType: EmailType,coachCodeHash=""):
     msg.attach(MIMEText(html_bodyParam_with_style, 'html'))
 
     # Connexion au serveur SMTP et l'envoi du email.
-
+    f = open("smtpLogs.txt",'w')
     try:
         server = smtplib.SMTP(smtp_server, smtp_port)
         server.starttls()
         server.login(sender_email, password)
         text = msg.as_string()
         server.sendmail(sender_email, receiver_email, text)
-        print('Le courriel à été envoyer avec succès')
+        print('Le courriel à été envoyer avec succès à ', receiver_email, file=f)
     except Exception as e:
-        print(f"Le courriel n'a pas été envoyé : {e}")
+        print(f"Le courriel n'a pas été envoyé : {e}", file=f)
     finally:
         server.quit()
 
