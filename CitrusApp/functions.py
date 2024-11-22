@@ -16,7 +16,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'CITRUS.settings')
 django.setup()
 
 from CitrusApp.admin import CoachCreationForm
-from CitrusApp.NOTPUBLIC import GMAIL_KEY
+from CitrusApp.NOTPUBLIC import EMAIL_KEY
 from CitrusApp.models import Calendrier, Session, Semaine, Match, College, Equipe, Coach, Saison
 from enum import Enum, auto
 
