@@ -39,6 +39,7 @@ def accueil(request):
 
     return render(request, 'Acceuil.html', {"user": current_user,
                                             'allMatchs': allMatchs,
+                                            'activeTab' : "ACCUEIL"
                                             })
 
 
@@ -48,10 +49,17 @@ def users(request):
     if request.method == 'POST':
         pass
 
+    if settings.DEBUG:
+        domain = "http://localhost:8000"
+    else:
+        domain = "https://citrus.liguedespamplemousses.com"
+
     if current_user.admin_flag == True:
 
         return render(request, "userManagement.html",{
-            'allUsers' : Coach.objects.all()
+            'allUsers' : Coach.objects.all(),
+            'domain' : domain,
+            'activeTab': "USER"
         })
 
     else:
@@ -63,11 +71,17 @@ def users(request):
 @login_required
 def userPage(request,userID):
     current_user = request.user
+    if settings.DEBUG:
+        domain = "http://localhost:8000"
+    else:
+        domain = "https://citrus.liguedespamplemousses.com"
     if request.method == 'POST':
         pass
 
     return render(request,"userPage.html",{
-        'user' : Coach.objects.get(coach_id=userID)
+        'user' : Coach.objects.get(coach_id=userID),
+        'domain' : domain,
+        'activeTab': "USER"
     })
 
 def resetPassword(request,hashedCoachID):
@@ -135,7 +149,7 @@ def loginUser(request):
         elif buttonClicked == 'resetPassword':
             email = request.POST['emailToReset']
             coachToReset = Coach.objects.filter(courriel=email).first()
-            print(coachToReset)
+            #print(coachToReset)
             if coachToReset:
                 code = str(coachToReset.prenom_coach) + str(coachToReset.nom_coach) + str(coachToReset.coach_id)
                 coachCodeHash = hash_code(code)
@@ -219,7 +233,11 @@ def allEquipes(request):
         pass
     if current_user.is_superuser == True:
         allEquipes = Equipe.objects.all()
-        return render(request, "equipes.html", {'allEquipes': allEquipes, 'saisonActive': saisonActive})
+        return render(request, "equipes.html", {
+            'allEquipes': allEquipes,
+            'saisonActive': saisonActive,
+            'activeTab': "EQUIPE"
+        })
     else:
         return redirect('Equipe',current_user.equipe.id_equipe,0)
 
@@ -246,7 +264,8 @@ def equipe(request, idEquipe, idSaison=None):
                    'allSaisons': Saison.objects.all(),
                    'alignement': alignement,
                    'coachs': Coach.objects.filter(equipe=equipe),
-                   'allMatchs' : Match.objects.filter(Q(equipe1=equipe) | Q(equipe2=equipe)).all()
+                   'allMatchs' : Match.objects.filter(Q(equipe1=equipe) | Q(equipe2=equipe)).all(),
+                   'activeTab': "EQUIPE"
                    })
 
 
@@ -261,7 +280,7 @@ def modifEquipe(request, idEquipe):
             newLogoEquipe = request.FILES['logoEquipe']
         # Ajouter un check erreur de Unique
         newCollegeID = request.POST.get('newCollegeEquipe')
-        print(newCollegeID)
+        #print(newCollegeID)
 
         equipe.nom_equipe = newNomEquipe
         equipe.college = College.objects.get(college_id=newCollegeID)
@@ -276,7 +295,8 @@ def modifEquipe(request, idEquipe):
         'equipe': equipe,
         'allSaisons': Saison.objects.all(),
         'alignement': alignement,
-        'allColleges': College.objects.all()
+        'allColleges': College.objects.all(),
+        'activeTab': "EQUIPE"
     })
 
 
@@ -290,7 +310,7 @@ def ajoutEquipe(request):
         coachIDEquipe = int(request.POST['coachEquipe'])
         # indispoEquipe
 
-        print(nomEquipe, divisionEquipe, collegeIDEquipe, coachIDEquipe)
+        #print(nomEquipe, divisionEquipe, collegeIDEquipe, coachIDEquipe)
         collegeEquipe = College.objects.get(college_id=collegeIDEquipe)
         coach = Coach.objects.get(coach_id=coachIDEquipe)
 
@@ -309,7 +329,12 @@ def ajoutEquipe(request):
     allColleges = College.objects.all()
     allCoachs = Coach.objects.all()
     if current_user.is_superuser == True:
-        return render(request, "ajoutEquipe.html", {'allColleges': allColleges, 'allCoachs': allCoachs})
+        return render(request, "ajoutEquipe.html", {
+            'allColleges': allColleges,
+            'allCoachs': allCoachs,
+            'activeTab': "EQUIPE"
+
+        })
 
 
 @login_required
@@ -345,7 +370,8 @@ def ajoutInterprete(request, equipeId, alignementID):
                       'equipe': Equipe.objects.get(id_equipe=equipeId),
                       'alignement': Alignements.objects.get(id_alignement=alignementID),
                       'allInterpretes': allInterpretes,
-                      'modifyFlag': False
+                      'modifyFlag': False,
+                      'activeTab': "EQUIPE"
                   })
 
 
@@ -369,7 +395,8 @@ def modifInterprete(request, interpreteID, equipeID):
         'equipe': Equipe.objects.get(id_equipe=equipeID),
         'interprete' : Interprete.objects.get(interprete_id=interpreteID),
         'allInterpretes': allInterpretes,
-        'modifyFlag' : True
+        'modifyFlag' : True,
+        'activeTab': "EQUIPE"
     })
 
 @login_required()
@@ -382,21 +409,34 @@ def matchs(request):
 
 
     return render(request, "matchs.html",{
-        'matchs' : Match.objects.filter(Q(equipe1=equipe) | Q(equipe2=equipe)).all()
+        'matchs' : Match.objects.filter(Q(equipe1=equipe) | Q(equipe2=equipe)).all(),
+        'activeTab': "MATCH"
     })
 def match(request,hashedCode):
     matchSelected = None
-
+    TEST = False
+    if settings.DEBUG:
+        domain = "http://localhost:8000"
+    else:
+        domain = "https://citrus.liguedespamplemousses.com"
     for match in Match.objects.all():
         code = str(match.equipe1) + str(match.equipe2) + str(match.match_id)
 
         if hashedCode == hash_code(code):
+            #print(code)
             matchSelected = match
+
+    if matchSelected.equipe1.nom_equipe == "EQUIPE TEST" or matchSelected.equipe2.nom_equipe == "EQUIPE TEST":
+        TEST = True
 
     if request.method == 'POST':
         matchData = ast.literal_eval(matchSelected.improvisations)
         matchSelected.score_eq1 = matchData[5][2][0]
         matchSelected.score_eq2 = matchData[5][2][1]
+        if not TEST:
+            matchSelected.completed_flag = True
+        matchSelected.save()
+        print("MATCHSAVED")
 
     if matchSelected is not None:
         equipe1Coachs = [coach for coach in Coach.objects.filter(equipe =matchSelected.equipe1)]
@@ -405,13 +445,15 @@ def match(request,hashedCode):
         equipe1Alignements = matchSelected.equipe1.getAlignement(currentSaison.saison_id)
         equipe2Alignements = matchSelected.equipe2.getAlignement(currentSaison.saison_id)
 
-        print(matchSelected.improvisations)
+
+
+        #print(matchSelected.improvisations)
         if matchSelected.improvisations is not None:
             matchData = ast.literal_eval(matchSelected.improvisations)
         else:
             matchData = None
 
-        if matchSelected.date_match.strftime('%Y-%m-%d') == datetime.today().strftime('%Y-%m-%d') or True:
+        if (matchSelected.date_match.strftime('%Y-%m-%d') == datetime.today().strftime('%Y-%m-%d') and matchSelected.completed_flag == False) or getattr(request.user, 'admin_flag',False) or TEST:
             return render(request, 'matchForm.html',{
                 "match" : matchSelected,
                 'coachEquipe1' : equipe1Coachs,
@@ -420,7 +462,18 @@ def match(request,hashedCode):
                 'equipe2Alignement' : equipe2Alignements,
                 'matchData' : matchData,
                 'hashedPwdsCoach1':None,
-                'hashedPwdsCoach2':None
+                'hashedPwdsCoach2':None,
+                'domain': domain
+            })
+        else :
+            errorMsg = "Ce match n'est pas disponible!"
+            #print(matchSelected)
+            if matchSelected.date_match.strftime('%Y-%m-%d') != datetime.today().strftime('%Y-%m-%d'):
+                errorMsg = f"Ce match n'est pas encore disponible! \n Il sera disponible le {matchSelected.date_match.strftime('%Y-%m-%d')}"
+            if matchSelected.completed_flag == True:
+                errorMsg = "Ce match à déjà été complété!"
+            return render(request, 'errorWindow.html',{
+                "errorMsg" : errorMsg
             })
 
 """
@@ -434,7 +487,9 @@ def calendrierAdmin(request):
     if request.method == 'POST':
         pass
 
-    return render(request, "calendrier/calendrier-step0.html", {})
+    return render(request, "calendrier/calendrier-step0.html", {
+        'activeTab': "CALENDRIER"
+    })
 
 
 """
@@ -448,7 +503,9 @@ def calendrier(request):
     if request.method == 'POST':
         pass
 
-    return render(request, "", {})
+    return render(request, "", {
+        'activeTab': "CALENDRIER"
+    })
 
 
 """
@@ -461,7 +518,9 @@ def classements(request):
     if request.method == 'POST':
         pass
 
-    return render(request, "base.html", {})
+    return render(request, "base.html", {
+        'activeTab': "CLASSEMENT"
+    })
 
 
 """
@@ -474,7 +533,9 @@ def tournois(request):
     if request.method == 'POST':
         pass
 
-    return render(request, "base.html", {})
+    return render(request, "base.html", {
+        'activeTab': "TOURNOI"
+    })
 
 
 """
@@ -487,7 +548,9 @@ def archives(request):
     if request.method == 'POST':
         pass
 
-    return render(request, "base.html", {})
+    return render(request, "base.html", {
+        'activeTab': "ARCHIVE"
+    })
 
 
 @login_required()
@@ -549,16 +612,31 @@ def checkPassword(request):
         return JsonResponse({'message': 'Invalid request'},status=404)
 
 
+
+
 def validateCoach(request):
     if request.method == "POST":
-        data = json.loads(request.body)
-        coachID = data.get('coachID')
+        try:
+            data = json.loads(request.body)
+            coachID = data.get('coachID')
 
-        coach = Coach.objects.get(coach_id=coachID)
+            # Ensure `Coach.objects.get` does not raise an exception
+            coach = Coach.objects.get(coach_id=coachID)
 
-        if coach:
-            coach.validated_flag = True
-            sendCoachEmail(coach.courriel,EmailType.VALIDATION)
-            return JsonResponse({'message': 'Coach validated'},status=200)
+            if coach:
+                coach.validated_flag = True
+                sendCoachEmail(coach.courriel, EmailType.VALIDATION)
+                coach.save()
+                return JsonResponse({'message': 'Coach validated'}, status=200)
 
-        return JsonResponse({'message': 'Invalid request'},status=404)
+        except Coach.DoesNotExist:
+            return JsonResponse({'message': 'Coach not found'}, status=404)
+        except KeyError:
+            return JsonResponse({'message': 'Invalid data'}, status=400)
+        except json.JSONDecodeError:
+            return JsonResponse({'message': 'Invalid JSON'}, status=400)
+
+    # If the request method is not POST
+    return JsonResponse({'message': 'Invalid request method'}, status=405)
+
+

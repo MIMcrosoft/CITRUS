@@ -8,6 +8,7 @@ from io import BytesIO
 import base64
 import hashlib
 import locale
+from django.conf import settings
 
 
 def hash_code(code: str) -> str:
@@ -389,14 +390,15 @@ class Match(models.Model):
         pass
 
     @classmethod
-    def createMatch(cls, division, session=None, serie=None, equipe1=None, equipe2=None, semaine=None, ):
+    def createMatch(cls, division, session=None, serie=None, equipe1=None, equipe2=None, semaine=None, date_match=None):
         match = cls(
             session=session,
             serie=serie,
             equipe1=equipe1,
             equipe2=equipe2,
             semaine=semaine,
-            division=division
+            division=division,
+            date_match=date_match
         )
         equipe1.nb_matchHost += 1
         equipe2.nb_matchVis += 1
@@ -425,8 +427,17 @@ class Match(models.Model):
         except cls.DoesNotExist:
             return False
 
+    def get_urlMatch(self):
+        code = str(self.equipe1.nom_equipe) + str(self.equipe2.nom_equipe) + str(self.match_id)
+        if settings.DEBUG:
+            self.url_match = "http://localhost:8000/Citrus/Match-" + hash_code(code)
+        else:
+            self.url_match = "https://citrus.liguedespamplemousses.com/Citrus/Match-" + hash_code(code)
+        self.save()
+        print(self.url_match)
+        return self.url_match
     def get_QrCode(self):
-        qr = segno.make(self.url_match)
+        qr = segno.make(self.get_urlMatch())
 
         buffer = BytesIO()
         qr.save(buffer, kind='png', scale=7)

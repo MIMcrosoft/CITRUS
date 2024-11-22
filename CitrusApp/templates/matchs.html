@@ -3,8 +3,8 @@
 {% block content %}
 
     <h1>Mes Matchs</h1>
-    <p>Cette section vous permet de modifier les informations des équipes de la Ligue des Pamplemousses</p>
-    <button class="btnPrimary" onclick="navTo(this,'/Citrus/ReportMatch/',false)"><span>Reporter un match</span></button>
+    <p>Cette section vous permet d'accéder aux liens de vos matchs !</p>
+    <!---<button class="btnPrimary" onclick="navTo(this,'/Citrus/ReportMatch/',false)"><span>Reporter un match</span></button>--->
     
 
     <h1>Matchs à venir</h1>
@@ -22,7 +22,7 @@
                 <td>{{ match.equipe2.nom_equipe }}</td>
                 <td>{{ match.equipe1.college.nom_college }}</td>
                 <td>{{ match.get_dateFormatted }}</td>
-                <td><button id="modalBtn" onclick="createModal('QrModal','','{{ match.get_QrCode }}','{{ match.url_match }}')">Lien du match</button></td>
+                <td><button id="modalBtn" onclick="createModal('QrModal','','{{ match.get_QrCode }}','{{ match.get_urlMatch }}')">Lien du match</button></td>
             
             
             </tr>
@@ -35,92 +35,87 @@
     
 
         
-        function createModal(modalName, headerText, imgSrc,matchURl) {
-            // Create modal container
-            const modal = document.createElement('div');
-            modal.setAttribute('id', 'modal');
-            modal.classList.add('modal');
-            modal.setAttribute('data-modal', modalName);
-    
-            // Modal content container
-            const modalContent = document.createElement('div');
-            modalContent.classList.add('modalContent');
-            modal.appendChild(modalContent);
-    
-            // Modal header
-            const modalHeader = document.createElement('div');
-            modalHeader.classList.add('modalHeader');
-            modalContent.appendChild(modalHeader);
-    
-            const header = document.createElement('h1');
-            header.textContent = headerText;
-            modalHeader.appendChild(header);
-    
-            // Close button
-            const closeBtn = document.createElement('span');
-            closeBtn.classList.add('close');
-            closeBtn.innerHTML = '&times;';
-            closeBtn.onclick = function () {
-                closeModal(modalName);
-            };
-            modalHeader.appendChild(closeBtn);
-    
-            // Modal body
-            const modalBody = document.createElement('div');
-            modalBody.classList.add('modalBody');
-            modalContent.appendChild(modalBody);
-    
-            const img = document.createElement('img');
+        function createModal(modalName, headerText, imgSrc, matchURl) {
+            console.log(matchURl);
+            let modal = document.querySelector("[data-modal='" + modalName + "']");
+        
+            if (!modal) {
+                // Create modal if it doesn't exist
+                modal = document.createElement('div');
+                modal.setAttribute('id', 'modal');
+                modal.classList.add('modal');
+                modal.setAttribute('data-modal', modalName);
+        
+                const modalContent = document.createElement('div');
+                modalContent.classList.add('modalContent');
+                modal.appendChild(modalContent);
+        
+                const modalHeader = document.createElement('div');
+                modalHeader.classList.add('modalHeader');
+                modalContent.appendChild(modalHeader);
+        
+                const header = document.createElement('h1');
+                modalHeader.appendChild(header);
+        
+                const closeBtn = document.createElement('span');
+                closeBtn.classList.add('close');
+                closeBtn.innerHTML = '&times;';
+                closeBtn.onclick = function () {
+                    closeModal(modalName);
+                };
+                modalHeader.appendChild(closeBtn);
+        
+                const modalBody = document.createElement('div');
+                modalBody.classList.add('modalBody');
+                modalContent.appendChild(modalBody);
+        
+                const img = document.createElement('img');
+                img.style.width = '250px';
+                img.style.height = '250px';
+                modalBody.appendChild(img);
+        
+                const modalFooter = document.createElement('div');
+                modalFooter.classList.add('modalFooter');
+                modalContent.appendChild(modalFooter);
+        
+                const copyButton = document.createElement('button');
+                copyButton.classList.add('btnPrimary', 'btnInline');
+                copyButton.innerHTML = '<span>Copier le lien</span>';
+                copyButton.onclick = function () {
+                    navigator.clipboard.writeText(matchURl).then(function () {
+                        alert("Le lien a été copié !");
+                    }).catch(function (err) {
+                        alert('Erreur dans la copie du lien : ', err);
+                    });
+                };
+                modalFooter.appendChild(copyButton);
+        
+                const closeButton = document.createElement('button');
+                closeButton.classList.add('btnSecondary', 'btnInline');
+                closeButton.innerHTML = '<span>Fermer</span>';
+                closeButton.onclick = function () {
+                    closeModal(modalName);
+                };
+                modalFooter.appendChild(closeButton);
+        
+                document.body.appendChild(modal);
+            }
+        
+            // Update modal content
+            modal.querySelector('.modalHeader h1').textContent = headerText;
+            const img = modal.querySelector('.modalBody img');
             img.setAttribute('src', imgSrc);
             img.setAttribute('alt', 'QR Code');
-            
-            img.style.width = '250px';
-            img.style.height = '250px';
-            modalBody.appendChild(img);
-    
-            // Modal footer
-            const modalFooter = document.createElement('div');
-            modalFooter.classList.add('modalFooter');
-            modalContent.appendChild(modalFooter);
-    
-            const copyButton = document.createElement('button');
-            copyButton.classList.add('btnPrimary', 'btnInline');
-            copyButton.innerHTML = '<span>Copier le lien</span>';
-            copyButton.onclick = function () {
-                console.log(matchURl)
-                navigator.clipboard.writeText(matchURl).then(function() {
+            modal.querySelector('.btnPrimary').onclick = function () {
+                navigator.clipboard.writeText(matchURl).then(function () {
                     alert("Le lien a été copié !");
-                }).catch(function(err) {
+                }).catch(function (err) {
                     alert('Erreur dans la copie du lien : ', err);
                 });
-                
             };
-            modalFooter.appendChild(copyButton);
-    
-            const closeButton = document.createElement('button');
-            closeButton.classList.add('btnSecondary', 'btnInline');
-            closeButton.innerHTML = '<span>Fermer</span>';
-            closeButton.onclick = function () {
-                closeModal(modalName);
-            };
-            modalFooter.appendChild(closeButton);
-    
-            // Append the modal to the body
-            document.body.appendChild(modal);
-            
-            openModal(modalName)
-        }
-    
-        function openModal(modalName) {
-            let modal = document.querySelector("[data-modal='" + modalName + "']");
-            modal.style.display = "block";
-        }
-    
-        function closeModal(modalName) {
-            let modal = document.querySelector("[data-modal='" + modalName + "']");
-            modal.style.display = "none";
-        }
         
+            openModal(modalName);
+        }
 
     </script>
 

@@ -38,7 +38,6 @@ body {
 .basicPage {
   display: flex;
   flex-direction: row;
-  overflow: hidden;
 }
 
 
@@ -55,6 +54,8 @@ main {
 .pageContent {
   opacity: 1;
   transition: opacity 0.5s ease;
+  height: 100%;
+
 }
 
 .pageContent.hidden {
@@ -75,6 +76,7 @@ h2 {
     font-size: 1.25rem;
     font-weight: 600;
     color: var(--textBlack);
+    margin-bottom: 5px;
 }
 
 
@@ -171,7 +173,7 @@ button, .btn {
     color: var(--mainPamps);
     padding: 0.4rem;
     margin: 0.15rem;
-    /*margin-bottom: 1.2rem;*/
+    margin-bottom: 1.7rem;
     padding-inline: 2.5rem;
 }
 
@@ -1107,6 +1109,10 @@ tr.clems * {
     box-shadow: var(--shadow);
     cursor: pointer;
     transition: top 0.25s ease;
+  }
+
+  main {
+    margin:0;
   }
 }
 

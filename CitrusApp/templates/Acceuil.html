@@ -1,10 +1,19 @@
 {% extends 'baseTemplate.html' %}
-
 {% block content %}
     
     <h1>Bonjour {{ user.prenom_coach }}</h1>
+    <h2>Bienvenue dans Citrus, la plateforme officiel des coachs de la ligue des pamplemousses !</h2>
+    <p>Pour l'instant, tu peux aller essayer les différentes fonctionnalités de l'application.</p>
+    <h2>Dans l'onglet Équipe</h2>
+    <p>Dans l'onglet Équipe, tu peux voir tes futurs matchs et ajouter les interprètes de ton équipe !</p>
+    <h2>Dans l'onglet Matchs</h2>
+    <p>Dans l'onglet Matchs, tu peux voir et accéder aux matchs de ton équipe. Certains matchs seront bloquer pour l'instant et 
+    ils seront débloquer seulement à la date du match. Mais tu peux tester le formulaire avec le match EQUIPE TEST ! Pour enregistrer les modifications,
+    sache que le mot de passe de l'EQUIPE TEST est 12345 !
+    </p>
+    <footer>Si tu as des questions, tu peux nous joindre sur messenger Félix Robillard et Raphaël Dumont !</footer>
     
-    <h2>Matchs à venir</h2>
+    <!---<h2>Matchs à venir</h2>
     <table>
         <tr class="tableHeaderRow">
             <th>Visiteur</th>
@@ -27,7 +36,7 @@
 
             
         {% endfor %}
-    </table>
+    </table>--->
 
     
 {% endblock %}
