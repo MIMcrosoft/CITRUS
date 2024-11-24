@@ -17,7 +17,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'CITRUS.settings')
 django.setup()
 
 from CitrusApp.admin import CoachCreationForm
-from CitrusApp.NOTPUBLIC import EMAIL_KEY
+from CitrusApp.NOTPUBLIC import EMAIL_KEY, GMAIL_KEY
 from CitrusApp.models import Calendrier, Session, Semaine, Match, College, Equipe, Coach, Saison
 from enum import Enum, auto
 
@@ -47,11 +47,15 @@ def hash_code(code: str) -> str:
 
 def sendCoachEmail(coachEmail, emailType: EmailType,coachCodeHash=""):
     # Création d'un compte temporaire
-    smtp_server = 'mai.liguedespamplemousses.com'
-    smtp_port = 465
-    sender_email = 'citrus@liguedespamplemousses.com'
+    #smtp_server = 'mai.liguedespamplemousses.com'
+    smtp_server = 'smtp.gmail.com'
+    #smtp_port = 465
+    smtp_port = 587
+    #sender_email = 'citrus@liguedespamplemousses.com'
+    sender_email = 'felixrobillardwork@gmail.com'
     receiver_email = coachEmail
-    password = EMAIL_KEY
+    #password = EMAIL_KEY
+    password = GMAIL_KEY
 
     base_dir = Path(__file__).resolve().parent
 
