@@ -121,9 +121,9 @@ def sendCoachEmail(coachEmail, emailType: EmailType,coachCodeHash=""):
         server.login(sender_email, password)
         text = msg.as_string()
         server.sendmail(sender_email, receiver_email, text)
-        print('Le courriel à été envoyer avec succès à ', receiver_email)
+        print(f'Le courriel à été envoyer avec succès à {receiver_email}')
     except Exception as e:
-        print("Le courriel n'a pas été envoyé : {e}")
+        print(f"Le courriel n'a pas été envoyé : {e}")
     finally:
         server.quit()
 
