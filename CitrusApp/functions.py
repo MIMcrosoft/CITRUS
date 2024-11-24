@@ -47,7 +47,7 @@ def hash_code(code: str) -> str:
 
 def sendCoachEmail(coachEmail, emailType: EmailType,coachCodeHash=""):
     # Création d'un compte temporaire
-    smtp_server = 'mail.liguedespamplemousses.com'
+    smtp_server = 'mai.liguedespamplemousses.com'
     smtp_port = 465
     sender_email = 'citrus@liguedespamplemousses.com'
     receiver_email = coachEmail
