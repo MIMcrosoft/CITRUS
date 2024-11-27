@@ -434,7 +434,6 @@ class Match(models.Model):
         else:
             self.url_match = "https://citrus.liguedespamplemousses.com/Citrus/Match-" + hash_code(code)
         self.save()
-        print(self.url_match)
         return self.url_match
     def get_QrCode(self):
         qr = segno.make(self.get_urlMatch())
