@@ -2,6 +2,7 @@ import ast
 
 from django.db.models import Q
 from django.http import HttpResponse
+from django.contrib.auth.models import AnonymousUser
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -16,19 +17,32 @@ from django.contrib.auth.hashers import check_password
 import segno
 
 
+
+
 def components(request):
     return render(request, 'components.html')
 
 def test(request):
     return render(request, 'templatesCourriel/resetPasswordEmail.html')
 
-"""
+
+def page_404(request,exception):
+    return render(request, 'errorWindow.html',{
+        'errorMsg': "Oups Cette page n'existe pas !"
+    })
 
 """
 
-@login_required
+"""
+
+
 def accueil(request):
     current_user = request.user
+
+    if isinstance(current_user, AnonymousUser) or not current_user.is_authenticated:
+        # Redirect or handle the case when the user is not logged in
+        return redirect('Connexion')
+
     if current_user.is_superuser == True:
         allMatchs = Match.objects.all()
     else:
@@ -133,7 +147,7 @@ def loginUser(request):
 
         if buttonClicked == 'connexion':
 
-            username = request.POST['username']
+            username = request.POST['username'].strip().lower()
             password = request.POST['password']
             user = authenticate(request, username=username, password=password)
             if user is not None:
@@ -147,8 +161,8 @@ def loginUser(request):
 
 
         elif buttonClicked == 'resetPassword':
-            email = request.POST['emailToReset']
-            coachToReset = Coach.objects.filter(courriel=email).first()
+            email = request.POST['emailToReset'].strip().lower()
+            coachToReset = Coach.objects.filter(courriel__iexact=email).first()
             #print(coachToReset)
             if coachToReset:
                 code = str(coachToReset.prenom_coach) + str(coachToReset.nom_coach) + str(coachToReset.coach_id)
@@ -205,7 +219,7 @@ def coachSignUp(request):
             prenom_coach=coachPrenom,
             nom_coach=coachNom,
             pronom_coach=coachPronom,
-            courriel=coachCourriel,
+            courriel=coachCourriel.strip().lower(),
             password=coachPassword,
             equipe=coachTeam
         )
