@@ -149,15 +149,20 @@ def loginUser(request):
 
             username = request.POST['username'].strip().lower()
             password = request.POST['password']
-            user = authenticate(request, username=username, password=password)
-            if user is not None:
-                if user.validated_flag:
-                    login(request, user)
-                    return redirect('/Citrus/?animation=2')  # Redirect to home on successful login
+            try:
+                user = Coach.objects.get(courriel=username)
+                # User exists, so authenticate with the password
+                authenticated_user = authenticate(request, username=username, password=password)
+                if authenticated_user is not None:
+                    if authenticated_user.validated_flag:
+                        login(request, authenticated_user)
+                        return redirect('/Citrus/?animation=2')  # Redirect to home on successful login
+                    else:
+                        errors.append("Votre compte est en attente de validation par l'administration.")
                 else:
-                    errors.append("Votre compte est en attente de validation par l'administration.")
-            else:
-                errors.append("Aucun compte n'est associé à cette adresse courriel.")
+                    errors.append("Le mot de passe est incorrect.")
+            except Coach.DoesNotExist:
+                errors.append("Aucun compte n'est associé à ce nom d'utilisateur.")
 
 
         elif buttonClicked == 'resetPassword':
@@ -467,28 +472,18 @@ def match(request,hashedCode):
         else:
             matchData = None
 
-        if (matchSelected.date_match.strftime('%Y-%m-%d') == datetime.today().strftime('%Y-%m-%d') and matchSelected.completed_flag == False) or getattr(request.user, 'admin_flag',False) or TEST:
-            return render(request, 'matchForm.html',{
-                "match" : matchSelected,
-                'coachEquipe1' : equipe1Coachs,
-                'coachEquipe2' : equipe2Coachs,
-                'equipe1Alignement' : equipe1Alignements,
-                'equipe2Alignement' : equipe2Alignements,
-                'matchData' : matchData,
-                'hashedPwdsCoach1':None,
-                'hashedPwdsCoach2':None,
-                'domain': domain
-            })
-        else :
-            errorMsg = "Ce match n'est pas disponible!"
-            #print(matchSelected)
-            if matchSelected.date_match.strftime('%Y-%m-%d') != datetime.today().strftime('%Y-%m-%d'):
-                errorMsg = f"Ce match n'est pas encore disponible! \n Il sera disponible le {matchSelected.date_match.strftime('%Y-%m-%d')}"
-            if matchSelected.completed_flag == True:
-                errorMsg = "Ce match à déjà été complété!"
-            return render(request, 'errorWindow.html',{
-                "errorMsg" : errorMsg
-            })
+
+        return render(request, 'matchForm.html',{
+            "match" : matchSelected,
+            'coachEquipe1' : equipe1Coachs,
+            'coachEquipe2' : equipe2Coachs,
+            'equipe1Alignement' : equipe1Alignements,
+            'equipe2Alignement' : equipe2Alignements,
+            'matchData' : matchData,
+            'hashedPwdsCoach1':None,
+            'hashedPwdsCoach2':None,
+            'domain': domain
+        })
 
 """
 calendrierAdmin

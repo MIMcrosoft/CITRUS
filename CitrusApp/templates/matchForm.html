@@ -839,6 +839,7 @@
             background-color: grey;
             color: white;
             cursor: default;
+
             opacity: 0.6; /* Adds a dimmed look */
             pointer-events: none; /* Disables hover animations */
             transition: none; /* Disables any transition animations */
@@ -847,6 +848,24 @@
     </style>
 
     <script>
+        {% if match.completed_flag == True %}
+            disableAllInputs()
+        {% endif %}
+        
+        function disableAllInputs() {
+            document.querySelectorAll('button , input')
+                .forEach(element => element.disabled = true);
+
+            document.querySelectorAll('button, .impro .select')
+                .forEach(element => {
+                    element.disabled = true; // Disable the button
+                    element.classList.add('disabled-btn'); // Add a class
+                    element.style.pointerEvents = "none";
+                    element.style.borderRadius = "15px";
+                });
+
+
+        }
         
         const formSign1 = document.getElementById("signatureCoachForm1");
 
@@ -979,7 +998,6 @@
                 let punition = punitions[i];
                 let punitionInfo = punition.children;
                 if(punition.classList.contains("pun")){
-                    console.log(punition);
                     punitionsString += "['" + punitionInfo[0].innerHTML + "','" + punitionInfo[1].innerHTML + "','" + punitionInfo[2].innerHTML + "']"
                     if(i !== punitions.length - 1 ){
                         punitionsString += ","
@@ -1013,7 +1031,6 @@
             
             // Finalise
             let finalString = "[" + alignementEquipe1String + "," + alignementEquipe2String + "," + improString + "," + punitionsString + "," + etoilesString + "," + scoreString + "]";
-            console.log(finalString);
             return finalString;
         }
         
@@ -1092,7 +1109,6 @@
 
         function updateScore() {
             let tradePun = Array.from(puns);
-            console.log(tradePun);
             score = Array.from(points);
             while (tradePun[0]>=3) {
                 score[1]++
@@ -1196,7 +1212,6 @@
         function showSection(el){
             const sections = document.getElementsByTagName("section");
             const section = el.value;
-            console.log(el);
             for (i=0;i<sections.length;i++) {
                 sections[i].classList.add("hidden");
             }
@@ -1282,7 +1297,6 @@
                     for (var k = 0; k < optionsLength; k++) {
                         if (selectElement.options[k].innerText === this.innerText) {
                             selectElement.selectedIndex = k;
-                            console.log("set to " + selectElement.value)
                             selectedDiv.innerHTML = this.innerHTML;
                             allSelectedDivs = this.parentNode.getElementsByClassName("same-as-selected");
                             
@@ -1321,7 +1335,6 @@
                 // Si le conteneur de sélection a la classe "select-search", focaliser la barre de recherche
                 if (this.parentNode.classList.contains("select-search")) {
                     let searchInput = selectContainers[i].parentNode.getElementsByClassName("select-search-bar-input")[0];
-                    console.log(selectContainers[i])
                     searchInput.focus();
                     this.nextElementSibling.scroll(0, 0);
                 }
@@ -1430,7 +1443,6 @@
         const {name, number, pronoun} = playerInfo;
         const teamDiv = document.getElementById("alignement"+team);  // Get the team container
         const players = document.getElementsByClassName("player"+team);  // Get all players
-        console.log(team)
 
         const newPlayerHtml = `
         <div class="player player${team}" onclick="this.classList.toggle('crossed')">
