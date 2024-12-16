@@ -20,7 +20,7 @@ from django.conf.urls import handler404
 from CitrusApp.views import page_404
 
 
-handler404 = page_404
+#handler404 = page_404
 
 urlpatterns = [
     path('admin/', admin.site.urls),

@@ -1,20 +1,16 @@
 import ast
-
 from django.db.models import Q
-from django.http import HttpResponse
 from django.contrib.auth.models import AnonymousUser
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.contrib import messages
 from django.shortcuts import get_object_or_404
 from .models import Coach, Equipe, College, Interprete, Saison, Alignements, Match,CoachManager
 from .functions import *
-from datetime import datetime
 import json
 from django.http import JsonResponse
 from django.contrib.auth.hashers import check_password
-import segno
+
 
 
 
@@ -25,16 +21,10 @@ def components(request):
 def test(request):
     return render(request, 'templatesCourriel/resetPasswordEmail.html')
 
-
 def page_404(request,exception):
     return render(request, 'errorWindow.html',{
         'errorMsg': "Oups Cette page n'existe pas !"
     })
-
-"""
-
-"""
-
 
 def accueil(request):
     current_user = request.user
@@ -55,7 +45,6 @@ def accueil(request):
                                             'allMatchs': allMatchs,
                                             'activeTab' : "ACCUEIL"
                                             })
-
 
 @login_required
 def users(request):
@@ -78,9 +67,6 @@ def users(request):
 
     else:
         return redirect("UserPage",current_user.coach_id)
-"""
-
-"""
 
 @login_required
 def userPage(request,userID):
@@ -184,13 +170,6 @@ def loginUser(request):
         'errors' : errors
     })
 
-
-
-"""
-
-"""
-
-
 def coachSignUp(request):
     errors = []
     if request.method == 'POST':
@@ -238,12 +217,6 @@ def coachSignUp(request):
         'errors': errors
     })
 
-
-"""
-
-"""
-
-
 @login_required
 def allEquipes(request):
     current_user = request.user
@@ -259,7 +232,6 @@ def allEquipes(request):
         })
     else:
         return redirect('Equipe',current_user.equipe.id_equipe,0)
-
 
 @login_required
 def equipe(request, idEquipe, idSaison=None):
@@ -286,7 +258,6 @@ def equipe(request, idEquipe, idSaison=None):
                    'allMatchs' : Match.objects.filter(Q(equipe1=equipe) | Q(equipe2=equipe)).all(),
                    'activeTab': "EQUIPE"
                    })
-
 
 @login_required
 def modifEquipe(request, idEquipe):
@@ -317,7 +288,6 @@ def modifEquipe(request, idEquipe):
         'allColleges': College.objects.all(),
         'activeTab': "EQUIPE"
     })
-
 
 @login_required
 def ajoutEquipe(request):
@@ -355,7 +325,6 @@ def ajoutEquipe(request):
 
         })
 
-
 @login_required
 def ajoutInterprete(request, equipeId, alignementID):
     allInterpretes = Interprete.objects.all()
@@ -392,7 +361,6 @@ def ajoutInterprete(request, equipeId, alignementID):
                       'modifyFlag': False,
                       'activeTab': "EQUIPE"
                   })
-
 
 @login_required
 def modifInterprete(request, interpreteID, equipeID):
@@ -485,12 +453,6 @@ def match(request,hashedCode):
             'domain': domain
         })
 
-"""
-calendrierAdmin
-Page que l'admin va voir afin de créer ou de charger un calendrier
-"""
-
-
 @login_required
 def calendrierAdmin(request):
     if request.method == 'POST':
@@ -499,13 +461,6 @@ def calendrierAdmin(request):
     return render(request, "calendrier/calendrier-step0.html", {
         'activeTab': "CALENDRIER"
     })
-
-
-"""
-calendrier
-Page que les coachs vont voir lorsqu'il veulent voir le calendrier des matchs
-"""
-
 
 @login_required
 def calendrier(request):
@@ -516,12 +471,6 @@ def calendrier(request):
         'activeTab': "CALENDRIER"
     })
 
-
-"""
-
-"""
-
-
 @login_required
 def classements(request):
     if request.method == 'POST':
@@ -530,12 +479,6 @@ def classements(request):
     return render(request, "base.html", {
         'activeTab': "CLASSEMENT"
     })
-
-
-"""
-
-"""
-
 
 @login_required
 def tournois(request):
@@ -546,12 +489,6 @@ def tournois(request):
         'activeTab': "TOURNOI"
     })
 
-
-"""
-
-"""
-
-
 @login_required
 def archives(request):
     if request.method == 'POST':
@@ -561,15 +498,10 @@ def archives(request):
         'activeTab': "ARCHIVE"
     })
 
-
 @login_required()
 def log_out(request):
     logout(request)
     return redirect("/Citrus/Connexion/?animation=2")
-
-
-
-
 
 def saveToDB(request):
     if request.method == "POST":
@@ -619,9 +551,6 @@ def checkPassword(request):
                 return JsonResponse({'message': 'Password invalid'},status=401)
 
         return JsonResponse({'message': 'Invalid request'},status=404)
-
-
-
 
 def validateCoach(request):
     if request.method == "POST":
