@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager, PermissionsMixin
 from googlemaps import geocoding, Client
 import segno
-from .NOTPUBLIC import API_KEY, GMAIL_KEY
+from .NOTPUBLIC import API_KEY, EMAIL_PSWD
 from datetime import datetime, timedelta
 from io import BytesIO
 import base64
@@ -447,13 +447,13 @@ class Match(models.Model):
         return f"data:image/png;base64,{imageBase64}"
 
     def get_dateFormatted(self):
-        locale.setlocale(locale.LC_TIME, 'fr_FR')
+        locale.setlocale(locale.LC_TIME, 'en_EN')
 
         date_formatted = self.date_match.strftime("%d %b")
         return date_formatted
 
     def get_dateFormattedWithYear(self):
-        locale.setlocale(locale.LC_TIME, 'fr_FR')
+        locale.setlocale(locale.LC_TIME, 'en_EN')
         date_formatted = self.date_match.strftime("%d %b %Y")
 
         return date_formatted

@@ -11,15 +11,11 @@ import json
 from django.http import JsonResponse
 from django.contrib.auth.hashers import check_password
 
-
-
-
-
 def components(request):
     return render(request, 'components.html')
 
 def test(request):
-    return render(request, 'templatesCourriel/resetPasswordEmail.html')
+    return render(request, 'qrSheet.html')
 
 def page_404(request,exception):
     return render(request, 'errorWindow.html',{
@@ -396,6 +392,7 @@ def matchs(request):
 
 
     return render(request, "matchs.html",{
+        'equipe': equipe,
         'matchs' : Match.objects.filter(Q(equipe1=equipe) | Q(equipe2=equipe)).all(),
         'activeTab': "MATCH"
     })
@@ -453,6 +450,14 @@ def match(request,hashedCode):
             'domain': domain
         })
 
+def ficheCodeQR(request,equipeId):
+
+    equipe =Equipe.objects.get(id_equipe=equipeId)
+
+    return render(request,"qrSheet.html",{
+        'equipe' : equipe,
+        'matchs' : Match.objects.filter(Q(equipe1=equipe) | Q(equipe2=equipe)).all()
+    })
 @login_required
 def calendrierAdmin(request):
     if request.method == 'POST':
