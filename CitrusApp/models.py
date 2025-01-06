@@ -447,13 +447,13 @@ class Match(models.Model):
         return f"data:image/png;base64,{imageBase64}"
 
     def get_dateFormatted(self):
-        locale.setlocale(locale.LC_TIME, 'en_US')
+        #locale.setlocale(locale.LC_TIME, 'en_US')
 
         date_formatted = self.date_match.strftime("%d %b")
         return date_formatted
 
     def get_dateFormattedWithYear(self):
-        locale.setlocale(locale.LC_TIME, 'en_US')
+        #locale.setlocale(locale.LC_TIME, 'en_US')
         date_formatted = self.date_match.strftime("%d %b %Y")
 
         return date_formatted
