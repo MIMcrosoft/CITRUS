@@ -360,6 +360,18 @@ class Punition(models.Model):
     nom_punition = models.CharField(max_length=50)
     est_majeure = models.BooleanField(default=False)
 
+    equipe_punie = models.ForeignKey(Equipe, on_delete=models.DO_NOTHING, related_name='equipe_punie', null=True)
+    @classmethod
+    def createPunition(cls, nom_punition, est_majeure,equipe):
+        punition = cls(
+            nom_punition=nom_punition,
+            est_majeure=est_majeure,
+            equipe=equipe
+        )
+
+        punition.save()
+        return punition
+
 
 class Match(models.Model):
     match_id = models.AutoField(primary_key=True)
@@ -376,7 +388,8 @@ class Match(models.Model):
     division = models.CharField(max_length=50, choices=DIVISION_CHOICES, default=DIVISION_CHOICES[0][0])
     completed_flag = models.BooleanField(default=False)
     validated_flag = models.BooleanField(default=False)
-    improvisations = models.CharField(max_length=5000, blank=True, null=True)
+    improvisations = models.CharField(max_length=1000, blank=True, null=True, default="[]")
+    cache = models.CharField(max_length=5000, blank=True, null=True)
 
     session = models.ForeignKey(Session, on_delete=models.SET_NULL, null=True)
     serie = models.ForeignKey(Serie, on_delete=models.CASCADE, null=True,blank=True)

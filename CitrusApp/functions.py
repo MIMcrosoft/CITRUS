@@ -1,3 +1,4 @@
+import ast
 import random
 import smtplib
 from calendar import Calendar
@@ -837,14 +838,28 @@ def updateUrlMatch():
     for match in Match.objects.all():
         print(match.get_urlMatch())
 
+def updateMatchcache():
+    for match in Match.objects.all():
+        match.cache = match.improvisations
+        match.save()
+
+def updateMatchImpro():
+    for match in Match.objects.all():
+        if match.cache is not None:
+            improvisations = ast.literal_eval(match.cache)[2]
+            match.improvisations = improvisations
+            match.save()
+
+
 if __name__ == "__main__":
+    #updateMatchImpro()
     #updateUrlMatch()
     #Saison.createSaison("2024-2025")
     #createURLMatch()
     #fillCalendrier()
     #calendrier = Calendrier.objects.all().first()
     #exportCalendrier(calendrier)
-    sendCoachEmail("felixrobillard@gmail.com",EmailType.RESETPASSWORD)
+    #sendCoachEmail("felixrobillard@gmail.com",EmailType.RESETPASSWORD)
     #updateMatchDate()
     pass
 

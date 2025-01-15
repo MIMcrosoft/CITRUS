@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
-from .models import Coach, Equipe, College, Interprete, Saison, Alignements, Match,CoachManager
+from .models import Coach, Equipe, College, Interprete, Saison, Alignements, Match,CoachManager,Punition
 from .functions import *
 import json
 from django.http import JsonResponse
@@ -414,11 +414,14 @@ def match(request,hashedCode):
         TEST = True
 
     if request.method == 'POST':
-        matchData = ast.literal_eval(matchSelected.improvisations)
+        matchData = ast.literal_eval(matchSelected.cache)
         matchSelected.score_eq1 = matchData[5][2][0]
         matchSelected.score_eq2 = matchData[5][2][1]
         if not TEST:
             matchSelected.completed_flag = True
+            matchSelected.improvisations = matchData[2]
+            for punition in matchData[2]:
+                Punition.createPunition(punition[0],)
         matchSelected.save()
         print("MATCHSAVED")
 
@@ -432,11 +435,15 @@ def match(request,hashedCode):
 
 
         #print(matchSelected.improvisations)
-        if matchSelected.improvisations is not None:
-            matchData = ast.literal_eval(matchSelected.improvisations)
+        if matchSelected.cache is not None:
+            matchData = ast.literal_eval(matchSelected.cache)
         else:
             matchData = None
 
+        current_user = request.user
+
+        if isinstance(current_user, AnonymousUser) or not current_user.is_authenticated:
+            current_user = None
 
         return render(request, 'matchForm.html',{
             "match" : matchSelected,
@@ -447,7 +454,8 @@ def match(request,hashedCode):
             'matchData' : matchData,
             'hashedPwdsCoach1':None,
             'hashedPwdsCoach2':None,
-            'domain': domain
+            'domain': domain,
+            'current_user': current_user
         })
 
 def ficheCodeQR(request,equipeId):
@@ -530,7 +538,7 @@ def saveToDB(request):
             etoiles = data[4]
 
             print("MATCH SAVED")
-            match.improvisations = dataString
+            match.cache = dataString
             match.save()
             # Respond with a success message
             return JsonResponse({'status': 'success', 'message': 'Data saved successfully!'})

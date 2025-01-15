@@ -5,7 +5,7 @@ from django.conf.urls.static import static
 
 
 urlpatterns = [
-    #path('',views.accueil,name='Accueil'),
+    path('classement-<str:division>/',views.classement,name='Classement'),
 ]
 
 if settings.DEBUG:

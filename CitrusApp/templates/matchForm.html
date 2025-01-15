@@ -848,7 +848,14 @@
     </style>
 
     <script>
-        {% if match.completed_flag == True %}
+
+        {% if current_user.admin_flag == True %}
+            let submitBtn = document.getElementById('finalizeMatchBtn');
+            submitBtn.disabled = false;
+            submitBtn.classList.remove("disabled-btn");
+        {% endif %}
+        
+        {% if match.completed_flag == True and current_user.admin_flag == False %}
             disableAllInputs()
         {% endif %}
         
