@@ -273,12 +273,12 @@ class Equipe(models.Model):
 
     def getUrlPhoto(self):
         if settings.DEBUG:
-            domain = "http://localhost:8000"
+            domain = "http://localhost:8000/Citrus"
         else:
             domain = "https://citrus.liguedespamplemousses.com"
 
         if self.logo and self.logo.url :
-            return domain +'/Citrus' +self.logo.url
+            return domain + self.logo.url
         else :
             return None
 
