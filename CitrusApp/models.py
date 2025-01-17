@@ -271,6 +271,18 @@ class Equipe(models.Model):
         print(Alignements.objects.filter(saison=selectedSaison, equipe=self).first().interpretes.all())
         return Alignements.objects.filter(saison=selectedSaison, equipe=self).first().interpretes.all()
 
+    def getUrlPhoto(self):
+        if settings.DEBUG:
+            domain = "http://localhost:8000"
+        else:
+            domain = "https://citrus.liguedespamplemousses.com"
+
+        if self.logo and self.logo.url :
+            return domain +'/Citrus' +self.logo.url
+        else :
+            return None
+
+
 
     def __str__(self):
         return self.nom_equipe

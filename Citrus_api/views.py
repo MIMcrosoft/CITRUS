@@ -104,7 +104,7 @@ def classement(request, division):
                     'pourc_impro_gagner': pourc_impro_gagner,
                     'diff': diff,
                     'point': point,
-                    'logo': equipe.logo.url if equipe.logo and equipe.logo.url else None
+                    'logo': equipe.getUrlPhoto()
                 })
 
             stats = sorted(
