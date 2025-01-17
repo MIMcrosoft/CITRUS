@@ -21,6 +21,10 @@ def classement(request, division):
         if (division,division) in DIVISION_CHOICES:
             stats = []  # List to hold stats for all teams
             for equipe in Equipe.objects.filter(division=division):
+
+                if "TEST" in equipe.nom_equipe:
+                    continue
+
                 pj = 0  # Matches played
                 v = 0   # Wins
                 d = 0   # Losses
@@ -99,7 +103,8 @@ def classement(request, division):
                     'pc': pc,
                     'pourc_impro_gagner': pourc_impro_gagner,
                     'diff': diff,
-                    'point': point
+                    'point': point,
+                    'logo': equipe.logo.url if equipe.logo and equipe.logo.url else None
                 })
 
             stats = sorted(

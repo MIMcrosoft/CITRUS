@@ -18,7 +18,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Directory to store uploaded files
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-MEDIA_URL = '/Citrus/media/'
+MEDIA_URL = '/media/'
 
 
 # Quick-start development settings - unsuitable for production
