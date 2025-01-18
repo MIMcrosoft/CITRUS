@@ -22,7 +22,7 @@ def classement(request, division):
             stats = []  # List to hold stats for all teams
             for equipe in Equipe.objects.filter(division=division):
 
-                if "TEST" in equipe.nom_equipe:
+                if "EQUIPE TEST" in equipe.nom_equipe:
                     continue
 
                 pj = 0  # Matches played
@@ -36,6 +36,10 @@ def classement(request, division):
 
                 # Loop through all matches for the team
                 for match in Match.objects.filter(Q(equipe1=equipe) | Q(equipe2=equipe)).all():
+
+                    if "EQUIPE TEST" in match.equipe1.nom_equipe or "EQUIPE TEST" in match.equipe2.nom_equipe:
+                        continue
+
                     if match.completed_flag:
                         pj += 1
                         improvisations = ast.literal_eval(match.improvisations)
