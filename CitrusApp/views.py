@@ -420,8 +420,15 @@ def match(request,hashedCode):
         if not TEST:
             matchSelected.completed_flag = True
             matchSelected.improvisations = matchData[2]
-            for punition in matchData[2]:
-                Punition.createPunition(punition[0],)
+
+            for punition in matchData[3]:
+                equipe = Equipe.objects.get(nom_equipe=punition[0])
+                if punition[2] == "Oui":
+                    est_majeure = True
+                else:
+                    est_majeure = False
+
+                Punition.createPunition(punition[1],est_majeure,equipe)
         matchSelected.save()
         print("MATCHSAVED")
 

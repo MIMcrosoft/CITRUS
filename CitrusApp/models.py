@@ -374,11 +374,11 @@ class Punition(models.Model):
 
     equipe_punie = models.ForeignKey(Equipe, on_delete=models.DO_NOTHING, related_name='equipe_punie', null=True)
     @classmethod
-    def createPunition(cls, nom_punition, est_majeure,equipe):
+    def createPunition(cls, nom_punition, est_majeure,equipePunie):
         punition = cls(
             nom_punition=nom_punition,
             est_majeure=est_majeure,
-            equipe=equipe
+            equipe_punie=equipePunie
         )
 
         punition.save()
