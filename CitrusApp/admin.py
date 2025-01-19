@@ -36,11 +36,17 @@ class CoachAdmin(BaseUserAdmin):
     ordering = ('courriel',)
 
 class MatchAdmin(admin.ModelAdmin):
-    list_display = ('__str__', 'completed_flag_display')
+    list_display = ('__str__', 'completed_flag_display', 'url_match_display')
 
     @admin.display(boolean=True, ordering='completed_flag', description='Completed')
     def completed_flag_display(self, obj):
         return obj.completed_flag
+
+    @admin.display(description='Match URL')
+    def url_match_display(self, obj):
+        return obj.url_match
+
+    readonly_fields = ('url_match_display',)
 
 
 admin.site.register(Saison)

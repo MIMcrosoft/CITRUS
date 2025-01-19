@@ -396,7 +396,6 @@ class Match(models.Model):
     nom_arbitre = models.CharField(max_length=100, blank=True, null=True)
     date_match = models.DateTimeField(null=True, blank=True)
     url_photo = models.URLField(blank=True, null=True)
-    url_match = models.URLField(blank=True, null=True)
     division = models.CharField(max_length=50, choices=DIVISION_CHOICES, default=DIVISION_CHOICES[0][0])
     completed_flag = models.BooleanField(default=False)
     validated_flag = models.BooleanField(default=False)
@@ -452,6 +451,7 @@ class Match(models.Model):
         except cls.DoesNotExist:
             return False
 
+    @property
     def get_urlMatch(self):
         code = str(self.equipe1.nom_equipe) + str(self.equipe2.nom_equipe) + str(self.match_id)
         if settings.DEBUG:
@@ -461,7 +461,7 @@ class Match(models.Model):
         self.save()
         return self.url_match
     def get_QrCode(self):
-        qr = segno.make(self.get_urlMatch())
+        qr = segno.make(self.get_urlMatch)
 
         buffer = BytesIO()
         qr.save(buffer, kind='png', scale=7)
