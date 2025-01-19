@@ -1040,7 +1040,10 @@
         }
         
         function saveToDB() {
-            console.log("SAVING...");
+            console.log("SAVING...")
+            updatePoint()
+            updatePun()
+            updateScore()   
             let dataString = getDataString();
             let userID = saveID;
             let matchID = {{ match.match_id }};
