@@ -44,7 +44,7 @@ class MatchAdmin(admin.ModelAdmin):
 
     @admin.display(description='Match URL')
     def url_match_display(self, obj):
-        return obj.url_match
+        return obj.get_urlMatch
 
     readonly_fields = ('url_match_display',)
 

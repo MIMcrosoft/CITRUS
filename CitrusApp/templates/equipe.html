@@ -35,7 +35,7 @@
 
         </div>
 
-        <img src="{% if equipe.logo %}{{ equipe.logo.url }}{% endif %}" alt="LOGO">
+        <img id="logoEquipe" src="{% if equipe.logo %}{{ equipe.getUrlPhoto }}{% endif %}" alt="LOGO">
 
     </div>
 
@@ -279,6 +279,10 @@
         }
         .iconBtn:hover{
             background-color: #5d5d5d;
+        }
+        #logoEquipe{
+            width: 20%;
+            margin: 2.5%;
         }
 
 
