@@ -18,7 +18,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Directory to store uploaded files
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-MEDIA_URL = '/Citrus/media/'
+MEDIA_URL = '/media/'
 
 
 # Quick-start development settings - unsuitable for production
@@ -28,7 +28,7 @@ MEDIA_URL = '/Citrus/media/'
 SECRET_KEY = 'django-insecure-=+)t0_@t+dye0w22$cn&35b2)!45y@1e-y^=jwn&go+#73ajd&'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["citrus.liguedespamplemousses.com","dev.liguedespamplemousses.com","localhost"]
 
@@ -43,7 +43,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'CitrusApp',
-    'LigueDesPamplemousseApp'
+    'LigueDesPamplemousseApp',
+    'Citrus_api',
+    'rest_framework',
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
@@ -54,6 +57,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware'
 ]
 
 ROOT_URLCONF = 'CITRUS.urls'
@@ -130,3 +134,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CORS_ORIGIN_WHITELIST = [
+    "https://www.liguedespamplemousses.com"
+]

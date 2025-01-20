@@ -25,7 +25,8 @@ urlpatterns = [
     path('MesMatchs/',views.matchs,name='matchs'),
     path('SaveToDB/',views.saveToDB,name='SaveToDB'),
     path('checkPassword/',views.checkPassword,name='checkPassword'),
-    path('validateCoach/',views.validateCoach,name='validateCoach')
+    path('validateCoach/',views.validateCoach,name='validateCoach'),
+    path('FicheCodeQR-<int:equipeId>/',views.ficheCodeQR,name='ficheQRCode')
 ]
 
 if settings.DEBUG:

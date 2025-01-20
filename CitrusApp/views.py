@@ -1,40 +1,26 @@
 import ast
-
 from django.db.models import Q
-from django.http import HttpResponse
 from django.contrib.auth.models import AnonymousUser
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.contrib import messages
 from django.shortcuts import get_object_or_404
-from .models import Coach, Equipe, College, Interprete, Saison, Alignements, Match,CoachManager
+from .models import Coach, Equipe, College, Interprete, Saison, Alignements, Match,CoachManager,Punition
 from .functions import *
-from datetime import datetime
 import json
 from django.http import JsonResponse
 from django.contrib.auth.hashers import check_password
-import segno
-
-
-
 
 def components(request):
     return render(request, 'components.html')
 
 def test(request):
-    return render(request, 'templatesCourriel/resetPasswordEmail.html')
-
+    return render(request, 'qrSheet.html')
 
 def page_404(request,exception):
     return render(request, 'errorWindow.html',{
         'errorMsg': "Oups Cette page n'existe pas !"
     })
-
-"""
-
-"""
-
 
 def accueil(request):
     current_user = request.user
@@ -55,7 +41,6 @@ def accueil(request):
                                             'allMatchs': allMatchs,
                                             'activeTab' : "ACCUEIL"
                                             })
-
 
 @login_required
 def users(request):
@@ -78,9 +63,6 @@ def users(request):
 
     else:
         return redirect("UserPage",current_user.coach_id)
-"""
-
-"""
 
 @login_required
 def userPage(request,userID):
@@ -149,15 +131,20 @@ def loginUser(request):
 
             username = request.POST['username'].strip().lower()
             password = request.POST['password']
-            user = authenticate(request, username=username, password=password)
-            if user is not None:
-                if user.validated_flag:
-                    login(request, user)
-                    return redirect('/Citrus/?animation=2')  # Redirect to home on successful login
+            try:
+                user = Coach.objects.get(courriel=username)
+                # User exists, so authenticate with the password
+                authenticated_user = authenticate(request, username=username, password=password)
+                if authenticated_user is not None:
+                    if authenticated_user.validated_flag:
+                        login(request, authenticated_user)
+                        return redirect('/Citrus/?animation=2')  # Redirect to home on successful login
+                    else:
+                        errors.append("Votre compte est en attente de validation par l'administration.")
                 else:
-                    errors.append("Votre compte est en attente de validation par l'administration.")
-            else:
-                errors.append("Aucun compte n'est associé à cette adresse courriel.")
+                    errors.append("Le mot de passe est incorrect.")
+            except Coach.DoesNotExist:
+                errors.append("Aucun compte n'est associé à ce nom d'utilisateur.")
 
 
         elif buttonClicked == 'resetPassword':
@@ -178,13 +165,6 @@ def loginUser(request):
     return render(request, "login.html", {
         'errors' : errors
     })
-
-
-
-"""
-
-"""
-
 
 def coachSignUp(request):
     errors = []
@@ -233,12 +213,6 @@ def coachSignUp(request):
         'errors': errors
     })
 
-
-"""
-
-"""
-
-
 @login_required
 def allEquipes(request):
     current_user = request.user
@@ -254,7 +228,6 @@ def allEquipes(request):
         })
     else:
         return redirect('Equipe',current_user.equipe.id_equipe,0)
-
 
 @login_required
 def equipe(request, idEquipe, idSaison=None):
@@ -281,7 +254,6 @@ def equipe(request, idEquipe, idSaison=None):
                    'allMatchs' : Match.objects.filter(Q(equipe1=equipe) | Q(equipe2=equipe)).all(),
                    'activeTab': "EQUIPE"
                    })
-
 
 @login_required
 def modifEquipe(request, idEquipe):
@@ -312,7 +284,6 @@ def modifEquipe(request, idEquipe):
         'allColleges': College.objects.all(),
         'activeTab': "EQUIPE"
     })
-
 
 @login_required
 def ajoutEquipe(request):
@@ -349,7 +320,6 @@ def ajoutEquipe(request):
             'activeTab': "EQUIPE"
 
         })
-
 
 @login_required
 def ajoutInterprete(request, equipeId, alignementID):
@@ -388,7 +358,6 @@ def ajoutInterprete(request, equipeId, alignementID):
                       'activeTab': "EQUIPE"
                   })
 
-
 @login_required
 def modifInterprete(request, interpreteID, equipeID):
     allInterpretes = Interprete.objects.all()
@@ -423,6 +392,7 @@ def matchs(request):
 
 
     return render(request, "matchs.html",{
+        'equipe': equipe,
         'matchs' : Match.objects.filter(Q(equipe1=equipe) | Q(equipe2=equipe)).all(),
         'activeTab': "MATCH"
     })
@@ -444,11 +414,21 @@ def match(request,hashedCode):
         TEST = True
 
     if request.method == 'POST':
-        matchData = ast.literal_eval(matchSelected.improvisations)
+        matchData = ast.literal_eval(matchSelected.cache)
         matchSelected.score_eq1 = matchData[5][2][0]
         matchSelected.score_eq2 = matchData[5][2][1]
         if not TEST:
             matchSelected.completed_flag = True
+            matchSelected.improvisations = matchData[2]
+
+            for punition in matchData[3]:
+                equipe = Equipe.objects.get(nom_equipe=punition[0])
+                if punition[2] == "Oui":
+                    est_majeure = True
+                else:
+                    est_majeure = False
+
+                Punition.createPunition(punition[1],est_majeure,equipe)
         matchSelected.save()
         print("MATCHSAVED")
 
@@ -462,40 +442,37 @@ def match(request,hashedCode):
 
 
         #print(matchSelected.improvisations)
-        if matchSelected.improvisations is not None:
-            matchData = ast.literal_eval(matchSelected.improvisations)
+        if matchSelected.cache is not None:
+            matchData = ast.literal_eval(matchSelected.cache)
         else:
             matchData = None
 
-        if (matchSelected.date_match.strftime('%Y-%m-%d') == datetime.today().strftime('%Y-%m-%d') and matchSelected.completed_flag == False) or getattr(request.user, 'admin_flag',False) or TEST:
-            return render(request, 'matchForm.html',{
-                "match" : matchSelected,
-                'coachEquipe1' : equipe1Coachs,
-                'coachEquipe2' : equipe2Coachs,
-                'equipe1Alignement' : equipe1Alignements,
-                'equipe2Alignement' : equipe2Alignements,
-                'matchData' : matchData,
-                'hashedPwdsCoach1':None,
-                'hashedPwdsCoach2':None,
-                'domain': domain
-            })
-        else :
-            errorMsg = "Ce match n'est pas disponible!"
-            #print(matchSelected)
-            if matchSelected.date_match.strftime('%Y-%m-%d') != datetime.today().strftime('%Y-%m-%d'):
-                errorMsg = f"Ce match n'est pas encore disponible! \n Il sera disponible le {matchSelected.date_match.strftime('%Y-%m-%d')}"
-            if matchSelected.completed_flag == True:
-                errorMsg = "Ce match à déjà été complété!"
-            return render(request, 'errorWindow.html',{
-                "errorMsg" : errorMsg
-            })
+        current_user = request.user
 
-"""
-calendrierAdmin
-Page que l'admin va voir afin de créer ou de charger un calendrier
-"""
+        if isinstance(current_user, AnonymousUser) or not current_user.is_authenticated:
+            current_user = None
 
+        return render(request, 'matchForm.html',{
+            "match" : matchSelected,
+            'coachEquipe1' : equipe1Coachs,
+            'coachEquipe2' : equipe2Coachs,
+            'equipe1Alignement' : equipe1Alignements,
+            'equipe2Alignement' : equipe2Alignements,
+            'matchData' : matchData,
+            'hashedPwdsCoach1':None,
+            'hashedPwdsCoach2':None,
+            'domain': domain,
+            'current_user': current_user
+        })
 
+def ficheCodeQR(request,equipeId):
+
+    equipe =Equipe.objects.get(id_equipe=equipeId)
+
+    return render(request,"qrSheet.html",{
+        'equipe' : equipe,
+        'matchs' : Match.objects.filter(Q(equipe1=equipe) | Q(equipe2=equipe)).all()
+    })
 @login_required
 def calendrierAdmin(request):
     if request.method == 'POST':
@@ -504,13 +481,6 @@ def calendrierAdmin(request):
     return render(request, "calendrier/calendrier-step0.html", {
         'activeTab': "CALENDRIER"
     })
-
-
-"""
-calendrier
-Page que les coachs vont voir lorsqu'il veulent voir le calendrier des matchs
-"""
-
 
 @login_required
 def calendrier(request):
@@ -521,12 +491,6 @@ def calendrier(request):
         'activeTab': "CALENDRIER"
     })
 
-
-"""
-
-"""
-
-
 @login_required
 def classements(request):
     if request.method == 'POST':
@@ -535,12 +499,6 @@ def classements(request):
     return render(request, "base.html", {
         'activeTab': "CLASSEMENT"
     })
-
-
-"""
-
-"""
-
 
 @login_required
 def tournois(request):
@@ -551,12 +509,6 @@ def tournois(request):
         'activeTab': "TOURNOI"
     })
 
-
-"""
-
-"""
-
-
 @login_required
 def archives(request):
     if request.method == 'POST':
@@ -566,15 +518,10 @@ def archives(request):
         'activeTab': "ARCHIVE"
     })
 
-
 @login_required()
 def log_out(request):
     logout(request)
     return redirect("/Citrus/Connexion/?animation=2")
-
-
-
-
 
 def saveToDB(request):
     if request.method == "POST":
@@ -598,7 +545,7 @@ def saveToDB(request):
             etoiles = data[4]
 
             print("MATCH SAVED")
-            match.improvisations = dataString
+            match.cache = dataString
             match.save()
             # Respond with a success message
             return JsonResponse({'status': 'success', 'message': 'Data saved successfully!'})
@@ -625,9 +572,6 @@ def checkPassword(request):
 
         return JsonResponse({'message': 'Invalid request'},status=404)
 
-
-
-
 def validateCoach(request):
     if request.method == "POST":
         try:
@@ -652,5 +596,7 @@ def validateCoach(request):
 
     # If the request method is not POST
     return JsonResponse({'message': 'Invalid request method'}, status=405)
+
+
 
 

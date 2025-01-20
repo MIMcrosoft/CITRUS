@@ -1,5 +1,5 @@
 {% extends 'baseTemplate.html'%}
-
+{% load static %}
 {% block content %}
     
 
@@ -35,7 +35,7 @@
 
         </div>
 
-        <img src="{% if equipe.logo %}{{ equipe.logo.url }}{% endif %}" alt="LOGO">
+        <img id="logoEquipe" src="{% if equipe.logo %}{{ equipe.getUrlPhoto }}{% endif %}" alt="LOGO">
 
     </div>
 
@@ -49,6 +49,7 @@
                     <th>Prénom et nom</th>
                     <th>C/A</th>
                     <th>Pronoms</th>
+                    <th></th>
                 </tr>
                 {% for interprete in alignement.interpretes.all %}
                     <tr class="pamps">
@@ -56,8 +57,8 @@
                         <td>{{ interprete.nom_interprete }}</td>
                         <td>{{ interprete.role_interprete }}</td>
                         <td>{{ interprete.pronom_interprete }}</td>
-                        <!---<td><button class="btnSecondary btnInline" onclick="navTo(this,'/Citrus/ModificationInterprete{{ interprete.interprete_id }}-{{ equipe.id_equipe }}')"><span>Modifier</span></button></td>
-                        <td><button class="btnSecondary btnInline"><span>Supprimer</span></button></td>--->
+                        <td class="iconRow"><button class="iconBtn" onclick="navTo(this,'/Citrus/ModificationInterprete{{ interprete.interprete_id }}-{{ equipe.id_equipe }}')"><img src="../static/icons/pencil.png" alt="" class=""></button></td>
+                        <!---<td><button class="btnSecondary btnInline"><span>Supprimer</span></button></td>--->
                     </tr>
                 {% endfor %}
             </table>
@@ -251,6 +252,37 @@
         
         table tr{
             padding: 1rem;
+        }
+        
+        .iconRow{
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .iconBtn{
+            border: none;
+            box-shadow: none;
+            width: fit-content;
+            height: fit-content;
+            background-color: darkred;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0;
+            margin: 0;
+            border-radius: 25%;
+        }
+        .iconBtn img{
+            border-radius: 25%;
+            width: 30px;
+            height: 30px;
+        }
+        .iconBtn:hover{
+            background-color: #5d5d5d;
+        }
+        #logoEquipe{
+            width: 20%;
+            margin: 2.5%;
         }
 
 

@@ -8,6 +8,7 @@
     
 
     <h1>Matchs à venir</h1>
+    <button onclick="openNewWindow('/Citrus/FicheCodeQR-{{ equipe.id_equipe }}')">Obtenir toutes mes fiches de match</button>
     <table>
         <tr class="tableHeaderRow">
             <th>Équipe hôte</th>
@@ -32,8 +33,21 @@
 
     
     <script>
-    
-
+        function openNewWindow(url) {
+            // Check if a valid URL is provided
+            if (!url || typeof url !== "string") {
+                console.error("Invalid URL");
+                return;
+            }
+        
+            // Open a new window with the given URL
+            const newWindow = window.open(url, '_blank');
+        
+            // Check if the new window was successfully opened
+            if (!newWindow) {
+                console.error("Failed to open a new window. Please check your browser settings.");
+            }
+        }
         
         function createModal(modalName, headerText, imgSrc, matchURl) {
             console.log(matchURl);

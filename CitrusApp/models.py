@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager, PermissionsMixin
 from googlemaps import geocoding, Client
 import segno
-from .NOTPUBLIC import API_KEY, GMAIL_KEY
+from .NOTPUBLIC import API_KEY, EMAIL_PSWD
 from datetime import datetime, timedelta
 from io import BytesIO
 import base64
@@ -271,6 +271,18 @@ class Equipe(models.Model):
         print(Alignements.objects.filter(saison=selectedSaison, equipe=self).first().interpretes.all())
         return Alignements.objects.filter(saison=selectedSaison, equipe=self).first().interpretes.all()
 
+    def getUrlPhoto(self):
+        if settings.DEBUG:
+            domain = "http://localhost:8000/Citrus"
+        else:
+            domain = "https://citrus.liguedespamplemousses.com"
+
+        if self.logo and self.logo.url :
+            return domain + self.logo.url
+        else :
+            return None
+
+
 
     def __str__(self):
         return self.nom_equipe
@@ -360,6 +372,18 @@ class Punition(models.Model):
     nom_punition = models.CharField(max_length=50)
     est_majeure = models.BooleanField(default=False)
 
+    equipe_punie = models.ForeignKey(Equipe, on_delete=models.DO_NOTHING, related_name='equipe_punie', null=True)
+    @classmethod
+    def createPunition(cls, nom_punition, est_majeure,equipePunie):
+        punition = cls(
+            nom_punition=nom_punition,
+            est_majeure=est_majeure,
+            equipe_punie=equipePunie
+        )
+
+        punition.save()
+        return punition
+
 
 class Match(models.Model):
     match_id = models.AutoField(primary_key=True)
@@ -372,11 +396,11 @@ class Match(models.Model):
     nom_arbitre = models.CharField(max_length=100, blank=True, null=True)
     date_match = models.DateTimeField(null=True, blank=True)
     url_photo = models.URLField(blank=True, null=True)
-    url_match = models.URLField(blank=True, null=True)
     division = models.CharField(max_length=50, choices=DIVISION_CHOICES, default=DIVISION_CHOICES[0][0])
     completed_flag = models.BooleanField(default=False)
     validated_flag = models.BooleanField(default=False)
-    improvisations = models.CharField(max_length=5000, blank=True, null=True)
+    improvisations = models.CharField(max_length=1000, blank=True, null=True, default="[]")
+    cache = models.CharField(max_length=5000, blank=True, null=True)
 
     session = models.ForeignKey(Session, on_delete=models.SET_NULL, null=True)
     serie = models.ForeignKey(Serie, on_delete=models.CASCADE, null=True,blank=True)
@@ -427,6 +451,7 @@ class Match(models.Model):
         except cls.DoesNotExist:
             return False
 
+    @property
     def get_urlMatch(self):
         code = str(self.equipe1.nom_equipe) + str(self.equipe2.nom_equipe) + str(self.match_id)
         if settings.DEBUG:
@@ -436,7 +461,7 @@ class Match(models.Model):
         self.save()
         return self.url_match
     def get_QrCode(self):
-        qr = segno.make(self.get_urlMatch())
+        qr = segno.make(self.get_urlMatch)
 
         buffer = BytesIO()
         qr.save(buffer, kind='png', scale=7)
@@ -447,13 +472,13 @@ class Match(models.Model):
         return f"data:image/png;base64,{imageBase64}"
 
     def get_dateFormatted(self):
-        locale.setlocale(locale.LC_TIME, 'fr_FR')
+        #locale.setlocale(locale.LC_TIME, 'en_US')
 
         date_formatted = self.date_match.strftime("%d %b")
         return date_formatted
 
     def get_dateFormattedWithYear(self):
-        locale.setlocale(locale.LC_TIME, 'fr_FR')
+        #locale.setlocale(locale.LC_TIME, 'en_US')
         date_formatted = self.date_match.strftime("%d %b %Y")
 
         return date_formatted

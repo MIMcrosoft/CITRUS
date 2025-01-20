@@ -433,23 +433,23 @@
     <section id="Score" class="hidden">
         <div class="scoreBoard">
             <div class="logos">
-                <img src="{% static 'icons/CitrusLogo.png' %}" alt="" class="logo">
-                <img src="{% static 'icons/CitrusLogo.png' %}" alt="" class="logo">
+                <img src="{% if match.equipe2.logo %}{{ match.equipe2.logo.url }}{% else %}{% static 'icons/CitrusLogo.png' %}{% endif %}" alt="" class="logo">
+                <img src="{% if match.equipe1.logo %}{{ match.equipe1.logo.url }}{% else %}{% static 'icons/CitrusLogo.png' %}{% endif %}" alt="" class="logo">
             </div>
             <div class="results">
-                <span id="subTotalTeam1">{% if matchData %}{{ matchData.5.0.0 }}{% else %}0{% endif %}</span>
-                <span>Points</span>
                 <span id="subTotalTeam2">{% if matchData %}{{ matchData.5.0.1 }}{% else %}0{% endif %}</span>
+                <span>Points</span>
+                <span id="subTotalTeam1">{% if matchData %}{{ matchData.5.0.0 }}{% else %}0{% endif %}</span>
             </div>
             <div class="results">
-                <span id="team1Puns">{% if matchData %}{{ matchData.5.1.1 }}{% else %}0{% endif %}</span>
-                <span>Pénalités</span>
                 <span id="team2Puns">{% if matchData %}{{ matchData.5.1.1 }}{% else %}0{% endif %}</span>
+                <span>Pénalités</span>
+                <span id="team1Puns">{% if matchData %}{{ matchData.5.1.0 }}{% else %}0{% endif %}</span>
             </div>
             <div class="results">
-                <span class="biggerNum" id="team1Score">{% if matchData %}{{ matchData.5.2.0 }}{% else %}0{% endif %}</span>
-                <span class="biggerNum">Score</span>
                 <span class="biggerNum" id="team2Score">{% if matchData %}{{ matchData.5.2.1 }}{% else %}0{% endif %}</span>
+                <span class="biggerNum">Score</span>
+                <span class="biggerNum" id="team1Score">{% if matchData %}{{ matchData.5.2.0 }}{% else %}0{% endif %}</span>
             </div>
         </div>
         <form method="post">
@@ -722,7 +722,7 @@
             flex-basis: 8%;
             text-align: center;
         }
-
+        
 
         .impro input{
             width: auto;
@@ -839,6 +839,7 @@
             background-color: grey;
             color: white;
             cursor: default;
+
             opacity: 0.6; /* Adds a dimmed look */
             pointer-events: none; /* Disables hover animations */
             transition: none; /* Disables any transition animations */
@@ -847,6 +848,31 @@
     </style>
 
     <script>
+
+        {% if current_user.admin_flag == True %}
+            let submitBtn = document.getElementById('finalizeMatchBtn');
+            submitBtn.disabled = false;
+            submitBtn.classList.remove("disabled-btn");
+        {% endif %}
+        
+        {% if match.completed_flag == True and current_user.admin_flag == False %}
+            disableAllInputs()
+        {% endif %}
+        
+        function disableAllInputs() {
+            document.querySelectorAll('button , input')
+                .forEach(element => element.disabled = true);
+
+            document.querySelectorAll('button, .impro .select')
+                .forEach(element => {
+                    element.disabled = true; // Disable the button
+                    element.classList.add('disabled-btn'); // Add a class
+                    element.style.pointerEvents = "none";
+                    element.style.borderRadius = "15px";
+                });
+
+
+        }
         
         const formSign1 = document.getElementById("signatureCoachForm1");
 
@@ -972,14 +998,11 @@
             let punitionsString = "[";
             let punitionDiv = document.getElementById("Pénalités");
             let punitions = punitionDiv.children;
-            
-            
-            
+
             for(let i =0; i< punitions.length; i++){
                 let punition = punitions[i];
                 let punitionInfo = punition.children;
                 if(punition.classList.contains("pun")){
-                    console.log(punition);
                     punitionsString += "['" + punitionInfo[0].innerHTML + "','" + punitionInfo[1].innerHTML + "','" + punitionInfo[2].innerHTML + "']"
                     if(i !== punitions.length - 1 ){
                         punitionsString += ","
@@ -1013,12 +1036,13 @@
             
             // Finalise
             let finalString = "[" + alignementEquipe1String + "," + alignementEquipe2String + "," + improString + "," + punitionsString + "," + etoilesString + "," + scoreString + "]";
-            console.log(finalString);
             return finalString;
         }
         
         function saveToDB() {
-            console.log("SAVING...");
+            console.log("SAVING...")
+            updatePoint()
+            updatePun()
             let dataString = getDataString();
             let userID = saveID;
             let matchID = {{ match.match_id }};
@@ -1092,7 +1116,6 @@
 
         function updateScore() {
             let tradePun = Array.from(puns);
-            console.log(tradePun);
             score = Array.from(points);
             while (tradePun[0]>=3) {
                 score[1]++
@@ -1102,7 +1125,7 @@
                 score[0]++
                 tradePun[1] = tradePun[1]-3;
             }
-            if (document.querySelector(".lastPoint").value != "unset" && score[0] == score[1]) {
+            if (document.querySelector(".lastPoint").value != "unset" && score[0] === score[1]) {
                 document.getElementById("prolong").style.display="flex";
             } else {
                 document.getElementById("prolong").style.display="none";
@@ -1196,7 +1219,6 @@
         function showSection(el){
             const sections = document.getElementsByTagName("section");
             const section = el.value;
-            console.log(el);
             for (i=0;i<sections.length;i++) {
                 sections[i].classList.add("hidden");
             }
@@ -1282,7 +1304,6 @@
                     for (var k = 0; k < optionsLength; k++) {
                         if (selectElement.options[k].innerText === this.innerText) {
                             selectElement.selectedIndex = k;
-                            console.log("set to " + selectElement.value)
                             selectedDiv.innerHTML = this.innerHTML;
                             allSelectedDivs = this.parentNode.getElementsByClassName("same-as-selected");
                             
@@ -1321,7 +1342,6 @@
                 // Si le conteneur de sélection a la classe "select-search", focaliser la barre de recherche
                 if (this.parentNode.classList.contains("select-search")) {
                     let searchInput = selectContainers[i].parentNode.getElementsByClassName("select-search-bar-input")[0];
-                    console.log(selectContainers[i])
                     searchInput.focus();
                     this.nextElementSibling.scroll(0, 0);
                 }
@@ -1430,7 +1450,6 @@
         const {name, number, pronoun} = playerInfo;
         const teamDiv = document.getElementById("alignement"+team);  // Get the team container
         const players = document.getElementsByClassName("player"+team);  // Get all players
-        console.log(team)
 
         const newPlayerHtml = `
         <div class="player player${team}" onclick="this.classList.toggle('crossed')">
@@ -1501,8 +1520,9 @@
             closeModal('addPunModal');
             
             // Optionally, clear the form for future use
-            saveToDB();
             updatePun();
+            saveToDB();
+
             
             });
         
@@ -1511,8 +1531,9 @@
             if (document.getElementsByClassName("pun").length === 0) {
                 document.querySelector(".nopenalty").style.display="block";
             }
-            saveToDB();
+            
             updatePun();
+            saveToDB();
         }
 
     </script>

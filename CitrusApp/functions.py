@@ -1,3 +1,4 @@
+import ast
 import random
 import smtplib
 from calendar import Calendar
@@ -17,7 +18,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'CITRUS.settings')
 django.setup()
 
 from CitrusApp.admin import CoachCreationForm
-from CitrusApp.NOTPUBLIC import EMAIL_KEY, GMAIL_KEY
+from CitrusApp.NOTPUBLIC import EMAIL_PSWD
 from CitrusApp.models import Calendrier, Session, Semaine, Match, College, Equipe, Coach, Saison
 from enum import Enum, auto
 
@@ -45,87 +46,64 @@ def hash_code(code: str) -> str:
 
     return hash_hex
 
-def sendCoachEmail(coachEmail, emailType: EmailType,coachCodeHash=""):
-    # Création d'un compte temporaire
-    #smtp_server = 'mai.liguedespamplemousses.com'
-    smtp_server = 'smtp.gmail.com'
-    #smtp_port = 465
-    smtp_port = 587
-    #sender_email = 'citrus@liguedespamplemousses.com'
-    sender_email = 'felixrobillardwork@gmail.com'
+def sendCoachEmail(coachEmail, emailType: EmailType, coachCodeHash=""):
+    smtp_server = 'node38-ca.n0c.com'
+    smtp_port = 465
+    sender_email = 'citrus@liguedespamplemousses.com'
     receiver_email = coachEmail
-    #password = EMAIL_KEY
-    password = GMAIL_KEY
+    password = EMAIL_PSWD
 
     base_dir = Path(__file__).resolve().parent
 
+    domain = "http://localhost:8000" if settings.DEBUG else "https://citrus.liguedespamplemousses.com"
 
-    if settings.DEBUG:
-        domain = "http://localhost:8000"
-    else:
-        domain = "https://citrus.liguedespamplemousses.com"
     if emailType == EmailType.INVITATION:
-        # Création du lien vers le changement des infos
         coach = creationCompteCoach("UserTest", "UserTest", coachEmail, "IMPROMOMO8866887")
         urlSignIn = f"{domain}/Citrus/CoachSignIn/{coach.id}"
-
         with open("coachEmailInvite.html", 'r', encoding="utf-8") as file:
             html_body = file.read()
-
         html_bodyParam = html_body.replace("{urlSignIn}", urlSignIn)
+        html_bodyParam_with_style = transform(html_bodyParam)
 
-        # Contenu du Email
         subject = 'Invitation à la plateforme CITRUS'
 
     elif emailType == EmailType.RESETPASSWORD:
         template_path = base_dir / "templates" / "templatesCourriel" / "resetPasswordEmail.html"
         with open(template_path, 'r', encoding="utf-8") as file:
             html_body = file.read()
-            urlResetPassword = f"{domain}/Citrus/ResetPassword-"+coachCodeHash
-            html_bodyParam = html_body.replace("{urlResetPassword}", urlResetPassword)
-            html_bodyParam_with_style = transform(html_bodyParam)
+        urlResetPassword = f"{domain}/Citrus/ResetPassword-{coachCodeHash}"
+        html_bodyParam = html_body.replace("{urlResetPassword}", urlResetPassword)
+        html_bodyParam_with_style = transform(html_bodyParam)
 
-
-
-
-        # Contenu du Email
         subject = 'Réinitialisation de ton mot de passe Citrus'
-
-
 
     elif emailType == EmailType.VALIDATION:
         template_path = base_dir / "templates" / "templatesCourriel" / "validationCompteEmail.html"
         with open(template_path, 'r', encoding="utf-8") as file:
             html_body = file.read()
-            urlSignIn = f"{domain}/Citrus/Connexion/"
-            html_bodyParam = html_body.replace("{urlSignIn}", urlSignIn)
-            html_bodyParam_with_style = transform(html_bodyParam)
+        urlSignIn = f"{domain}/Citrus/Connexion/"
+        html_bodyParam = html_body.replace("{urlSignIn}", urlSignIn)
+        html_bodyParam_with_style = transform(html_bodyParam)
 
-
-        # Contenu du Email
         subject = "Votre compte Citrus a été accepté par l'organisation!"
 
-    # Création du message du email
+    else:
+        raise ValueError(f"Type d'email non pris en charge: {emailType}")
+
     msg = MIMEMultipart('alternative')
     msg['From'] = sender_email
     msg['To'] = receiver_email
     msg['Subject'] = subject
-
-    # Attacher le body du message à l'email
     msg.attach(MIMEText(html_bodyParam_with_style, 'html'))
 
-    # Connexion au serveur SMTP et l'envoi du email.
     try:
-        server = smtplib.SMTP(smtp_server, smtp_port)
-        server.starttls()
-        server.login(sender_email, password)
-        text = msg.as_string()
-        server.sendmail(sender_email, receiver_email, text)
-        print(f'Le courriel à été envoyer avec succès à {receiver_email}')
+        with smtplib.SMTP_SSL(smtp_server, smtp_port) as server:
+            server.login(sender_email, password)
+            server.sendmail(sender_email, receiver_email, msg.as_string())
+        print('Le courriel à été envoyé avec succès')
     except Exception as e:
         print(f"Le courriel n'a pas été envoyé : {e}")
-    finally:
-        server.quit()
+
 
 
 def creationCompteCoach(nomCoach, prenomCoach, courrielCoach, coachPwd):
@@ -860,14 +838,28 @@ def updateUrlMatch():
     for match in Match.objects.all():
         print(match.get_urlMatch())
 
+def updateMatchcache():
+    for match in Match.objects.all():
+        match.cache = match.improvisations
+        match.save()
+
+def updateMatchImpro():
+    for match in Match.objects.all():
+        if match.cache is not None:
+            improvisations = ast.literal_eval(match.cache)[2]
+            match.improvisations = improvisations
+            match.save()
+
+
 if __name__ == "__main__":
+    #updateMatchImpro()
     #updateUrlMatch()
     #Saison.createSaison("2024-2025")
     #createURLMatch()
     #fillCalendrier()
     #calendrier = Calendrier.objects.all().first()
     #exportCalendrier(calendrier)
-    sendCoachEmail("felixrobillard@gmail.com",EmailType.RESETPASSWORD)
+    #sendCoachEmail("felixrobillard@gmail.com",EmailType.RESETPASSWORD)
     #updateMatchDate()
     pass
 

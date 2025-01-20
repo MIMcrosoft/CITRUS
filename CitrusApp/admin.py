@@ -35,11 +35,25 @@ class CoachAdmin(BaseUserAdmin):
     search_fields = ('courriel', 'nom_coach', 'prenom_coach')
     ordering = ('courriel',)
 
+class MatchAdmin(admin.ModelAdmin):
+    list_display = ('__str__', 'completed_flag_display', 'url_match_display')
+
+    @admin.display(boolean=True, ordering='completed_flag', description='Completed')
+    def completed_flag_display(self, obj):
+        return obj.completed_flag
+
+    @admin.display(description='Match URL')
+    def url_match_display(self, obj):
+        return obj.get_urlMatch
+
+    readonly_fields = ('url_match_display',)
+
+
 admin.site.register(Saison)
 admin.site.register(Serie)
 admin.site.register(Session)
 admin.site.register(Calendrier)
-admin.site.register(Match)
+admin.site.register(Match,MatchAdmin)
 admin.site.register(Punition)
 admin.site.register(Equipe)
 admin.site.register(College)
