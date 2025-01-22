@@ -852,7 +852,7 @@ def updateMatchImpro():
 
 def getMissingMatch():
     for match in Match.objects.all():
-        if(match.session_id == 81 and match.completed_flag == 1):
+        if(match.session_id == 81 and match.completed_flag == 0):
             print(match.equipe1_id.nom_equipe + " vs. " + match.equipe2_id.nom_equipe)
         
 
