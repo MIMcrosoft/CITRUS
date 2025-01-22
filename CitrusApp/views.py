@@ -396,6 +396,9 @@ def matchs(request):
         'matchs' : Match.objects.filter(Q(equipe1=equipe) | Q(equipe2=equipe)).all(),
         'activeTab': "MATCH"
     })
+
+def reporterMatch(request):
+    pass
 def match(request,hashedCode):
     matchSelected = None
     TEST = False
@@ -442,8 +445,17 @@ def match(request,hashedCode):
 
 
         #print(matchSelected.improvisations)
+        def desanitize_string(input_str):
+            if not isinstance(input_str, str):
+                return input_str
+            return (input_str
+                    .replace("\\'", "'")  # Convert escaped single quotes to single quotes
+                    .replace('\\"', '"')  # Convert escaped double quotes to double quotes
+                    .replace("\\\\", "\\"))  # Convert double backslashes to single backslashes
+
+        # Your original code
         if matchSelected.cache is not None:
-            matchData = ast.literal_eval(matchSelected.cache)
+            matchData = ast.literal_eval(desanitize_string(matchSelected.cache))  # Parse the cache
         else:
             matchData = None
 
