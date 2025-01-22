@@ -850,6 +850,11 @@ def updateMatchImpro():
             match.improvisations = improvisations
             match.save()
 
+def getMissingMatch():
+    for match in Match.objects.all():
+        if(match.session_id == 81 and match.completed_flag == 1):
+            print(match.equipe1_id.nom_equipe + " vs. " + match.equipe2_id.nom_equipe)
+        
 
 if __name__ == "__main__":
     #updateMatchImpro()
