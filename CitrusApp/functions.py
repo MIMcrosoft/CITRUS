@@ -850,8 +850,18 @@ def updateMatchImpro():
             match.improvisations = improvisations
             match.save()
 
+def getCoachUrlChangeMDP(coachEmail):
+    coachToReset = Coach.objects.filter(courriel__iexact=coachEmail).first()
+    # print(coachToReset)
+    if coachToReset:
+        code = str(coachToReset.prenom_coach) + str(coachToReset.nom_coach) + str(coachToReset.coach_id)
+        coachCodeHash = hash_code(code)
+        domain = "http://localhost:8000" if settings.DEBUG else "https://citrus.liguedespamplemousses.com"
+        urlResetPassword = f"https://citrus.liguedespamplemousses.com/Citrus/ResetPassword-{coachCodeHash}"
+        print(urlResetPassword)
 
 if __name__ == "__main__":
+    getCoachUrlChangeMDP("elizabethgrondin@hotmail.com")
     #updateMatchImpro()
     #updateUrlMatch()
     #Saison.createSaison("2024-2025")
