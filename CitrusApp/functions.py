@@ -859,9 +859,13 @@ def getCoachUrlChangeMDP(coachEmail):
         domain = "http://localhost:8000" if settings.DEBUG else "https://citrus.liguedespamplemousses.com"
         urlResetPassword = f"https://citrus.liguedespamplemousses.com/Citrus/ResetPassword-{coachCodeHash}"
         print(urlResetPassword)
+def getMissingMatch():
+    for match in Match.objects.all():
+        if(match.session_id == 81 and match.completed_flag == 0):
+            print(match.equipe1_id.nom_equipe + " vs. " + match.equipe2_id.nom_equipe)
+
 
 if __name__ == "__main__":
-    getCoachUrlChangeMDP("elizabethgrondin@hotmail.com")
     #updateMatchImpro()
     #updateUrlMatch()
     #Saison.createSaison("2024-2025")
