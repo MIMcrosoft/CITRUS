@@ -3,7 +3,7 @@ from rest_framework.decorators import api_view
 from django.db.models import Q
 from rest_framework.response import Response
 from rest_framework import status
-from CitrusApp.models import Coach,Equipe,Match
+from CitrusApp.models import Coach,Equipe,Match,Punition
 from .serializers import *
 import ast
 from django.http import JsonResponse
@@ -45,13 +45,8 @@ def classement(request, division):
                         improvisations = ast.literal_eval(match.improvisations)
 
                         if equipe == match.equipe1:
-                            for improvisation in improvisations:
-                                if improvisation[1] == "both":
-                                    pp += 1
-                                elif improvisation[1] == "team1":
-                                    pp += 1
-                                elif improvisation[1] == "team2":
-                                    pc += 1
+                            pp += match.score_eq1
+                            pc += match.score_eq2
 
                             if improvisations[-1][1] != "":
                                 flagProlong = True
@@ -68,13 +63,8 @@ def classement(request, division):
                                     d += 1
 
                         elif equipe == match.equipe2:
-                            for improvisation in improvisations:
-                                if improvisation[1] == "both":
-                                    pp += 1
-                                elif improvisation[1] == "team2":
-                                    pp += 1
-                                elif improvisation[1] == "team1":
-                                    pc += 1
+                            pp += match.score_eq2
+                            pc += match.score_eq1
 
                             if improvisations[-1][1] != "":
                                 flagProlong = True
@@ -89,6 +79,11 @@ def classement(request, division):
                                     v += 1
                                 elif match.score_eq2 < match.score_eq1:
                                     d += 1
+
+                pen += len(Punition.objects.filter(equipe_punie=equipe))
+
+
+
 
                 # Calculate additional stats
                 pourc_impro_gagner = (pp / (pp + pc) * 100) if (pp + pc) > 0 else 0
