@@ -32,11 +32,11 @@ def classement(request, division):
                 pen = 0 # Penalties (assuming you plan to calculate this)
                 pp = 0  # Points scored
                 pc = 0  # Points conceded
-                flagProlong = False  # To track overtime
+                  # To track overtime
 
                 # Loop through all matches for the team
                 for match in Match.objects.filter(Q(equipe1=equipe) | Q(equipe2=equipe)).all():
-
+                    flagProlong = False
                     if "EQUIPE TEST" in match.equipe1.nom_equipe or "EQUIPE TEST" in match.equipe2.nom_equipe:
                         continue
 
@@ -48,8 +48,11 @@ def classement(request, division):
                             pp += match.score_eq1
                             pc += match.score_eq2
 
+
                             if improvisations[-1][1] != "":
                                 flagProlong = True
+                            else:
+                                flagProlong = False
 
                             if flagProlong:
                                 if match.score_eq1 > match.score_eq2:

@@ -1,5 +1,6 @@
 import ast
 import random
+import re
 import smtplib
 from calendar import Calendar
 from email.mime.multipart import MIMEMultipart
@@ -13,6 +14,7 @@ from django.conf import settings
 from pathlib import Path
 from datetime import datetime
 import segno
+import json
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'CITRUS.settings')
 django.setup()
@@ -863,6 +865,142 @@ def getMissingMatch():
     for match in Match.objects.all():
         if(match.session_id == 81 and match.completed_flag == 0):
             print(match.equipe1_id.nom_equipe + " vs. " + match.equipe2_id.nom_equipe)
+
+
+def clean_and_parse_cache():
+
+    for match in Match.objects.all():
+
+        if match.cache is not None:
+            print(match.cache)
+            data = ast.literal_eval(match.cache)
+            align1 = data[0]
+            align2 = data[1]
+            improvisations = [
+                {'description': data[2][0][0], 'points' : data[2][0][1]},
+                {'description': data[2][1][0], 'points': data[2][1][1]},
+                {'description': data[2][2][0], 'points': data[2][2][1]},
+                {'description': data[2][3][0], 'points': data[2][3][1]},
+                {'description': data[2][4][0], 'points': data[2][4][1]},
+                {'description': data[2][5][0], 'points': data[2][5][1]},
+                {'description': data[2][6][0], 'points': data[2][6][1]},
+                {'description': data[2][7][0], 'points': data[2][7][1]},
+                {'description': data[2][8][0], 'points': data[2][8][1]},
+                {'description': data[2][9][0], 'points': data[2][9][1]},
+                {'description': data[2][10][0], 'points': data[2][10][1]},
+                {'description': data[2][11][0], 'points': data[2][11][1]},
+                {'description': data[2][12][0], 'points': data[2][12][1]},
+            ]
+            punitions = []
+            for punition in data[3]:
+                punitionTemp = {
+                    'equipe' : punition[0],
+                    'titre' : punition[1],
+                    'majeure' : punition[2]
+                }
+                punitions.append(punitionTemp)
+
+            etoiles = []
+            scores = {
+                'sousTotal' : {'equipe1' : data[5][0][0], 'equipe2' : data[5][0][1]},
+                'penalites': {'equipe1': data[5][1][0], 'equipe2': data[5][1][1]},
+                'total': {'equipe1': data[5][2][0], 'equipe2': data[5][2][1]}
+            }
+            signatures = {
+                'coach1' : False,
+                'coach2' : False
+            }
+
+            jsonData = {
+                'alignementEquipe1' : align1,
+                'alignementEquipe2' : align2,
+                'improvisations' : improvisations,
+                'punitions' : punitions,
+                'etoiles' : etoiles,
+                'scores' : scores,
+                'signatures' : signatures
+            }
+
+        else:
+            improvisations = [
+                {'description': '', 'points': ''},
+                {'description': '', 'points': ''},
+                {'description': '', 'points': ''},
+                {'description': '', 'points': ''},
+                {'description': '', 'points': ''},
+                {'description': '', 'points': ''},
+                {'description': '', 'points': ''},
+                {'description': '', 'points': ''},
+                {'description': '', 'points': ''},
+                {'description': '', 'points': ''},
+                {'description': '', 'points': ''},
+                {'description': '', 'points': ''},
+                {'description': '', 'points': ''}
+            ]
+            punitions = []
+
+            etoiles = []
+            scores = {
+                'sousTotal': {'equipe1': '0', 'equipe2': '0'},
+                'penalites': {'equipe1': '0', 'equipe2': '0'},
+                'total': {'equipe1': '0', 'equipe2': '0'}
+            }
+            signatures = {
+                'coach1': False,
+                'coach2': False
+            }
+
+            jsonData = {
+                'alignementEquipe1': [],
+                'alignementEquipe2': [],
+                'improvisations': improvisations,
+                'punitions': punitions,
+                'etoiles': etoiles,
+                'scores': scores,
+                'signatures': signatures
+            }
+
+        match.cache = jsonData
+        match.save()
+
+
+
+def changeImprovisations():
+    for match in Match.objects.all():
+        # Check if cache is not None and is a string
+        if match.cache:
+            try:
+                # If it's a string, try to fix the single quotes to double quotes
+                if isinstance(match.cache, str):
+                    # Fix single quotes to double quotes in the string
+                    match.cache = re.sub(r"'", r'"', match.cache)
+
+                    # Try loading the fixed JSON string into a dictionary
+                    match.cache = json.loads(match.cache)
+
+                # Access and modify the 'improvisations' key within the cache
+                improvisations = match.cache.get('improvisations', [])
+
+                # Example: Add a new improvisation to the list
+                improvisations.append({'description': 'New improvisation', 'points': ''})
+
+                # Update the cache with the modified improvisations list
+                match.cache['improvisations'] = improvisations
+
+                # Save the modified match object
+                match.save()
+
+                print(f"Match ID {match} updated successfully with new improvisations.")
+            except json.JSONDecodeError as e:
+                print(f"Error decoding JSON for match ID {match}: {e}")
+            except Exception as e:
+                print(f"Error processing match ID {match}: {e}")
+                continue  # Skip this match if there was an error
+
+
+
+
+
 
 
 if __name__ == "__main__":

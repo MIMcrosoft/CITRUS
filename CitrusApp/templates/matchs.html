@@ -103,6 +103,14 @@
                     });
                 };
                 modalFooter.appendChild(copyButton);
+                
+                const openWindowBtn = document.createElement('button');
+                openWindowBtn.classList.add('btnPrimary','btnInLine');
+                openWindowBtn.innerHTML = '<span>Ouvrir dans une autre fenêtre</span>';
+                openWindowBtn.onclick = function (){
+                    window.open(matchURl,"_blank");
+                }
+                modalFooter.appendChild(openWindowBtn);
         
                 const closeButton = document.createElement('button');
                 closeButton.classList.add('btnSecondary', 'btnInline');

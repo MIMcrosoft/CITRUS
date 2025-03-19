@@ -417,9 +417,9 @@ def match(request,hashedCode):
         TEST = True
 
     if request.method == 'POST':
-        matchData = ast.literal_eval(matchSelected.cache)
-        matchSelected.score_eq1 = matchData[5][2][0]
-        matchSelected.score_eq2 = matchData[5][2][1]
+        matchData = matchSelected.cache
+        matchSelected.score_eq1 = matchData['score_eq1']
+        matchSelected.score_eq2 = matchData['score_eq2']
         if not TEST:
             matchSelected.completed_flag = True
             matchSelected.improvisations = matchData[2]
@@ -455,7 +455,7 @@ def match(request,hashedCode):
 
         # Your original code
         if matchSelected.cache is not None:
-            matchData = ast.literal_eval(desanitize_string(matchSelected.cache))  # Parse the cache
+            matchData = matchSelected.cache
         else:
             matchData = None
 
@@ -537,27 +537,19 @@ def log_out(request):
 
 def saveToDB(request):
     if request.method == "POST":
+
         try:
             # Parse the incoming JSON data
             data = json.loads(request.body)
-            dataString = data.get('dataString')
+            matchData = data.get('data',{})
             matchID = data.get('matchID')
             userID = data.get('userID')
 
             match = Match.objects.get(match_id=matchID)
 
-            # Process the data as needed (e.g., save to the database)
-            #print(f"Received data - dataString: {dataString}, userID: {userID}")
-
-            data = ast.literal_eval(dataString)
-            alignementsEquipe1 = data[0]
-            alignementsEquipe2 = data[1]
-            impros = data[2]
-            punitions = data[3]
-            etoiles = data[4]
-
+            print(matchData)
             print("MATCH SAVED")
-            match.cache = dataString
+            match.cache = matchData
             match.save()
             # Respond with a success message
             return JsonResponse({'status': 'success', 'message': 'Data saved successfully!'})

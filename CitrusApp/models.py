@@ -399,8 +399,9 @@ class Match(models.Model):
     division = models.CharField(max_length=50, choices=DIVISION_CHOICES, default=DIVISION_CHOICES[0][0])
     completed_flag = models.BooleanField(default=False)
     validated_flag = models.BooleanField(default=False)
-    improvisations = models.CharField(max_length=1000, blank=True, null=True, default="[]")
-    cache = models.CharField(max_length=5000, blank=True, null=True)
+    improvisations = models.JSONField(blank=True, null=True, default=list)
+    cache = models.JSONField(blank=True, null=True,default=dict)
+
 
     session = models.ForeignKey(Session, on_delete=models.SET_NULL, null=True)
     serie = models.ForeignKey(Serie, on_delete=models.CASCADE, null=True,blank=True)
