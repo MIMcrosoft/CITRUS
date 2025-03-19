@@ -418,8 +418,8 @@ def match(request,hashedCode):
 
     if request.method == 'POST':
         matchData = matchSelected.cache
-        matchSelected.score_eq1 = matchData['score_eq1']
-        matchSelected.score_eq2 = matchData['score_eq2']
+        matchSelected.score_eq1 = matchData.get('scores').get('total').get('equipe1')
+        matchSelected.score_eq2 = matchData.get('scores').get('total').get('equipe2')
         if not TEST:
             matchSelected.completed_flag = True
             matchSelected.improvisations = matchData[2]

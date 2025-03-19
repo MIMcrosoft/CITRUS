@@ -42,14 +42,14 @@ def classement(request, division):
 
                     if match.completed_flag:
                         pj += 1
-                        improvisations = ast.literal_eval(match.improvisations)
+                        improvisations = match.improvisations
 
                         if equipe == match.equipe1:
                             pp += match.score_eq1
                             pc += match.score_eq2
 
 
-                            if improvisations[-1][1] != "":
+                            if improvisations[12].get("points") != "":
                                 flagProlong = True
                             else:
                                 flagProlong = False
@@ -69,7 +69,7 @@ def classement(request, division):
                             pp += match.score_eq2
                             pc += match.score_eq1
 
-                            if improvisations[-1][1] != "":
+                            if improvisations[12].get("points") != "":
                                 flagProlong = True
 
                             if flagProlong:
