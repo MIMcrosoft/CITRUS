@@ -422,9 +422,9 @@ def match(request,hashedCode):
         matchSelected.score_eq2 = matchData.get('scores').get('total').get('equipe2')
         if not TEST:
             matchSelected.completed_flag = True
-            matchSelected.improvisations = matchData[2]
+            matchSelected.improvisations = matchData.get("improvisations")
 
-            for punition in matchData[3]:
+            for punition in matchData.get("punitions"):
                 equipe = Equipe.objects.get(nom_equipe=punition[0])
                 if punition[2] == "Oui":
                     est_majeure = True
