@@ -997,6 +997,11 @@ def changeImprovisations():
                 print(f"Error processing match ID {match}: {e}")
                 continue  # Skip this match if there was an error
 
+def getMatchNotConfirmed():
+    for match in Match.objects.all():
+        if int(match.cache.get("scores").get("total").get("equipe1")) + int(match.cache.get("scores").get("total").get("equipe1")) != 0 and match.completed_flag == False:
+            if match.equipe1.nom_equipe != "EQUIPE TEST" and match.equipe2.nom_equipe != "EQUIPE TEST":
+                print(match,match.get_urlMatch)
 
 
 
@@ -1004,6 +1009,7 @@ def changeImprovisations():
 
 
 if __name__ == "__main__":
+    getMatchNotConfirmed()
     #updateMatchImpro()
     #updateUrlMatch()
     #Saison.createSaison("2024-2025")

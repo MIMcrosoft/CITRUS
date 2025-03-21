@@ -425,13 +425,13 @@ def match(request,hashedCode):
             matchSelected.improvisations = matchData.get("improvisations")
 
             for punition in matchData.get("punitions"):
-                equipe = Equipe.objects.get(nom_equipe=punition[0])
-                if punition[2] == "Oui":
+                equipe = Equipe.objects.get(nom_equipe=punition.get("equipe"))
+                if punition.get("majeure") == "Oui":
                     est_majeure = True
                 else:
                     est_majeure = False
 
-                Punition.createPunition(punition[1],est_majeure,equipe)
+                Punition.createPunition(punition.get("titre"),est_majeure,equipe)
         matchSelected.save()
         print("MATCHSAVED")
 
