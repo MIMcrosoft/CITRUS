@@ -1004,12 +1004,44 @@ def getMatchNotConfirmed():
                 print(match,match.get_urlMatch)
 
 
+def getMachManquants():
+
+    matchPamps = []
+    matchTangs = []
+    matchClems = []
+
+    for match in Match.objects.all():
+        if match.completed_flag == False:
+            if match.equipe1.nom_equipe != "EQUIPE TEST" and match.equipe2.nom_equipe != "EQUIPE TEST":
+                if match.division == "Pamplemousse":
+                    #matchPamps.append(match)
+                    matchPamps.append((match,match.get_urlMatch))
+                if match.division == "Tangerine":
+                    #matchTangs.append(match)
+                    matchTangs.append((match,match.get_urlMatch))
+                if match.division == "Clementine":
+                    #matchClems.append(match)
+                    matchClems.append((match,match.get_urlMatch))
+
+
+    print("MATCHS PAMPLEMOUSSES")
+    for matchManquant in matchPamps:
+        print(matchManquant)
+
+    print("MATCHS TANGERINES")
+    for matchManquant in matchTangs:
+        print(matchManquant)
+
+    print("MATCHS CLÉMENTINES")
+    for matchManquant in matchClems:
+        print(matchManquant)
 
 
 
 
 if __name__ == "__main__":
-    getMatchNotConfirmed()
+
+    getMachManquants()
     #updateMatchImpro()
     #updateUrlMatch()
     #Saison.createSaison("2024-2025")

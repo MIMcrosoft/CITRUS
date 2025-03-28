@@ -111,7 +111,7 @@ def classement(request, division):
 
             stats = sorted(
                 stats,
-                key=lambda x: (x['point'], x['diff'], x['pourc_impro_gagner']),
+                key=lambda x: (x['point'], x['v'], x['diff'], x['pourc_impro_gagner'], x['pp'], -x['pen']),
                 reverse=True
             )
 
