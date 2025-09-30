@@ -15,6 +15,7 @@ from pathlib import Path
 from datetime import datetime
 import segno
 import json
+import html2text
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'CITRUS.settings')
 django.setup()
@@ -29,6 +30,10 @@ class EmailType(Enum):
     INVITATION = auto()
     RESETPASSWORD = auto()
     VALIDATION = auto()
+    VERIFICATION = auto()
+    REMINDER = auto()
+    SOCIOQR = auto()
+    GENERIC = auto()
 
 
 """
@@ -52,6 +57,7 @@ def sendCoachEmail(coachEmail, emailType: EmailType, coachCodeHash=""):
     smtp_server = 'node38-ca.n0c.com'
     smtp_port = 465
     sender_email = 'citrus@liguedespamplemousses.com'
+    sender_name = 'CITRUS'
     receiver_email = coachEmail
     password = EMAIL_PSWD
 
@@ -62,9 +68,13 @@ def sendCoachEmail(coachEmail, emailType: EmailType, coachCodeHash=""):
     if emailType == EmailType.INVITATION:
         coach = creationCompteCoach("UserTest", "UserTest", coachEmail, "IMPROMOMO8866887")
         urlSignIn = f"{domain}/Citrus/CoachSignIn/{coach.id}"
-        with open("coachEmailInvite.html", 'r', encoding="utf-8") as file:
+        currentYear = f"{datetime.now().year}"
+
+        template_path = base_dir / "templates" / "templatesCourriel" / "coachInviteEmail.html"
+        with open(template_path, 'r', encoding="utf-8") as file:
             html_body = file.read()
         html_bodyParam = html_body.replace("{urlSignIn}", urlSignIn)
+        html_bodyParam = html_bodyParam.replace("{currentYear}", currentYear)
         html_bodyParam_with_style = transform(html_bodyParam)
 
         subject = 'Invitation à la plateforme CITRUS'
@@ -74,28 +84,98 @@ def sendCoachEmail(coachEmail, emailType: EmailType, coachCodeHash=""):
         with open(template_path, 'r', encoding="utf-8") as file:
             html_body = file.read()
         urlResetPassword = f"{domain}/Citrus/ResetPassword-{coachCodeHash}"
+        currentYear = f"{datetime.now().year}"
         html_bodyParam = html_body.replace("{urlResetPassword}", urlResetPassword)
+        html_bodyParam = html_bodyParam.replace("{currentYear}", currentYear)
         html_bodyParam_with_style = transform(html_bodyParam)
 
-        subject = 'Réinitialisation de ton mot de passe Citrus'
+        subject = 'Réinitialisation de votre mot de passe CITRUS'
 
     elif emailType == EmailType.VALIDATION:
-        template_path = base_dir / "templates" / "templatesCourriel" / "validationCompteEmail.html"
+        template_path = base_dir / "templates" / "templatesCourriel" / "accountValidationEmail.html"
         with open(template_path, 'r', encoding="utf-8") as file:
             html_body = file.read()
         urlSignIn = f"{domain}/Citrus/Connexion/"
+        currentYear = f"{datetime.now().year}"
         html_bodyParam = html_body.replace("{urlSignIn}", urlSignIn)
+        html_bodyParam = html_bodyParam.replace("{currentYear}", currentYear)
         html_bodyParam_with_style = transform(html_bodyParam)
 
-        subject = "Votre compte Citrus a été accepté par l'organisation!"
+        subject = "Bienvenue sur CITRUS"
+
+    elif emailType == EmailType.VERIFICATION:
+        template_path = base_dir / "templates" / "templatesCourriel" / "verificationCodeEmail.html"
+        with open(template_path, 'r', encoding="utf-8") as file:
+            html_body = file.read()
+        code = f"123456"
+        currentYear = f"{datetime.now().year}"
+        html_bodyParam = html_body.replace("{code}", code)
+        html_bodyParam = html_bodyParam.replace("{currentYear}", currentYear)
+        html_bodyParam_with_style = transform(html_bodyParam)
+
+        subject = "Votre code de sécurité CITRUS"
+
+    elif emailType == EmailType.REMINDER:
+        template_path = base_dir / "templates" / "templatesCourriel" / "reminderCoachEmail.html"
+        with open(template_path, 'r', encoding="utf-8") as file:
+            html_body = file.read()
+        urlSignIn = f"{domain}/Citrus/Connexion/"
+        currentYear = f"{datetime.now().year}"
+        html_bodyParam = html_body.replace("{urlSignIn}", urlSignIn)
+        html_bodyParam = html_bodyParam.replace("{currentYear}", currentYear)
+        html_bodyParam_with_style = transform(html_bodyParam)
+
+        subject = "Un message de la ligue des Pamplemousses"
+
+    elif emailType == EmailType.SOCIOQR:
+        template_path = base_dir / "templates" / "templatesCourriel" / "socioQREmail.html"
+        with open(template_path, 'r', encoding="utf-8") as file:
+            html_body = file.read()
+        urlQRSheet = f"{domain}/Citrus/Connexion/"
+        cegep = f"Nom du vegep"
+        currentYear = f"{datetime.now().year}"
+        html_bodyParam = html_body.replace("{urlQRSheet}", urlQRSheet)
+        html_bodyParam = html_bodyParam.replace("{cegep}", cegep)
+        html_bodyParam = html_bodyParam.replace("{currentYear}", currentYear)
+        html_bodyParam_with_style = transform(html_bodyParam)
+
+        subject = "Un message de la ligue des Pamplemousses"
+
+    elif emailType == EmailType.GENERIC:
+        template_path = base_dir / "templates" / "templatesCourriel" / "genericEmail.html"
+        with open(template_path, 'r', encoding="utf-8") as file:
+            html_body = file.read()
+        title = f"Title"
+        message = f"message"
+        signature = f"signature"
+        currentYear = f"{datetime.now().year}"
+        html_bodyParam = html_body.replace("{title}", title)
+        html_bodyParam = html_bodyParam.replace("{message}", message)
+        html_bodyParam = html_bodyParam.replace("{signature}", signature)
+        html_bodyParam = html_bodyParam.replace("{currentYear}", currentYear)
+        html_bodyParam_with_style = transform(html_bodyParam)
+
+        subject = "Un message de la ligue des Pamplemousses"
 
     else:
         raise ValueError(f"Type d'email non pris en charge: {emailType}")
 
+    def html2plain(html):
+        h = html2text.HTML2Text()
+        h.ignore_images = True
+        h.ignore_emphasis = False
+        h.ignore_links = False  # include links like: Text (https://...)
+        h.body_width = 72  # wrap lines nicely
+        return h.handle(html).strip()
+
+    plaintextVersion = html2plain(html_bodyParam_with_style)
+
     msg = MIMEMultipart('alternative')
-    msg['From'] = sender_email
+    msg['From'] = f"{sender_name} <{sender_email}>"
     msg['To'] = receiver_email
     msg['Subject'] = subject
+    msg['X-Mailer'] = f"{sender_name}"
+    msg.attach(MIMEText(plaintextVersion, 'plain'))
     msg.attach(MIMEText(html_bodyParam_with_style, 'html'))
 
     try:
@@ -1011,7 +1091,7 @@ if __name__ == "__main__":
     #fillCalendrier()
     #calendrier = Calendrier.objects.all().first()
     #exportCalendrier(calendrier)
-    #sendCoachEmail("felixrobillard@gmail.com",EmailType.RESETPASSWORD)
+    sendCoachEmail("raph.barniques@gmail.com",EmailType.GENERIC)
     #updateMatchDate()
     pass
 
