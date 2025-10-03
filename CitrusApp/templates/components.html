@@ -9,9 +9,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../../static/stylesheets/components/generalStyles.css">
-    <link rel="stylesheet" href="{% static 'stylesheets/components/generalStyles.css' %}">
-
+    <link rel="stylesheet" href="generalStyles.css">
+    
 </head>
 <body>
     <h1>Title</h1>
@@ -26,8 +25,8 @@
     <p>Tooltip text<i class="tooltip fa-solid fa-circle-info" data-tippy-content="Tooltip content"></i></p>
     <script src="https://kit.fontawesome.com/b6c9a53dc1.js" crossorigin="anonymous"></script>
 
-    <script src="https://unpkg.com/@popperjs/core@2"></script>
-    <script src="https://unpkg.com/tippy.js@6"></script>
+    <script src="https://unpkg.com/popper.js@1"></script>
+    <script src="https://unpkg.com/tippy.js@5"></script>
     <script>
         tippy('.tooltip', {
             allowHTML: true,
@@ -229,18 +228,22 @@
                     selectElement = this.parentNode.parentNode.getElementsByTagName("select")[0];
                     optionsLength = selectElement.length;
                     selectedDiv = this.parentNode.previousSibling;
+
+                    console.log(this.parentNode);
+                    allSelectedDivs = this.parentNode.querySelector(".same-as-selected");
+                    console.log(allSelectedDivs)
+
+                    if (allSelectedDivs) {
+                        allSelectedDivs.classList.remove("same-as-selected");
+                        allSelectedDivs.classList.add("select-option");
+                    }
                     
                     for (var k = 0; k < optionsLength; k++) {
                         if (selectElement.options[k].innerHTML === this.innerHTML) {
                             selectElement.selectedIndex = k;
                             selectedDiv.innerHTML = this.innerHTML;
-                            allSelectedDivs = this.parentNode.getElementsByClassName("same-as-selected");
-                            
-                            for (var l = 0; l < allSelectedDivs.length; l++) {
-                                allSelectedDivs[l].removeAttribute("class");
-                            }
-                            
-                            this.setAttribute("class", "same-as-selected");
+                            this.classList.add("same-as-selected");
+                            this.classList.remove("select-option");
                             break;
                         }
                     }
