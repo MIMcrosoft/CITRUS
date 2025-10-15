@@ -1091,7 +1091,7 @@ if __name__ == "__main__":
     #fillCalendrier()
     #calendrier = Calendrier.objects.all().first()
     #exportCalendrier(calendrier)
-    sendCoachEmail("raph.barniques@gmail.com",EmailType.GENERIC)
+    #sendCoachEmail("raph.barniques@gmail.com",EmailType.GENERIC)
     #updateMatchDate()
     pass
 
