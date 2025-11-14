@@ -22,8 +22,8 @@
                     <label class="errorMsg" style="font-size: 15px;">{{ error }}</label>
                 {% endfor %}
                 <section class="section loginFields">
-                    <input style="margin-bottom: -0.5rem; width: 100%;" type="text" id="username" name="username" placeholder="Courriel">
-                    <input style="width: 100%;" type="password" id="password" name="password" placeholder="Mot de passe">
+                    <input  style="margin-bottom: -0.5rem;" type="text" id="username" name="username" placeholder="Courriel">
+                    <input type="password" id="password" name="password" placeholder="Mot de passe">
 
                     <a style="gap: 0; margin-top: -0.5rem;" onclick="sectionReveal('forgotFields')">Mot de passe oublié?</a>
                     
@@ -34,7 +34,7 @@
                 <section class="section forgotFields hidden">
                     <h2 style="margin-bottom: -0.5rem;">Mot de passe oublié</h2>
 
-                    <input style="width: 100%;" type="text" id="emailToReset" name="emailToReset" placeholder="Courriel">
+                    <input type="text" id="emailToReset" name="emailToReset" placeholder="Courriel">
 
                     <a style="gap: 0; margin-top: -0.5rem;" onclick="sectionReveal('loginFields')">Se connecter</a>
 

@@ -1,0 +1,613 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+    <header>
+        <div class="buttonsTeams">
+            {% if request.user.admin_flag == True %}
+            <button class="btnPrimary" onclick="navTo(this,'/Citrus/ModificationEquipe{{ equipe.id_equipe }}',false)"><span>Modifier</span></button>
+            {% endif %}
+            {% if current_user.coach_id == coach.coach_id %}
+            <button class="btnPrimary" onclick="openModalAjout()"><span>Ajouter un interprète</span></button>
+            {% endif %}
+        </div>
+    </header>
+
+    <div class="upperBody">
+
+        <div class="teamDetails">
+            <h1 id="teamName">{{ equipe.nom_equipe }}</h1>
+            <h3 id="collegeName">{{ equipe.college }}</h3>
+
+
+            <label class="division {{ equipe.division }}">{{ equipe.division }}</label>
+
+
+            <menu-deroulant-recherche >
+              <select onchange="changeSaison(this, {{ equipe.id_equipe }})">
+                <option>Choisir une saison</option>
+                {% for saison in saisons %}
+                    <option value="{{ saison.saison_id }}"  {% if saison.saison_id == saison_selectionne.saison_id %}selected{% endif %} >{{ saison.nom_saison }}</option>
+                {% endfor %}
+              </select>
+            </menu-deroulant-recherche>
+
+
+        </div>
+
+        <img id="logoEquipe" src="{% if equipe.logo %}{{ equipe.getUrlPhoto }}{% endif %}" alt="LOGO">
+
+    </div>
+
+    <div class="lowerBody">
+        
+        <div class="alignementsTeam">
+            <h1>Alignement</h1>
+            <table>
+                <tr class="tableHeaderRow">
+                    <th>#</th>
+                    <th>Prénom et nom</th>
+                    <th>C/A</th>
+                    <th>Pronoms</th>
+                    <th></th>
+                </tr>
+                {% for details  in details_interpretes %}
+                    <tr class="pamps">
+                        <td>{{ details.numero_interprete }}</td>
+                        <td>{{ details.interprete.nom_interprete }}</td>
+                        <td>{{ details.role_interprete }}</td>
+                        <td>{{ details.interprete.pronom_interprete }}</td>
+                        <td class="iconRow"><button class="iconBtn" onclick="openModalModifier(
+                            '{{ details.interprete.interprete_id }}',
+                            '{{ details.interprete.nom_interprete  }}',
+                            '{{ details.role_interprete }}',
+                            '{{ details.interprete.pronom_interprete }}',
+                            '{{ details.numero_interprete }}'
+                        )"><img src="../static/icons/pencil.png" alt="" class=""></button></td>
+                        <!---<td><button class="btnSecondary btnInline"><span>Supprimer</span></button></td>--->
+                    </tr>
+                {% endfor %}
+            </table>
+
+            <table>
+                <tr class="tableHeaderRow">
+                    <th></th>
+                    <th>Prénom et nom</th>
+                    <th>Courriel</th>
+                    <th>Pronoms</th>
+                </tr>
+
+                <tr class="pamps">
+                    <td>Coach</td>
+                    <td>{{ coach.prenom_coach }} {{ coach.nom_coach }}</td>
+                    <td>{{ coach.courriel }}</td>
+                    <td>{{ coach.pronom_coach }}</td>
+                    <!---<td><button class="btnSecondary btnInline" onclick=""><span>Modifier</span></button></td>
+                    <td><button class="btnSecondary btnInline"><span>Supprimer</span></button></td>--->
+                </tr>
+
+            </table>
+        </div>
+
+        <div class="calendrier">
+            <h1 id="titleMatch">Matchs</h1>
+            <div class="matchs">
+                {% for match in matchs_saisons %}
+                    <div class="match">
+                        <div class="matchDate">{{ match.get_dateFormatted}}</div>
+                        {% if match.validated_flag == False %}
+                            <div class="matchDetailsValidated">
+                                <div class="teamDetailsMatch">
+                                    <span>{{ match.equipe2.nom_equipe }}</span>
+                                    <span>{{ match.score_eq2 }}</span>
+                                </div>
+                                <span id="lieuMatch">{{ match.equipe1.college.nom_college }}</span>
+                                <div class="teamDetailsMatch">
+                                    <span>{{ match.equipe1.nom_equipe }}</span>
+                                    <span>{{ match.score_eq1 }}</span>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="matchDetails">
+                                <span>{{ match.score_eq2 }}</span>
+                                <span>{{ match.equipe2.nom_equipe }} Vs {{ match.equipe1.nom_equipe }}</span>
+                                <span id="lieuMatch">{{ match.equipe1.college.nom_college }}</span>
+                                <span>{{ match.score_eq1 }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div id="ajout_interprete_modal" class="modal">
+        <div class="modal-content">
+          <h1>Ajouter un·e interprète</h1>
+
+          <section>
+            <h2>Informations personnelles</h2>
+
+            <menu-deroulant-recherche data-no-result-text="Créer un·e interprète">
+              <select onchange="getInformationsInterprete(this.value)">
+                <option value="">Nom de l’interprète</option>
+                {% for interprete in interpretes %}
+                  <option value="{{ interprete.interprete_id }}">{{ interprete.nom_interprete }}</option>
+                {% endfor %}
+              </select>
+            </menu-deroulant-recherche>
+
+            <input type="hidden" class="interpreteID" value="null">
+
+            <div class="form-grid modal_info_perso">
+              <div class="form-group">
+                <label>Nom</label>
+                <input type="text" class="nom_interprete" name="nom_interprete" placeholder="Entrez le nom">
+              </div>
+              <div class="form-group">
+                <label>Pronom</label>
+                <input type="text" class="pronom_interprete" name="pronom_interprete" placeholder="Ex. elle/il/iel">
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <h2>Informations de saison</h2>
+
+            <div class="form-group">
+              <label>Numéro</label>
+              <input type="text" name="numeroInterprete" class="numeroInterprete" placeholder="Ex. 12">
+            </div>
+
+            <div class="form-group">
+              <div class="radio-group">
+                <label><input type="radio" name="roleInterprete" checked="true" value=""> Aucun rôle</label>
+                <label><input type="radio" name="roleInterprete" value="A"> Assistant·e</label>
+                <label><input type="radio" name="roleInterprete" value="C"> Capitaine</label>
+              </div>
+            </div>
+          </section>
+
+          <div class="modal-actions">
+            <button type="button" class="btnSecondary" onclick="closeModalInterprete('ajout_interprete_modal')">Annuler</button>
+            <button type="submit" class="btnPrimary" onclick="ajouterInterprete()">Enregistrer</button>
+          </div>
+        </div>
+    </div>
+
+    <div id="modifier_interprete_modal" class="modal">
+        <div class="modal-content">
+          <h1>Modifier un·e interprète</h1>
+
+          <section>
+            <h2>Informations personnelles</h2>
+
+            <input type="hidden" class="interpreteID" value="null">
+
+            <div class="form-grid modal_info_perso">
+              <div class="form-group">
+                <label>Nom</label>
+                <input type="text" class="nom_interprete" name="nom_interprete" placeholder="Entrez le nom">
+              </div>
+              <div class="form-group">
+                <label>Pronom</label>
+                <input type="text" class="pronom_interprete" name="pronom_interprete" placeholder="Ex. elle/il/iel">
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <h2>Informations de saison</h2>
+
+            <div class="form-group">
+              <label>Numéro</label>
+              <input type="text" name="numeroInterprete" class="numeroInterprete" placeholder="Ex. 12">
+            </div>
+
+            <div class="form-group">
+              <div class="radio-group">
+                <label><input type="radio" name="roleInterprete" checked="true" value=""> Aucun rôle</label>
+                <label><input type="radio" name="roleInterprete" value="A"> Assistant·e</label>
+                <label><input type="radio" name="roleInterprete" value="C"> Capitaine</label>
+              </div>
+            </div>
+          </section>
+
+          <div class="modal-actions">
+            <button type="button" class="btnSecondary" onclick="closeModalInterprete('modifier_interprete_modal')">Annuler</button>
+            <button type="submit" class="btnPrimary" onclick="modifierInterprete()">Modifier</button>
+          </div>
+        </div>
+    </div>
+
+    <script>
+        function changeSaison(selectElement,equipeId) {
+            const saisonId = selectElement.value;
+            window.location.href = `/Citrus/Equipe${equipeId}-${saisonId}`;
+        }
+
+        function openModalAjout() {
+            const modal = document.getElementById("ajout_interprete_modal");
+            modal.style.display = "flex";
+            setTimeout(() => modal.classList.add("show"), 10); // trigger transition
+        }
+
+        function openModalModifier(interprete_id, nom_interprete, role_interprete, pronom_interprete, numero_interprete){
+            const modal = document.getElementById("modifier_interprete_modal");
+            const idInputModif = document.querySelector("#modifier_interprete_modal .interpreteID");
+            const nomInputModif = document.querySelector("#modifier_interprete_modal .nom_interprete");
+            const pronomInputModif = document.querySelector("#modifier_interprete_modal .pronom_interprete");
+            const numInputModif = document.querySelector("#modifier_interprete_modal .numeroInterprete")
+            const radioToCheck = document.querySelector(`#modifier_interprete_modal input[type="radio"][value="${role_interprete}"]`);
+            const infosPersoContainer = document.querySelector("#modifier_interprete_modal .modal_info_perso")
+
+            infosPersoContainer.style.display = "flex";
+            idInputModif.value = interprete_id;
+            nomInputModif.value = nom_interprete;
+            pronomInputModif.value = pronom_interprete;
+            numInputModif.value = numero_interprete;
+            if(radioToCheck) radioToCheck.checked = true;
+
+            nomInputModif.disabled = true;
+
+            modal.style.display = "flex";
+            setTimeout(() => modal.classList.add("show"), 10); // trigger transition
+        }
+
+        function closeModalInterprete(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.remove("show");
+            setTimeout(() => (modal.style.display = "none"), 300); // wait for animation
+        }
+
+        window.onclick = function (event) {
+          const modals = document.querySelectorAll(".modal");
+
+          for (let modal of modals) {
+            // If the click is outside the modal content and the modal is currently shown
+            if (!event.target.closest(".modal-content") && modal.classList.contains("show")) {
+              closeModalInterprete(modal.id);
+            }
+          }
+        };
+
+        function getInformationsInterprete(interprete_id){
+
+            const pronomInput = document.querySelector("#ajout_interprete_modal .pronom_interprete");
+            const nomInput = document.querySelector("#ajout_interprete_modal .nom_interprete");
+            const infosPersoContainer = document.querySelector("#ajout_interprete_modal .modal_info_perso")
+            const interpreteID = document.querySelector("#ajout_interprete_modal .interpreteID");
+
+
+            fetch(`/api/get-pronom-interprete-${interprete_id}`)
+              .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+              })
+              .then(data => {
+                  pronomInput.value = data.pronoms;
+                  nomInput.value = data.nom;
+                  nomInput.disabled = true;
+                  infosPersoContainer.style.display = "flex";
+                  interpreteID.value = interprete_id;
+              })
+              .catch(error => {
+                console.error('Fetch error:', error);
+              });
+        }
+
+        window.addEventListener("no-result-click", (e) => {
+            const pronomInput = document.querySelector("#ajout_interprete_modal .pronom_interprete");
+            const nomInput = document.querySelector("#ajout_interprete_modal .nom_interprete");
+            const infosPersoContainer = document.querySelector("#ajout_interprete_modal .modal_info_perso")
+            const interpreteID = document.querySelector("#ajout_interprete_modal .interpreteID");
+
+            pronomInput.value = "";
+            nomInput.value = "";
+            infosPersoContainer.style.display = "flex";
+            interpreteID.value = null;
+            nomInput.disabled = false;
+        });
+
+        async function ajouterInterprete() {
+          const pronomInput = document.querySelector("#ajout_interprete_modal .pronom_interprete");
+          const nomInput = document.querySelector("#ajout_interprete_modal .nom_interprete");
+          const interpreteID = document.querySelector("#ajout_interprete_modal .interpreteID");
+          const numInterprete = document.querySelector("#ajout_interprete_modal .numeroInterprete");
+          const roleValue = document.querySelector('#ajout_interprete_modal input[name="roleInterprete"]:checked')?.value || "";
+          const csrftoken = getCookie("csrftoken");
+
+          // Prepare the form data
+          const formData = new FormData();
+          formData.append("alignement_id", "{{ alignement.id_alignement }}");
+          formData.append("numero_interprete", numInterprete.value);
+          formData.append("role_interprete", roleValue);
+
+          // Decide which endpoint to call
+          let url = "";
+          if (interpreteID.value) {
+            // existing interprete
+            formData.append("interprete_id", interpreteID.value);
+            url = "/api/ajouter_interprete_alignement";
+          } else {
+            // new interprete
+            formData.append("nom_interprete", nomInput.value);
+            formData.append("pronom_interprete", pronomInput.value);
+            url = "/api/creer_interprete";
+          }
+
+          try {
+            const response = await fetch(url, {
+              method: "POST",
+              headers: { "X-CSRFToken": csrftoken },
+              body: formData,
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+              alert("Interprète enregistré avec succès !");
+              closeModalInterprete("ajout_interprete_modal");
+              window.location.reload();
+            } else {
+              alert("Erreur lors de l'enregistrement");
+            }
+          } catch (error) {
+            console.error("Fetch error:", error);
+            alert("Erreur de connexion au serveur");
+          }
+        }
+
+        async function modifierInterprete(){
+            const csrftoken = getCookie("csrftoken");
+            const idInputModif = document.querySelector("#modifier_interprete_modal .interpreteID");
+            const pronomInputModif = document.querySelector("#modifier_interprete_modal .pronom_interprete");
+            const numInputModif = document.querySelector("#modifier_interprete_modal .numeroInterprete");
+            const roleValue = document.querySelector('#modifier_interprete_modal input[name="roleInterprete"]:checked')?.value || "";
+
+            // Prepare the form data
+            const formData = new FormData();
+            formData.append("alignement_id", "{{ alignement.id_alignement }}");
+            formData.append("numero_interprete", numInputModif.value);
+            formData.append("role_interprete", roleValue);
+            formData.append("interprete_id", idInputModif.value);
+            formData.append("pronom_interprete", pronomInputModif.value);
+
+            try {
+                const response = await fetch("/api/modifier_interprete", {
+                  method: "POST",
+                  headers: { "X-CSRFToken": csrftoken },
+                  body: formData,
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                  alert("Interprète modifié avec succès !");
+                  closeModalInterprete("modifier_interprete_modal");
+                  window.location.reload();
+                } else {
+                  alert("Erreur lors de la modification");
+                }
+            } catch (error) {
+                console.error("Fetch error:", error);
+                alert("Erreur de connexion au serveur");
+            }
+        }
+    </script>
+    
+    <style>
+        /* MODAL STYLE */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            z-index: 1000;
+            left: 25%;
+            top: 0;
+            width: 50%;
+            height: 95%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            background-color: #f3f3f3;
+            border-radius: 25px;
+            box-shadow: var(--shadow);
+            opacity: 0;                /* Start transparent */
+            transform: translateY(-20px); /* Start slightly above */
+            transition: all 0.3s ease; /* Smooth animation */
+        }
+
+        .modal.show {
+            display: flex;
+            opacity: 1;
+            transform: translateY(0); /* Slide to natural position */
+        }
+
+        .modal-actions{
+            display: flex;
+            flex-direction: row;
+            padding: 1rem;
+        }
+            .modal-actions button{
+                margin: 1rem;
+            }
+
+        .modal .modal_info_perso{
+            display: none;
+            flex-direction: column;
+        }
+        /* FIN STYLE MODAL */
+
+
+        header{
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+
+        .buttonsTeams{
+            display: flex;
+            flex-direction: row;
+        }
+
+        .upperBody{
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .teamDetails{
+            display: flex;
+            flex-direction: column;
+            align-content: center;
+            margin: 0.5rem;
+        }
+
+        h1{
+            font-size: 2.5rem;
+            padding-bottom: 5px;
+            margin-bottom: 5px;
+        }
+        #collegeName{
+            padding-bottom: 0;
+            margin-top: 0;
+        }
+
+        .division{
+            font-family: "Maven Pro", sans-serif;
+            font-weight: 800;
+            background-color: var(--mainPamps);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 25px;
+            text-align: center;
+            margin: 0.5rem;
+        }
+        menu-deroulant-recherche{
+            width: 100%;
+            margin: 0 0.5rem 0.5rem 0.5rem;
+        }
+        .lowerBody{
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .alignementsTeam{
+            width: 50%;
+        }
+        
+        .calendrier{
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            padding-left: 1rem;
+        }
+
+        .matchs{
+            display: flex;
+            flex-wrap: nowrap;
+            width: 100%;
+            flex-direction: column;
+            overflow-y: auto;
+            overflow-x: hidden;
+            height: 500px;
+        }
+        
+        
+        .match{
+            display: flex;
+            flex-direction: row;
+            margin: 0.25rem;
+            width: 100%;
+            height: 5rem;
+        }
+
+        .matchDate{
+            display: flex;
+            justify-content: center;
+            text-align: center;
+            background-color: var(--mainPamps);
+            color: white;
+            font-family: "Maven Pro", sans-serif;
+            font-size: 2rem;
+            font-weight: 800;
+            padding: 2rem;
+            width: 100px;
+            align-items: center;
+        }
+
+        .teamDetailsMatch{
+            display: flex;
+            flex-direction: column;
+            color: var(--mainPamps);
+            font-family: "Maven Pro", sans-serif;
+            font-size: 1.25rem;
+            font-weight: 800;
+            text-align: center;
+            justify-content: center;
+            width: 33%;
+            align-items: center;
+            
+
+        }
+        .matchDetailsValidated{
+            display: flex;
+            flex-direction: row;
+            background-color: var(--tablePampsFade);
+            color: var(--mainPamps);
+            padding: 2rem;
+            font-family: "Maven Pro", sans-serif;
+            font-size: 1rem;
+            font-weight: 800;
+            text-align: center;
+            justify-content: center;
+            width: 400rem;
+            align-items: center;
+        }
+        #lieuMatch{
+            font-weight: 200;
+        }
+        
+        table tr{
+            padding: 1rem;
+        }
+        
+        .iconRow{
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .iconBtn{
+            border: none;
+            box-shadow: none;
+            width: fit-content;
+            height: fit-content;
+            background-color: darkred;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0;
+            margin: 0;
+            border-radius: 25%;
+        }
+        .iconBtn img{
+            border-radius: 25%;
+            width: 30px;
+            height: 30px;
+        }
+        .iconBtn:hover{
+            background-color: #5d5d5d;
+        }
+        #logoEquipe{
+            width: 20%;
+            margin: 2.5%;
+        }
+
+
+    </style>
+
+{% endblock %}

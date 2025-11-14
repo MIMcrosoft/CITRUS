@@ -8,8 +8,11 @@
     <title>Formulaire de match</title>
     <link rel="stylesheet" href="{% static 'stylesheets/components/generalStyles.css' %}">
 </head>
+
 <body>
+
     <h2 class="formTitle">Formulaire de match</h2>
+
     <div class="topContainer">
         <div class="logoBoard">
             <img src="{% if match.equipe2.logo %}{{ match.equipe2.logo.url }}{% else %}{% static 'icons/CitrusLogo.png' %}{% endif %}" alt="" class="logo">
@@ -21,20 +24,24 @@
             <p>{{ match.get_dateFormatted }}</p>
         </div>
     </div>
-    <div class="select tab-select" style="width: 100%;">
-        <select name="" id="" onchange="showSection(this)">
+
+    <menu-deroulant>
+       <select name="" id="" onchange="showSection(this)">
             <option value="Alignement">Alignement</option>
             <option value="Alignement" selected>Alignement</option>
             <option value="Match">Match</option>
             <option value="Pénalités">Pénalités</option>
             <option value="Score">Score et signatures</option>
-        </select>
-    </div>
+       </select>
+    </menu-deroulant>
+
+
     <section id="Alignement" class="">
         <h3>{{ matchData.data }}</h3>
         <div class="team" id="alignement1">
             <h3>{{ match.equipe2.nom_equipe }}</h3>
             <h3>{{ match.equipe2.college.nom_college }}</h3>
+
             {% if matchData and matchData.alignementEquipe1|length >= equipe2Alignement|length %}
                 {% for interprete in matchData.alignementEquipe1 %}
                     <div class="player player{{ loop.index}}">
@@ -45,24 +52,23 @@
                     </div>
                 {% endfor %}
             {% elif equipe2Alignement %}
-                {% for interprete in equipe2Alignement %}
+                {% for details in equipe2Alignement %}
                     <div class="player player{{ loop.index}}">
-                        <p>{{ interprete.role_interprete }}</p>
-                        <p>{{ interprete.numero_interprete }}</p>
-                        <p>{{ interprete.pronom_interprete }}</p>
-                        <p>{{ interprete.nom_interprete }}</p>
+                        <p>{{ details.role_interprete }}</p>
+                        <p>{{ details.numero_interprete }}</p>
+                        <p>{{ details.interprete.pronom_interprete }}</p>
+                        <p>{{ details.interprete.nom_interprete }}</p>
                     </div>
                 {% endfor %}
             {% endif %}
         
-            {% for coach in coachEquipe2 %}
-                <div class="coach">
-                    <p>Coach</p>
-                    <p>{{ coach.pronom_coach }}</p>
-                    <p>{{ coach.prenom_coach }} {{ coach.nom_coach }}</p>
-                </div>
-            {% endfor %}
-        
+
+            <div class="coach">
+                <p>Coach</p>
+                <p>{{ coach.pronom_coach }}</p>
+                <p>{{ coach.prenom_coach }} {{ coach.nom_coach }}</p>
+            </div>
+
             <button class="btnPrimary btnStretch" onclick="openModal('addPlayerModal');document.getElementById('team').value = 1"><span>Ajouter un remplaçant</span></button>
         </div>
         <div class="team" id="alignement2">
@@ -78,182 +84,182 @@
                     </div>
                 {% endfor %}
             {% elif equipe1Alignement %}
-                {% for interprete in equipe1Alignement %}
+                {% for details in equipe1Alignement %}
                     <div class="player player{{ loop.index}}">
-                        <p>{{ interprete.role_interprete }}</p>
-                        <p>{{ interprete.numero_interprete }}</p>
-                        <p>{{ interprete.pronom_interprete }}</p>
-                        <p>{{ interprete.nom_interprete }}</p>
+                        <p>{{ details.role_interprete }}</p>
+                        <p>{{ details.numero_interprete }}</p>
+                        <p>{{ details.interprete.pronom_interprete }}</p>
+                        <p>{{ details.interprete.nom_interprete }}</p>
                     </div>
                 {% endfor %}
             {% endif %}
-        
-            {% for coach in coachEquipe1 %}
-                <div class="coach">
-                    <p>Coach</p>
-                    <p>{{ coach.pronom_coach }}</p>
-                    <p>{{ coach.prenom_coach }} {{ coach.nom_coach }}</p>
-                </div>
-            {% endfor %}
+
+            <div class="coach">
+                <p>Coach</p>
+                <p>{{ coach.pronom_coach }}</p>
+                <p>{{ coach.prenom_coach }} {{ coach.nom_coach }}</p>
+            </div>
+
             <button class="btnPrimary btnStretch" onclick="openModal('addPlayerModal');document.getElementById('team').value = 2"><span>Ajouter un remplaçant</span></button>
         </div>
     </section>
+
     {% if matchData %}
         <section id="Match" class="hidden">
         <div class="impro">
             <p>1.</p>
             <input type="text" id="impro1" value="{{ matchData.improvisations.0.description }}" onchange="saveToDB()">
-            <div class="select">
+            <menu-deroulant>
                 <select name="" id="improPts1" class="point" onchange="saveToDB(); updatePoint()">
                     <option value="{% if matchData.improvisations.0.points != "" %}{{ matchData.improvisations.0.points }}{% else %}{% endif %}">{% if matchData.improvisations.0.points == "team1" %}{{ match.equipe1.nom_equipe }}{% elif matchData.improvisations.0.points == "team2" %}{{ match.equipe2.nom_equipe }}{% elif matchData.improvisations.0.points == "both" %}Les deux{% else %}Point{% endif %}</option>
                     <option value="team1">{{ match.equipe1.nom_equipe }}</option>
                     <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                     <option value="both">Les deux</option>
                 </select>
-            </div>
+            </menu-deroulant>
         </div>
         <div class="impro">
             <p>2.</p>
             <input type="text" value="{{ matchData.improvisations.1.description }}" id="impro2" onchange="saveToDB()">
-            <div class="select">
+            <menu-deroulant>
                 <select name="" id="improPts2" class="point" onchange="saveToDB(); updatePoint()">
                     <option value="{% if matchData.improvisations.1.points != "" %}{{ matchData.improvisations.1.points }}{% else %}{% endif %}">{% if matchData.improvisations.1.points == "team1" %}{{ match.equipe1.nom_equipe }}{% elif matchData.improvisations.1.points == "team2" %}{{ match.equipe2.nom_equipe }}{% elif matchData.improvisations.1.points == "both" %}Les deux{% else %}Point{% endif %}</option>
                     <option value="team1">{{ match.equipe1.nom_equipe }}</option>
                     <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                     <option value="both">Les deux</option>
                 </select>
-            </div>
+            </menu-deroulant>
         </div>
         <div class="impro">
             <p>3.</p>
             <input type="text" value="{{ matchData.improvisations.2.description }}" id="impro3" onchange="saveToDB()">
-            <div class="select">
+            <menu-deroulant>
                 <select name="" id="improPts3" class="point" onchange="saveToDB(); updatePoint()">
                     <option value="{% if matchData.improvisations.2.points != "" %}{{ matchData.improvisations.2.points }}{% else %}{% endif %}">{% if matchData.improvisations.2.points == "team1" %}{{ match.equipe1.nom_equipe }}{% elif matchData.improvisations.2.points == "team2" %}{{ match.equipe2.nom_equipe }}{% elif matchData.improvisations.2.points == "both" %}Les deux{% else %}Point{% endif %}</option>
                     <option value="team1">{{ match.equipe1.nom_equipe }}</option>
                     <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                     <option value="both">Les deux</option>
                 </select>
-            </div>
+            </menu-deroulant>
         </div>
         <div class="impro">
             <p>4.</p>
             <input type="text" value="{{ matchData.improvisations.3.description }}" id="impro4" onchange="saveToDB()">
-            <div class="select">
+            <menu-deroulant>
                 <select name="" id="improPts4" class="point" onchange="saveToDB(); updatePoint()">
                     <option value="{% if matchData.improvisations.3.points != "" %}{{ matchData.improvisations.3.points }}{% else %}{% endif %}">{% if matchData.improvisations.3.points == "team1" %}{{ match.equipe1.nom_equipe }}{% elif matchData.improvisations.3.points == "team2" %}{{ match.equipe2.nom_equipe }}{% elif matchData.improvisations.3.points == "both" %}Les deux{% else %}Point{% endif %}</option>
                     <option value="team1">{{ match.equipe1.nom_equipe }}</option>
                     <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                     <option value="both">Les deux</option>
                 </select>
-            </div>
+            </menu-deroulant>
         </div>
         <div class="impro">
             <p>5.</p>
             <input type="text" value="{{ matchData.improvisations.4.descrition }}" id="impro5" onchange="saveToDB()">
-            <div class="select">
+            <menu-deroulant>
                 <select name="" id="improPts5" class="point" onchange="saveToDB(); updatePoint()">
                     <option value="{% if matchData.improvisations.4.points != "" %}{{ matchData.improvisations.4.points }}{% else %}{% endif %}">{% if matchData.improvisations.4.points == "team1" %}{{ match.equipe1.nom_equipe }}{% elif matchData.improvisations.4.points == "team2" %}{{ match.equipe2.nom_equipe }}{% elif matchData.improvisations.4.points == "both" %}Les deux{% else %}Point{% endif %}</option>
                     <option value="team1">{{ match.equipe1.nom_equipe }}</option>
                     <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                     <option value="both">Les deux</option>
                 </select>
-            </div>
+            </menu-deroulant>
         </div>
         <div class="impro">
             <p>6.</p>
             <input type="text" value="{{ matchData.improvisations.5.description }}" id="impro6" onchange="saveToDB()">
-            <div class="select">
+            <menu-deroulant>
                 <select name="" id="improPts6" class="point" onchange="saveToDB(); updatePoint()">
                     <option value="{% if matchData.improvisations.5.points != "" %}{{ matchData.improvisations.5.points }}{% else %}{% endif %}">{% if matchData.improvisations.5.points == "team1" %}{{ match.equipe1.nom_equipe }}{% elif matchData.improvisations.5.points == "team2" %}{{ match.equipe2.nom_equipe }}{% elif matchData.improvisations.5.points == "both" %}Les deux{% else %}Point{% endif %}</option>
                     <option value="team1">{{ match.equipe1.nom_equipe }}</option>
                     <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                     <option value="both">Les deux</option>
                 </select>
-            </div>
+            </menu-deroulant>
         </div>
         <div class="impro">
             <p>7.</p>
             <input type="text" value="{{ matchData.improvisations.6.description }}" id="impro7" onchange="saveToDB()">
-            <div class="select">
+            <menu-deroulant>
                 <select name="" id="improPts7" class="point" onchange="saveToDB(); updatePoint()">
                     <option value="{% if matchData.improvisations.6.points != "" %}{{ matchData.improvisations.6.points }}{% else %}{% endif %}">{% if matchData.improvisations.6.points == "team1" %}{{ match.equipe1.nom_equipe }}{% elif matchData.improvisations.6.points == "team2" %}{{ match.equipe2.nom_equipe }}{% elif matchData.improvisations.6.points == "both" %}Les deux{% else %}Point{% endif %}</option>
                     <option value="team1">{{ match.equipe1.nom_equipe }}</option>
                     <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                     <option value="both">Les deux</option>
                 </select>
-            </div>
+            </menu-deroulant>
         </div>
         <div class="impro">
             <p>8.</p>
             <input type="text" value="{{ matchData.improvisations.7.description }}" id="impro8" onchange="saveToDB()">
-            <div class="select">
+            <menu-deroulant>
                 <select name="" id="improPts8" class="point" onchange="saveToDB(); updatePoint()">
                     <option value="{% if matchData.improvisations.7.points != "" %}{{ matchData.improvisations.7.points }}{% else %}{% endif %}">{% if matchData.improvisations.7.points == "team1" %}{{ match.equipe1.nom_equipe }}{% elif matchData.improvisations.7.points == "team2" %}{{ match.equipe2.nom_equipe }}{% elif matchData.improvisations.7.points == "both" %}Les deux{% else %}Point{% endif %}</option>
                     <option value="team1">{{ match.equipe1.nom_equipe }}</option>
                     <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                     <option value="both">Les deux</option>
                 </select>
-            </div>
+            </menu-deroulant>
         </div>
         <div class="impro">
             <p>9.</p>
             <input type="text" value="{{ matchData.improvisations.8.description }}" id="impro9" onchange="saveToDB()">
-            <div class="select">
+            <menu-deroulant>
                 <select name="" id="improPts9" class="point" onchange="saveToDB(); updatePoint()">
                     <option value="{% if matchData.improvisations.8.points != "" %}{{ matchData.improvisations.8.points }}{% else %}{% endif %}">{% if matchData.improvisations.8.points == "team1" %}{{ match.equipe1.nom_equipe }}{% elif matchData.improvisations.8.points == "team2" %}{{ match.equipe2.nom_equipe }}{% elif matchData.improvisations.8.points == "both" %}Les deux{% else %}Point{% endif %}</option>
                     <option value="team1">{{ match.equipe1.nom_equipe }}</option>
                     <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                     <option value="both">Les deux</option>
                 </select>
-            </div>
+            </menu-deroulant>
         </div>
         <div class="impro">
             <p>10.</p>
             <input type="text" value="{{ matchData.improvisations.9.description }}" id="impro10" onchange="saveToDB()">
-            <div class="select">
+            <menu-deroulant>
                 <select name="" id="improPts10" class="point" onchange="saveToDB(); updatePoint()">
                     <option value="{% if matchData.improvisations.9.points != "" %}{{ matchData.improvisations.9.points }}{% else %}{% endif %}">{% if matchData.improvisations.9.points == "team1" %}{{ match.equipe1.nom_equipe }}{% elif matchData.improvisations.9.points == "team2" %}{{ match.equipe2.nom_equipe }}{% elif matchData.improvisations.9.points == "both" %}Les deux{% else %}Point{% endif %}</option>
                     <option value="team1">{{ match.equipe1.nom_equipe }}</option>
                     <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                     <option value="both">Les deux</option>
                 </select>
-            </div>
+            </menu-deroulant>
         </div>
         <div class="impro">
             <p>11.</p>
             <input type="text" value="{{ matchData.improvisations.10.description }}" id="impro11" onchange="saveToDB()">
-            <div class="select">
+            <menu-deroulant>
                 <select name="" id="improPts11" class="point" onchange="saveToDB(); updatePoint()">
                     <option value="{% if matchData.improvisations.10.points != "" %}{{ matchData.improvisations.10.points }}{% else %}{% endif %}">{% if matchData.improvisations.10.points == "team1" %}{{ match.equipe1.nom_equipe }}{% elif matchData.improvisations.10.points == "team2" %}{{ match.equipe2.nom_equipe }}{% elif matchData.improvisations.10.points == "both" %}Les deux{% else %}Point{% endif %}</option>
                     <option value="team1">{{ match.equipe1.nom_equipe }}</option>
                     <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                     <option value="both">Les deux</option>
                 </select>
-            </div>
+            </menu-deroulant>
         </div>
         <div class="impro">
             <p>12.</p>
             <input type="text" value="{{ matchData.improvisations.11.description }}" id="impro12" onchange="saveToDB()">
-            <div class="select">
+            <menu-deroulant>
                 <select name="" id="improPts12" class="point lastPoint" onchange="saveToDB(); updatePoint()">
                     <option value="{% if matchData.improvisations.11.points != "" %}{{ matchData.improvisations.11.points }}{% else %}{% endif %}">{% if matchData.improvisations.11.points == "team1" %}{{ match.equipe1.nom_equipe }}{% elif matchData.improvisations.11.points == "team2" %}{{ match.equipe2.nom_equipe }}{% elif matchData.improvisations.11.points == "both" %}Les deux{% else %}Point{% endif %}</option>
                     <option value="team1">{{ match.equipe1.nom_equipe }}</option>
                     <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                     <option value="both">Les deux</option>
                 </select>
-            </div>
+            </menu-deroulant>
         </div>
         <div class="impro" id="prolong">
             <p>Pr.</p>
             <input type="text" value="{{ matchData.improvisations.12.description }}" id="impro13" onchange="saveToDB()">
-            <div class="select">
+            <menu-deroulant>
                 <select name="" id="improPts13" class="point" onchange="saveToDB(); updatePoint()">
                     <option value="{% if matchData.improvisations.12.points != "" %}{{ matchData.improvisations.12.points }}{% else %}{% endif %}">{% if matchData.improvisations.12.points == "team1" %}{{ match.equipe1.nom_equipe }}{% elif matchData.improvisations.12.points == "team2" %}{{ match.equipe2.nom_equipe }}{% else %}Point{% endif %}</option>
                     <option value="team1">{{ match.equipe1.nom_equipe }}</option>
                     <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                 </select>
-            </div>
+            </menu-deroulant>
         </div>
 
     </section>
@@ -262,161 +268,162 @@
         <div class="impro">
             <p>1.</p>
             <input type="text" id="impro1" value="" onchange="saveToDB()">
-            <div class="select">
+            <menu-deroulant>
                 <select name="" id="improPts1" class="point" onchange="saveToDB(); updatePoint()">
                     <option value="">Point</option>
                     <option value="team1">{{ match.equipe1.nom_equipe }}</option>
                     <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                     <option value="both">Les deux</option>
                 </select>
-            </div>
+            </menu-deroulant>
         </div>
         <div class="impro">
             <p>2.</p>
             <input type="text" value="" id="impro2" onchange="saveToDB()">
-            <div class="select">
+            <menu-deroulant>
                 <select name="" id="improPts2" class="point" onchange="saveToDB(); updatePoint()">
                     <option value="">Point</option>
                     <option value="team1">{{ match.equipe1.nom_equipe }}</option>
                     <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                     <option value="both">Les deux</option>
                 </select>
-            </div>
+            </menu-deroulant>
         </div>
         <div class="impro">
             <p>3.</p>
             <input type="text" value="" id="impro3" onchange="saveToDB()">
-            <div class="select">
+            <menu-deroulant>
                 <select name="" id="improPts3" class="point" onchange="saveToDB(); updatePoint()">
                     <option value="">Point</option>
                     <option value="team1">{{ match.equipe1.nom_equipe }}</option>
                     <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                     <option value="both">Les deux</option>
                 </select>
-            </div>
+            </menu-deroulant>
         </div>
         <div class="impro">
             <p>4.</p>
             <input type="text" value="" id="impro4" onchange="saveToDB()">
-            <div class="select">
+            <menu-deroulant>
                 <select name="" id="improPts4" class="point" onchange="saveToDB(); updatePoint()">
                     <option value="">Point</option>
                     <option value="team1">{{ match.equipe1.nom_equipe }}</option>
                     <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                     <option value="both">Les deux</option>
                 </select>
-            </div>
+            </menu-deroulant>
         </div>
         <div class="impro">
             <p>5.</p>
             <input type="text" value="" id="impro5" onchange="saveToDB()">
-            <div class="select">
+            <menu-deroulant>
                 <select name="" id="improPts5" class="point" onchange="saveToDB(); updatePoint()">
                     <option value="">Point</option>
                     <option value="team1">{{ match.equipe1.nom_equipe }}</option>
                     <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                     <option value="both">Les deux</option>
                 </select>
-            </div>
+            </menu-deroulant>
         </div>
         <div class="impro">
             <p>6.</p>
             <input type="text" value="" id="impro6" onchange="saveToDB()">
-            <div class="select">
+            <menu-deroulant>
                 <select name="" id="improPts6" class="point" onchange="saveToDB(); updatePoint()">
                     <option value="">Point</option>
                     <option value="team1">{{ match.equipe1.nom_equipe }}</option>
                     <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                     <option value="both">Les deux</option>
                 </select>
-            </div>
+            </menu-deroulant>
         </div>
         <div class="impro">
             <p>7.</p>
             <input type="text" value="" id="impro7" onchange="saveToDB()">
-            <div class="select">
+            <menu-deroulant>
                 <select name="" id="improPts7" class="point" onchange="saveToDB(); updatePoint()">
                     <option value="">Point</option>
                     <option value="team1">{{ match.equipe1.nom_equipe }}</option>
                     <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                     <option value="both">Les deux</option>
                 </select>
-            </div>
+            </menu-deroulant>
         </div>
         <div class="impro">
             <p>8.</p>
             <input type="text" value="" id="impro8" onchange="saveToDB()">
-            <div class="select">
+            <menu-deroulant>
                 <select name="" id="improPts8" class="point" onchange="saveToDB(); updatePoint()">
                     <option value="">Point</option>
                     <option value="team1">{{ match.equipe1.nom_equipe }}</option>
                     <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                     <option value="both">Les deux</option>
                 </select>
-            </div>
+            </menu-deroulant>
         </div>
         <div class="impro">
             <p>9.</p>
             <input type="text" value="" id="impro9" onchange="saveToDB()">
-            <div class="select">
+            <menu-deroulant>
                 <select name="" id="improPts9" class="point" onchange="saveToDB(); updatePoint()">
                     <option value="">Point</option>
                     <option value="team1">{{ match.equipe1.nom_equipe }}</option>
                     <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                     <option value="both">Les deux</option>
                 </select>
-            </div>
+            </menu-deroulant>
         </div>
         <div class="impro">
             <p>10.</p>
             <input type="text" value="" id="impro10" onchange="saveToDB()">
-            <div class="select">
+            <menu-deroulant>
                 <select name="" id="improPts10" class="point" onchange="saveToDB(); updatePoint()">
                     <option value="">Point</option>
                     <option value="team1">{{ match.equipe1.nom_equipe }}</option>
                     <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                     <option value="both">Les deux</option>
                 </select>
-            </div>
+            </menu-deroulant>
         </div>
         <div class="impro">
             <p>11.</p>
             <input type="text" value="" id="impro11" onchange="saveToDB()">
-            <div class="select">
+            <menu-deroulant>
                 <select name="" id="improPts11" class="point" onchange="saveToDB(); updatePoint()">
                     <option value="">Point</option>
                     <option value="team1">{{ match.equipe1.nom_equipe }}</option>
                     <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                     <option value="both">Les deux</option>
                 </select>
-            </div>
+            </menu-deroulant>
         </div>
         <div class="impro">
             <p>12.</p>
             <input type="text" value="" id="impro12" onchange="saveToDB()">
-            <div class="select">
+            <menu-deroulant>
                 <select name="" id="improPts12" class="point lastPoint" onchange="saveToDB(); updatePoint()">
                     <option value="">Point</option>
                     <option value="team1">{{ match.equipe1.nom_equipe }}</option>
                     <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                     <option value="both">Les deux</option>
                 </select>
-            </div>
+            </menu-deroulant>
         </div>
         <div class="impro" id="prolong">
             <p>Pr.</p>
             <input type="text" value="" id="impro13" onchange="saveToDB()">
-            <div class="select">
+            <menu-deroulant>
                 <select name="" id="improPts13" class="point" onchange="saveToDB(); updatePoint()">
                     <option value="">Point</option>
                     <option value="team1">{{ match.equipe1.nom_equipe }}</option>
                     <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                 </select>
-            </div>
+            </menu-deroulant>
         </div>
         <button class="btnPrimary btnStretch" style="margin-top: 1rem;"><span>Terminer le match</span></button>
     </section>
     {% endif %}
+
     <section id="Pénalités" class="hidden">
         <h3 class="nopenalty">Aucune pénalité</h3>
         {% if matchData %}
@@ -431,6 +438,7 @@
         {% endif %}
         <button class="btnPrimary btnStretch addPun" style="margin-top: 1rem;" onclick="openModal('addPunModal')"><span>Ajouter une pénalité</span></button>
     </section>
+
     <section id="Score" class="hidden">
         <div class="scoreBoard">
             <div class="logos">
@@ -466,6 +474,7 @@
         </form>
         
     </section>
+
     <div id="modal" class="modal" data-modal="addPlayerModal">
         <div class="modalContent">
             <div class="modalHeader">
@@ -489,6 +498,7 @@
             </form>
         </div>
     </div>
+
     <div id="modal" class="modal" data-modal="signatureCoachModal1">
         <div class="modalContent">
             <div class="modalHeader">
@@ -509,6 +519,7 @@
             </form>
         </div>
     </div>
+
     <div id="modal" class="modal" data-modal="signatureCoachModal2">
         <div class="modalContent">
             <div class="modalHeader">
@@ -529,6 +540,7 @@
             </form>
         </div>
     </div>
+
     <div id="modal" class="modal" data-modal="addPunModal">
         <div class="modalContent">
             <div class="modalHeader">
@@ -538,15 +550,15 @@
             <form id="addPunForm">
             <div class="modalBody">
                 <label for="who" class="label onTop">Inteprète/Équipe</label>
-                <div class="select select-search">
+                <menu-deroulant style="width: -webkit-fill-available;">
                     <select name="" id="who">
                         <option value=""></option>
                         <option value="team1">{{ match.equipe1.nom_equipe }}</option>
                         <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                     </select>  
-                </div>
+                </menu-deroulant>
                 <label for="pun" class="label onTop">Punition</label>
-                <div class="select select-search">
+                <menu-deroulant style="width: -webkit-fill-available;">
                     <select name="" id="pun">
                         <option value=""></option>
                         <option value="Cabotinage">Cabotinage</option>
@@ -565,15 +577,15 @@
                         <option value="Procédure illégale">Procédure illégale</option>
                         <option value="Non-respect de la carte">Non-respect de la carte</option>
                     </select>
-                </div>
+                </menu-deroulant>
                 <label for="maj" class="label onTop">Majeure</label>
-                <div class="select">
+                <menu-deroulant style="width: -webkit-fill-available;">
                     <select name="" id="maj">
                         <option value=""></option>
                         <option value="Oui">Oui</option>
                         <option value="" selected>Non</option>
                     </select>
-                </div>     
+                </menu-deroulant>
             </div>
             <div class="modalFooter">
                 <button class="btnSecondary btnInline" onclick="closeModal('addPunModal')"><span>Annuler</span></button>
@@ -582,6 +594,7 @@
             </form>
         </div>
     </div>
+
     <style>
         body {
             background: var(--gradient);
@@ -589,14 +602,19 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            color: var(--white);
             padding: 1.5rem;
             font-size: 15px !important;
+        }
+
+        menu-deroulant{
+            height: 2rem;
+            width: 200px;
         }
 
         h3 {
             text-align: center;
             margin: 0.75rem;
+            color: var(--white);
         }
 
         p {
@@ -604,6 +622,10 @@
             font-weight: 500;
             font-size: 1rem;
             margin: 0.2rem;
+        }
+
+        .modalFooter{
+            flex-direction: column;
         }
 
         .hidden {
@@ -651,6 +673,7 @@
 
         section {
             width: 100%;
+            margin: 2rem;
         }
 
         .player, .coach {
@@ -772,6 +795,7 @@
         }
 
         .scoreBoard {
+            color: var(--white);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -1448,6 +1472,7 @@
             modal.style.display="none";
         }
     </script>
+
     <script>
         document.getElementById('addPlayerForm').addEventListener('submit', function (e) {
             console.log("Submitted")
@@ -1567,6 +1592,11 @@
         }
 
     </script>
+
     <script src="https://kit.fontawesome.com/b6c9a53dc1.js" crossorigin="anonymous"></script>
+    <script src="../static/javascript/menu_deroulant.js"></script>
+    <script>
+        customElements.define("menu-deroulant", MenuDeroulant);
+    </script>
 </body>
 </html>

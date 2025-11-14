@@ -3,7 +3,7 @@ from rest_framework.decorators import api_view
 from django.db.models import Q
 from rest_framework.response import Response
 from rest_framework import status
-from CitrusApp.models import Coach,Equipe,Match,Punition
+from CitrusApp.models import Coach, Equipe, Match, Punition, Interprete, Alignement, DetailsInterprete, Saison
 from .serializers import *
 import ast
 from django.http import JsonResponse
@@ -19,6 +19,7 @@ DIVISION_CHOICES = [
 def classement(request, division):
     if request.method == 'GET':
         if (division,division) in DIVISION_CHOICES:
+            saison = Saison.objects.get(est_active=True)
             stats = []  # List to hold stats for all teams
             for equipe in Equipe.objects.filter(division=division):
 
@@ -35,7 +36,7 @@ def classement(request, division):
                   # To track overtime
 
                 # Loop through all matches for the team
-                for match in Match.objects.filter(Q(equipe1=equipe) | Q(equipe2=equipe)).all():
+                for match in Match.objects.filter((Q(equipe1=equipe) | Q(equipe2=equipe)) & Q(saison=saison)).all():
                     flagProlong = False
                     if "EQUIPE TEST" in match.equipe1.nom_equipe or "EQUIPE TEST" in match.equipe2.nom_equipe:
                         continue
@@ -85,9 +86,6 @@ def classement(request, division):
 
                 pen += len(Punition.objects.filter(equipe_punie=equipe))
 
-
-
-
                 # Calculate additional stats
                 pourc_impro_gagner = (pp / (pp + pc) * 100) if (pp + pc) > 0 else 0
                 diff = pp - pc
@@ -120,4 +118,61 @@ def classement(request, division):
         else:
             return JsonResponse({'error': 'Invalid division'}, status=400)
 
+@api_view(['GET'])
+def get_pronoms_interprete(request, interprete_id):
+    interprete = Interprete.objects.filter(interprete_id=interprete_id).first()
+    return JsonResponse({
+        "pronoms" : interprete.pronom_interprete,
+        "nom" : interprete.nom_interprete,
+    })
+
+@api_view(['POST'])
+def creer_interprete(request):
+
+    alignement = Alignement.objects.filter(id_alignement=request.POST['alignement_id']).first()
+
+    Interprete.createInterprete(
+        nom_interprete=request.POST['nom_interprete'],
+        pronom_interprete=request.POST['pronom_interprete'],
+        numero_interprete=request.POST['numero_interprete'],
+        role_interprete=request.POST['role_interprete'],
+        alignement=alignement
+    )
+
+    return JsonResponse({
+        "success": True
+    })
+
+@api_view(['POST'])
+def ajouter_interprete_alignement(request):
+
+    alignement = Alignement.objects.filter(id_alignement=request.POST['alignement_id']).first()
+    interprete = Interprete.objects.filter(interprete_id=request.POST['interprete_id']).first()
+
+    alignement.ajouter_interprete(
+        interprete=interprete,
+        role_interprete=request.POST['role_interprete'],
+        numero_interprete=request.POST['numero_interprete']
+    )
+
+    return JsonResponse({
+        "success": True
+    })
+
+@api_view(['POST'])
+def modifier_interprete(request):
+    alignement = Alignement.objects.filter(id_alignement=request.POST['alignement_id']).first()
+    interprete = Interprete.objects.filter(interprete_id=request.POST['interprete_id']).first()
+    detailsInterprete = DetailsInterprete.objects.filter(interprete_id=request.POST['interprete_id'], alignement=alignement).first()
+
+    interprete.pronom_interprete = request.POST['pronom_interprete']
+    detailsInterprete.numero_interprete = request.POST['numero_interprete']
+    detailsInterprete.role_interprete = request.POST['role_interprete']
+
+    interprete.save()
+    detailsInterprete.save()
+
+    return JsonResponse({
+        "success": True
+    })
 

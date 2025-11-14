@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+
+    <h1>Mes Équipes</h1>
+    <table>
+        <tr class="tableHeaderRow">
+            <th>Équipe</th>
+            <th>Division</th>
+            <th>Saison</th>
+            <th></th>
+        </tr>
+        {% for alignement in alignements %}
+            <tr>
+                <td>{{ alignement.equipe.nom_equipe }}</td>
+                <td>{{ alignement.equipe.division }}</td>
+                <td>{{ alignement.saison.nom_saison }}</td>
+                <td><button id="modalBtn" onclick="navTo(this, '/Citrus/Equipe{{ alignement.equipe.id_equipe }}-{{ alignement.saison.saison_id   }}', false)">Afficher</button></td>
+
+
+            </tr>
+        {% endfor %}
+    </table>
+    <style>
+        button{
+            margin: 0.5rem 0 0.5rem 0;
+        }
+    </style>
+{% endblock %}

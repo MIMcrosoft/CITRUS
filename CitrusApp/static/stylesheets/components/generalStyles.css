@@ -25,10 +25,6 @@
 =            Basic styles            =
 ======================================*/
 
-:root {
-  font-size: clamp(16px, 2.5vw, 16px);
-}
-
 body {
   width: 100vw;
   height: 100vh;
@@ -111,23 +107,13 @@ a:hover {
 
 /* Tooltip icon */
 .tooltip {
-  position: relative;
-  display: inline-block;
+  display: inline;
   color: var(--mainPamps);
   margin-left: 0.5rem;
 }
 
-.tooltip::after {
-  content: "";
-  position: absolute;
-  top: -5px;
-  left: -5px;
-  bottom: -5px;
-  right: -5px;
-}
-
 /* Tooltip box */
-.tippy-tooltip.citrus-theme {
+.tippy-box[data-theme~='citrus'] {
   background-color: var(--white);
   color: var(--textBlack);
   box-shadow: var(--shadow);
@@ -136,17 +122,17 @@ a:hover {
 }
 
 /* Tooltip box arrow */
-.tippy-tooltip.citrus-theme[data-placement^='top'] > .tippy-arrow {
+.tippy-box[data-theme~='citrus'][data-placement^='top'] > .tippy-arrow::before {
   border-top-color: var(--white);
 }
-.tippy-tooltip.citrus-theme[data-placement^='bottom'] > .tippy-arrow {
-  border-bottom-color: var(--white);
+.tippy-box[data-theme~='citrus'][data-placement^='bottom'] > .tippy-arrow::before {
+  border-top-color: var(--white);
 }
-.tippy-tooltip.citrus-theme[data-placement^='left'] > .tippy-arrow {
-  border-left-color: var(--white);
+.tippy-box[data-theme~='citrus'][data-placement^='left'] > .tippy-arrow::before {
+  border-top-color: var(--white);
 }
-.tippy-tooltip.citrus-theme[data-placement^='right'] > .tippy-arrow {
-  border-right-color: var(--white);
+.tippy-box[data-theme~='citrus'][data-placement^='right'] > .tippy-arrow::before {
+  border-top-color: var(--white);
 }
 
 
@@ -160,8 +146,8 @@ button, .btn {
     border-radius: 2rem;
     display: block;
     box-shadow: 0px 4px 10px 4px rgba(98, 98, 98, 0.3);
+    transition: all 0.3s;
     margin-bottom: 1.5rem;
-    transition: background-color 1s linear;
 }
 
 .btnInline {
@@ -173,27 +159,31 @@ button, .btn {
 }
 
 .btnPrimary {
-    background: var(--gradient);
-    color: var(--white);
     border: none;
+    padding: 0.55rem;
+    padding-inline: 2.65rem;
+    background: var(--gradient);
+    color: #FFFFFF;
+    outline: 0.05rem solid transparent;
+    
 }
 
 .btnPrimary:hover, .btnPrimaryHover {
     background: var(--mainPampsFade);
-    outline: 0.15rem solid var(--mainPamps);
-    outline-offset: -0.15rem;
+    outline:0.15rem solid var(--mainPamps);
     color: var(--mainPamps);
+    padding: 0.4rem;
+    margin: 0.15rem;
+    /*margin-bottom: 1.2rem;*/
+    padding-inline: 2.5rem;
 }
 
 .btnSecondary {
     position: relative;
     border: none;
     z-index: 0;
-    background: var(--white);
-    padding: 0.25rem;
-    padding-inline: 2.35rem;
     margin: 0.15rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
 }
 
 .btnSecondary span {
@@ -213,7 +203,7 @@ button, .btn {
     margin: -0.15rem;
     background: var(--gradient);
     z-index: -1;
-    border-radius: 1.85rem; 
+    border-radius: inherit; 
     box-sizing: border-box;
 }
 
@@ -232,8 +222,10 @@ button, .btn {
 
 .btnSecondary:hover, .btnSecondaryHover {
     background: var(--white);
+    outline:0.15rem solid var(--mainPamps);
     color: var(--mainPamps);
-    outline: 0.15rem solid var(--mainPamps)
+    margin: 0;
+    margin-bottom:1rem;
 }
 
 .btnSecondary:hover span, .btnSecondaryHover span {
@@ -251,12 +243,12 @@ button, .btn {
 
 
 /* Label */
-label {
+.label {
   margin-right: 1rem;
   vertical-align: middle;
-  font-weight: 400;
+  color: #F15E60;
+  font-weight: 600;
   margin-bottom: 1.5rem;
-  font-size: 1rem;
 }
 
 /* Label on separate line */
@@ -274,7 +266,6 @@ label.onTop + input {
 /* Text fields */
 input[type="text"], input[type="password"] {
     height: 2rem;
-    width: 15rem;
     border-radius: 2rem;
     padding-inline: 1rem;
     font-size: 1rem;
@@ -300,20 +291,20 @@ input:focus {
 .select select {
   display: none;
 }
+
   
 .select-selected {
   height: 2rem;
   background-color: var(--white);
   box-shadow: var(--shadow);
   border-radius: 2rem;
-  padding: 0.2rem 1rem;
 }
   
 /* Custom select arrow */
 .select-selected:after {
   position: absolute;
   content: "";
-  top: 0.75rem;
+  top: 0.9rem;
   right: 15px;
   width: 0;
   height: 0;
@@ -328,7 +319,7 @@ input:focus {
 /* Custom select arrow direction (open) */
 .select-selected.select-arrow-active:after {
   border-color: transparent transparent var(--mainPamps) transparent;
-  top: 0.2rem;
+  top: 0.6rem;
 }
 
 .select-arrow-active + .select-items {
@@ -344,17 +335,14 @@ input:focus {
 }
   
   /* Custom select items */
-.select-items div,.select-selected {
+.select-items option,.select-selected {
   color: var(--textBlack);
   font-size: 1rem;
   font-weight: 400;
-  border: 0.15rem solid transparent;
+  padding: 8px 16px;
+  border: 1px solid transparent;
   border-color: transparent transparent rgba(0, 0, 0, 0.1) transparent;
   cursor: pointer;
-}
-
-.select-items div {
-  padding: 0.5rem 1rem;
 }
   
   /* Style items (options): */
@@ -382,7 +370,7 @@ input:focus {
   font-weight: 600 !important;
 }
 
-.select-items div:hover {
+.select-items option:hover {
   background-color: var(--mainPampsFade) !important;
 }
 
@@ -411,7 +399,7 @@ input:focus {
 }
 
 .select-search-bar-input {
-  width: 100% !important;
+  width: 100%;
   border-radius: 0!important;
   box-shadow: none!important;
   color: var(--textBlack);
@@ -771,7 +759,7 @@ tr.clems * {
 }
 
 .modalHeader {
-  padding: 1rem 2rem 0 2rem;
+  padding: 0.5rem 2rem 0 2rem;
   color: white;
   display: flex;
   justify-content: space-between;
@@ -791,7 +779,7 @@ tr.clems * {
 
 /* Modal Footer */
 .modalFooter {
-  padding: 1.5rem 2rem 0.5rem 2rem;
+  padding: 1.5rem 2rem 1.5rem 2rem;
   display: flex;
   flex-wrap: wrap;
   justify-content: end;

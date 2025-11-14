@@ -1,24 +1,25 @@
-import ast
-from django.db.models import Q
 from django.contrib.auth.models import AnonymousUser
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
-from .models import Coach, Equipe, College, Interprete, Saison, Alignements, Match,CoachManager,Punition
+
+from Helpers.EmailHelper import EmailHelper
+from .models import Coach, Equipe, College, Interprete, Saison, Alignement, Match, CoachManager, Punition, \
+    DetailsInterprete
 from .functions import *
 import json
 from django.http import JsonResponse
 from django.contrib.auth.hashers import check_password
 
-def components(request):
-    return render(request, 'components.html')
+def composants_html(request):
+    return render(request, 'composants_individuels.html')
 
 def test(request):
-    return render(request, 'qrSheet.html')
+    return render(request, 'templatesCourriel/email_code_QR.html')
 
 def page_404(request,exception):
-    return render(request, 'errorWindow.html',{
+    return render(request, 'fenetre_erreur.html', {
         'errorMsg': "Oups Cette page n'existe pas !"
     })
 
@@ -32,18 +33,18 @@ def accueil(request):
     if current_user.is_superuser == True:
         allMatchs = Match.objects.all()
     else:
-        equipe = current_user.equipe
+        equipe = current_user.information_equipe
         allMatchs = Match.objects.filter(Q(equipe1=equipe) | Q(equipe2=equipe)).all()
     if request.method == 'POST':
         pass
 
-    return render(request, 'Acceuil.html', {"user": current_user,
+    return render(request, 'accueil.html', {"user": current_user,
                                             'allMatchs': allMatchs,
                                             'activeTab' : "ACCUEIL"
                                             })
 
 @login_required
-def users(request):
+def gestion_utilisateurs(request):
     current_user = request.user
     if request.method == 'POST':
         pass
@@ -55,7 +56,7 @@ def users(request):
 
     if current_user.admin_flag == True:
 
-        return render(request, "userManagement.html",{
+        return render(request, "admin_gestion_utilisateurs.html", {
             'allUsers' : Coach.objects.all(),
             'domain' : domain,
             'activeTab': "USER"
@@ -65,7 +66,7 @@ def users(request):
         return redirect("UserPage",current_user.coach_id)
 
 @login_required
-def userPage(request,userID):
+def profile_utilisateur(request, userID):
     current_user = request.user
     if settings.DEBUG:
         domain = "http://localhost:8000"
@@ -74,13 +75,13 @@ def userPage(request,userID):
     if request.method == 'POST':
         pass
 
-    return render(request,"userPage.html",{
+    return render(request, "profil_utilisateur.html", {
         'user' : Coach.objects.get(coach_id=userID),
         'domain' : domain,
         'activeTab': "USER"
     })
 
-def resetPassword(request,hashedCoachID):
+def reinitialisation_mdp(request, hashedCoachID):
     errors = []
     coachIDToReset = -1
     coachToReset = None
@@ -101,13 +102,13 @@ def resetPassword(request,hashedCoachID):
 
             if newPassword != newPassword2:
                 errors.append('Les mots de passe sont différents.')
-                return render(request, "resetPassword.html", {
+                return render(request, "reinitialisation_mdp.html", {
                     'errors': errors,
                     'allEquipes': Equipe.objects.all()
                 })
             elif len(newPassword) < 8 :
                 errors.append('Le nouveau mot de passe est trop court.')
-                return render(request, "resetPassword.html", {
+                return render(request, "reinitialisation_mdp.html", {
                     'errors': errors,
                     'allEquipes': Equipe.objects.all()
                 })
@@ -117,11 +118,11 @@ def resetPassword(request,hashedCoachID):
                 coachToReset.save()
                 return redirect("Connexion")
 
-    return render(request, "resetPassword.html",{
+    return render(request, "reinitialisation_mdp.html", {
         'errors' : errors,
     })
 
-def loginUser(request):
+def connexion_utilisateur(request):
     errors = []
     if request.method == 'POST':
 
@@ -148,13 +149,13 @@ def loginUser(request):
 
 
         elif buttonClicked == 'resetPassword':
+            emailHelper = EmailHelper()
             email = request.POST['emailToReset'].strip().lower()
             coachToReset = Coach.objects.filter(courriel__iexact=email).first()
             #print(coachToReset)
             if coachToReset:
                 code = str(coachToReset.prenom_coach) + str(coachToReset.nom_coach) + str(coachToReset.coach_id)
-                coachCodeHash = hash_code(code)
-                sendCoachEmail(email,EmailType.RESETPASSWORD,coachCodeHash)
+                emailHelper.courrielResetPwd(coachToReset)
                 print("COURRIEL ENVOYÉ")
 
             return redirect('Connexion')
@@ -162,11 +163,11 @@ def loginUser(request):
         elif buttonClicked == "inscription":
             pass
 
-    return render(request, "login.html", {
+    return render(request, "connexion_utilisateur.html", {
         'errors' : errors
     })
 
-def coachSignUp(request):
+def inscription_coach(request):
     errors = []
     if request.method == 'POST':
         coachPrenom = request.POST.get('coachPrenom')
@@ -180,14 +181,14 @@ def coachSignUp(request):
         # Check if passwords match
         if coachPassword != coachPassword2:
             errors.append('Les mots de passe sont différents.')
-            return render(request, "coachSignUp.html", {
+            return render(request, "inscription_coach.html", {
                 'errors': errors,
                 'allEquipes': Equipe.objects.all()
             })
 
         if Coach.objects.filter(courriel=coachCourriel).exists():
             errors.append('Un utilisateur avec ce courriel existe déja !')
-            return render(request, "coachSignUp.html", {
+            return render(request, "inscription_coach.html", {
                 'errors': errors
             })
 
@@ -208,55 +209,72 @@ def coachSignUp(request):
         return redirect('Connexion')  # Assuming you have a login view
 
     # Render the signup form with all available teams
-    return render(request, "coachSignUp.html", {
+    return render(request, "inscription_coach.html", {
         'allEquipes': Equipe.objects.all(),
         'errors': errors
     })
 
 @login_required
-def allEquipes(request):
+def gestion_equipes(request):
     current_user = request.user
     saisonActive = Saison.objects.get(est_active=True)
     if request.method == 'POST':
         pass
     if current_user.is_superuser == True:
         allEquipes = Equipe.objects.all()
-        return render(request, "equipes.html", {
+        return render(request, "admin_equipes.html", {
             'allEquipes': allEquipes,
             'saisonActive': saisonActive,
             'activeTab': "EQUIPE"
         })
     else:
-        return redirect('Equipe',current_user.equipe.id_equipe,0)
+        return redirect('Equipe', current_user.information_equipe.id_equipe, 0)
 
 @login_required
-def equipe(request, idEquipe, idSaison=None):
+def mes_equipes(request):
     current_user = request.user
-    equipe = get_object_or_404(Equipe, id_equipe=idEquipe)
-    alignement = None
-    if idSaison:
-        saison = get_object_or_404(Saison, saison_id=idSaison)
-        alignement = Alignements.objects.filter(equipe=equipe, saison=saison).first()
+    alignements = current_user.alignements.all()
+
+    return render(request, "mes_equipes.html", {
+        'alignements': alignements,
+        'activeTab' : "EQUIPE"
+    })
+
+@login_required
+def information_equipe(request, id_equipe, id_saison=None):
+
+    equipe = get_object_or_404(Equipe, id_equipe=id_equipe)
+    if id_saison:
+        saison = get_object_or_404(Saison, saison_id=id_saison)
+        alignement = Alignement.objects.filter(equipe=equipe, saison=saison).first()
+        details_interpretes = DetailsInterprete.objects.filter(alignement=alignement).select_related("interprete")
+        coach = alignement.coach
 
         # Handle logic where both `equipe` and `saison` are used
     else:
         saison = Saison.objects.get(est_active=True)
-        alignement = Alignements.objects.filter(equipe=equipe, saison=saison).first()
+        alignement = Alignement.objects.filter(equipe=equipe, saison=saison).first()
+        details_interpretes = None
+        coach = alignement.coach
 
     if request.method == 'POST':
         pass
 
-    return render(request, "equipe.html",
+    return render(request, "informations_equipe.html",
                   {'equipe': equipe,
-                   'allSaisons': Saison.objects.all(),
+                   'saisons': Saison.objects.all(),
                    'alignement': alignement,
-                   'coachs': Coach.objects.filter(equipe=equipe),
-                   'allMatchs' : Match.objects.filter(Q(equipe1=equipe) | Q(equipe2=equipe)).all(),
-                   'activeTab': "EQUIPE"
+                   'coach': coach,
+                   'matchs_saisons' : Match.objects.filter((Q(equipe1=equipe) | Q(equipe2=equipe)) & Q(saison=saison)).all(),
+                   'activeTab': "EQUIPE",
+                   'current_user' : request.user,
+                   'saison_selectionne' : saison,
+                   'interpretes' : Interprete.objects.all().order_by('nom_interprete'),
+                   'details_interpretes': details_interpretes,
                    })
 
 @login_required
-def modifEquipe(request, idEquipe):
+def modification_equipe(request, idEquipe):
     current_user = request.user
     equipe = get_object_or_404(Equipe, id_equipe=idEquipe)
     alignement = None
@@ -277,7 +295,7 @@ def modifEquipe(request, idEquipe):
         return redirect('Equipe', equipe.id_equipe, 0)
 
 
-    return render(request, "equipeModif.html", {
+    return render(request, "modification_equipe.html", {
         'equipe': equipe,
         'allSaisons': Saison.objects.all(),
         'alignement': alignement,
@@ -286,7 +304,7 @@ def modifEquipe(request, idEquipe):
     })
 
 @login_required
-def ajoutEquipe(request):
+def ajout_equipe(request):
     if request.method == 'POST':
         nomEquipe = str(request.POST['nomEquipe'])
         divisionEquipe = str(request.POST['divisionEquipe'])
@@ -306,7 +324,7 @@ def ajoutEquipe(request):
             college=collegeEquipe
         )
 
-        coach.equipe = equipe
+        coach.information_equipe = equipe
         coach.save()
 
         return redirect('Equipes')
@@ -314,7 +332,7 @@ def ajoutEquipe(request):
     allColleges = College.objects.all()
     allCoachs = Coach.objects.all()
     if current_user.is_superuser == True:
-        return render(request, "ajoutEquipe.html", {
+        return render(request, "ajout_equipe.html", {
             'allColleges': allColleges,
             'allCoachs': allCoachs,
             'activeTab': "EQUIPE"
@@ -322,8 +340,9 @@ def ajoutEquipe(request):
         })
 
 @login_required
-def ajoutInterprete(request, equipeId, alignementID):
-    allInterpretes = Interprete.objects.all()
+def ajout_interprete(request,alignementID):
+
+    alignement = Alignement.objects.get(id_alignement=alignementID)
     if request.method == 'POST':
 
         buttonClicked = request.POST.get('button')
@@ -334,7 +353,7 @@ def ajoutInterprete(request, equipeId, alignementID):
         # Role
         roleInterprete = request.POST.get('radioRoleInterprete')
 
-        alignement = Alignements.objects.get(id_alignement=alignementID)
+        alignement = Alignement.objects.get(id_alignement=alignementID)
 
         interprete = Interprete.createInterprete(
             nom_interprete=nomInterprete,
@@ -347,19 +366,19 @@ def ajoutInterprete(request, equipeId, alignementID):
 
         if buttonClicked == "addAndReturn":
             print("RETURNING")
-            return redirect('Equipe',equipeId,0)
+            return redirect('Equipe',0)
 
-    return render(request, "ajoutInterprete.html",
+    return render(request, "ajout_interprete_modal.html",
                   {
-                      'equipe': Equipe.objects.get(id_equipe=equipeId),
-                      'alignement': Alignements.objects.get(id_alignement=alignementID),
-                      'allInterpretes': allInterpretes,
+                      'equipe': alignement.equipe,
+                      'alignement': Alignement.objects.get(id_alignement=alignementID),
+                      'interpretes': Interprete.objects.all().order_by('nom_interprete'),
                       'modifyFlag': False,
                       'activeTab': "EQUIPE"
                   })
 
 @login_required
-def modifInterprete(request, interpreteID, equipeID):
+def modification_interprete(request, interpreteID, equipeID):
     allInterpretes = Interprete.objects.all()
     if request.method == 'POST':
         newPronomsInterprete = request.POST['pronomsInterprete']
@@ -374,7 +393,7 @@ def modifInterprete(request, interpreteID, equipeID):
 
         return redirect('Equipe',equipeID,0)
 
-    return render(request, "ajoutInterprete.html", {
+    return render(request, "ajout_interprete_modal.html", {
         'equipe': Equipe.objects.get(id_equipe=equipeID),
         'interprete' : Interprete.objects.get(interprete_id=interpreteID),
         'allInterpretes': allInterpretes,
@@ -383,29 +402,41 @@ def modifInterprete(request, interpreteID, equipeID):
     })
 
 @login_required()
-def matchs(request):
+def mes_matchs(request, id_saison=None):
     current_user = request.user
-    if request.method == 'POST':
-        pass
+    if id_saison is None:
+        saison = Saison.objects.get(est_active=True)
+    else:
+        try:
+            saison = Saison.objects.get(saison_id=id_saison)
+        except Saison.DoesNotExist:
+            saison = Saison.objects.get(est_active=True)
+            return redirect('MesMatchs',saison.saison_id)
+    alignement = Alignement.objects.get(Q(saison=saison) & Q(coach=current_user))
+    equipe = alignement.equipe
 
-    equipe = current_user.equipe
-
-
-    return render(request, "matchs.html",{
+    return render(request, "mes_matchs.html", {
         'equipe': equipe,
-        'matchs' : Match.objects.filter(Q(equipe1=equipe) | Q(equipe2=equipe)).all(),
-        'activeTab': "MATCH"
+        'saisons' : Saison.objects.all(),
+        'saison_selectionne' : saison,
+        'matchs' : Match.objects.filter((Q(equipe1=equipe) | Q(equipe2=equipe)) & Q(saison=saison)).all(),
+        'activeTab': "MATCH",
     })
 
-def reporterMatch(request):
-    pass
-def match(request,hashedCode):
+def reporter_match(request):
+    return render(request, "formulaire_report_match.html", {
+        'activeTab': "MATCH"
+    })
+def formulaire_match(request, hashedCode):
+
     matchSelected = None
     TEST = False
+
     if settings.DEBUG:
         domain = "http://localhost:8000"
     else:
         domain = "https://citrus.liguedespamplemousses.com"
+
     for match in Match.objects.all():
         code = str(match.equipe1) + str(match.equipe2) + str(match.match_id)
 
@@ -436,22 +467,14 @@ def match(request,hashedCode):
         print("MATCHSAVED")
 
     if matchSelected is not None:
-        equipe1Coachs = [coach for coach in Coach.objects.filter(equipe =matchSelected.equipe1)]
-        equipe2Coachs = [coach for coach in Coach.objects.filter(equipe=matchSelected.equipe2)]
-        currentSaison = Saison.objects.filter(est_active=True).first()
-        equipe1Alignements = matchSelected.equipe1.getAlignement(currentSaison.saison_id)
-        equipe2Alignements = matchSelected.equipe2.getAlignement(currentSaison.saison_id)
+        saison = Saison.objects.get(est_active=True)
+        alignementEquipe1 = Alignement.objects.filter(equipe=matchSelected.equipe1, saison=saison).first()
+        detailsInterpretesEq1 = DetailsInterprete.objects.filter(alignement=alignementEquipe1).select_related("interprete")
+        coachEquipe1 = alignementEquipe1.coach
 
-
-
-        #print(matchSelected.improvisations)
-        def desanitize_string(input_str):
-            if not isinstance(input_str, str):
-                return input_str
-            return (input_str
-                    .replace("\\'", "'")  # Convert escaped single quotes to single quotes
-                    .replace('\\"', '"')  # Convert escaped double quotes to double quotes
-                    .replace("\\\\", "\\"))  # Convert double backslashes to single backslashes
+        alignementEquipe2 = Alignement.objects.filter(equipe=matchSelected.equipe2, saison=saison).first()
+        detailsInterpretesEq2 = DetailsInterprete.objects.filter(alignement=alignementEquipe2).select_related("interprete")
+        coachEquipe2 = alignementEquipe2.coach
 
         # Your original code
         if matchSelected.cache is not None:
@@ -464,12 +487,12 @@ def match(request,hashedCode):
         if isinstance(current_user, AnonymousUser) or not current_user.is_authenticated:
             current_user = None
 
-        return render(request, 'matchForm.html',{
+        return render(request, 'formulaire_match.html', {
             "match" : matchSelected,
-            'coachEquipe1' : equipe1Coachs,
-            'coachEquipe2' : equipe2Coachs,
-            'equipe1Alignement' : equipe1Alignements,
-            'equipe2Alignement' : equipe2Alignements,
+            'coachEquipe1' : coachEquipe1,
+            'coachEquipe2' : coachEquipe2,
+            'equipe1Alignement' : detailsInterpretesEq1,
+            'equipe2Alignement' : detailsInterpretesEq2,
             'matchData' : matchData,
             'hashedPwdsCoach1':None,
             'hashedPwdsCoach2':None,
@@ -477,13 +500,14 @@ def match(request,hashedCode):
             'current_user': current_user
         })
 
-def ficheCodeQR(request,equipeId):
+def fiche_code_QR(request, equipeId, saisonId):
 
     equipe =Equipe.objects.get(id_equipe=equipeId)
+    saison =Saison.objects.get(saison_id=saisonId)
 
-    return render(request,"qrSheet.html",{
+    return render(request, "fiche_code_QR.html", {
         'equipe' : equipe,
-        'matchs' : Match.objects.filter(Q(equipe1=equipe) | Q(equipe2=equipe)).all()
+        'matchs' : Match.objects.filter((Q(equipe1=equipe) | Q(equipe2=equipe)) & Q(saison=saison)).all()
     })
 @login_required
 def calendrierAdmin(request):
@@ -531,10 +555,12 @@ def archives(request):
     })
 
 @login_required()
-def log_out(request):
+def deconnexion_utilisateur(request):
     logout(request)
     return redirect("/Citrus/Connexion/?animation=2")
 
+## THESE FUNCTIONS DONT BELONG HERE
+## TO MOVE TO API
 def saveToDB(request):
     if request.method == "POST":
 
@@ -579,6 +605,7 @@ def checkPassword(request):
 def validateCoach(request):
     if request.method == "POST":
         try:
+            emailHelper = EmailHelper()
             data = json.loads(request.body)
             coachID = data.get('coachID')
 
@@ -587,7 +614,7 @@ def validateCoach(request):
 
             if coach:
                 coach.validated_flag = True
-                sendCoachEmail(coach.courriel, EmailType.VALIDATION)
+                emailHelper.courrielValidation(coach.courriel)
                 coach.save()
                 return JsonResponse({'message': 'Coach validated'}, status=200)
 

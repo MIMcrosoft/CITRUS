@@ -1,4 +1,4 @@
-{% extends 'baseTemplate.html' %}
+{% extends 'base.html' %}
 
 {% block content %}
 
@@ -8,7 +8,20 @@
     
 
     <h1>Matchs à venir</h1>
-    <button onclick="openNewWindow('/Citrus/FicheCodeQR-{{ equipe.id_equipe }}')">Obtenir toutes mes fiches de match</button>
+    <div class="buttonsContainer">
+        <menu-deroulant-recherche style="width:300px;" >
+            <select name="saisonDropdown" id="saisonDropdown" onchange="changeSaison(this)" >
+                <option>Choisir une saison</option>
+                {% for saison in saisons %}
+                    <option value="{{ saison.saison_id }}"  {% if saison.saison_id == saison_selectionne.saison_id %}selected{% endif %} >{{ saison.nom_saison }}</option>
+                {% endfor %}
+            </select>
+        </menu-deroulant-recherche>
+
+        <button onclick="openNewWindow('/Citrus/FicheCodeQR-{{ equipe.id_equipe }}')">Obtenir toutes mes fiches de match</button>
+        <button onclick="navTo(this,'/Citrus/formulaire-report-match',false)">Reporter un match</button>
+
+    </div>
     <table>
         <tr class="tableHeaderRow">
             <th>Équipe hôte</th>
@@ -29,11 +42,13 @@
             </tr>
         {% endfor %}
     </table>
-    
-
-    
     <script>
+        function changeSaison(selectElement) {
+            const saisonId = selectElement.value;
+            window.location.href = `/Citrus/MesMatchs-${saisonId}`;
+        }
         function openNewWindow(url) {
+            const saisonId = document.getElementById("saisonDropdown").value
             // Check if a valid URL is provided
             if (!url || typeof url !== "string") {
                 console.error("Invalid URL");
@@ -41,7 +56,7 @@
             }
         
             // Open a new window with the given URL
-            const newWindow = window.open(url, '_blank');
+            const newWindow = window.open(url + "-" + saisonId, '_blank');
         
             // Check if the new window was successfully opened
             if (!newWindow) {
@@ -142,16 +157,20 @@
     </script>
 
     <style>
-
-    
-        .modalBody {
-        display: flex;
-        justify-content: center; /* Center horizontally */
-        align-items: center;    /* Center vertically */
-        padding: 20px;          /* Add some padding if needed */
-        text-align: center;     /* Center text, if any */
+        .modalBody{
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
         }
-        
-        /* Other styles for modalHeader, modalFooter, etc. */
-        </style>
+    
+        .buttonsContainer{
+            margin: 1.5rem;
+            display: flex;
+            flex-direction: row;
+
+        }
+        .buttonsContainer button{
+            margin-right: 1rem;
+        }
+    </style>
 {% endblock %}

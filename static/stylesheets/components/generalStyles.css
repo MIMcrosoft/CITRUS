@@ -47,13 +47,14 @@ main {
   margin-left: 4rem;
   width: 100%;
   background: var(--bgGradient);
-  padding: 1rem 2rem;
+
 }
 
 
 
 .pageContent {
   opacity: 1;
+    margin: 1rem;
   transition: opacity 0.5s ease;
     height: 100%;
     overflow-y: scroll;

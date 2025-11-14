@@ -1,4 +1,5 @@
 //Get parameters from URL
+
 function getParams() {
     let idx = document.URL.indexOf('?');
     let params = new Array();

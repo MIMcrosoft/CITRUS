@@ -1,4 +1,4 @@
-{% extends 'baseTemplate.html' %}
+{% extends 'base.html' %}
 
 {% block content %}
     
@@ -7,15 +7,6 @@
     <form method="post">
         {% csrf_token %}
 
-        <!---<div class="select select-search" style="width:400px;">
-        <select name="nomInterprete" id="nomInterprete">
-            <option value="">Nom de l'interprète</option>
-            <option value="">Ajoutez l'interprète</option>
-            {% for interprete in allInterprete %}
-                <option value="{{ interprete.interprete_id }}">{{ interprete.nom_interprete }}</option>
-            {% endfor %}
-        </select>
-        </div>--->
         {% if modifyFlag == True %}
             <h2>{{ interprete.nom_interprete }}</h2>
             <label for="pronomsInterprete" >Pronoms</label>
@@ -41,9 +32,18 @@
         
             <button type="submit" class="btnPrimary" id="btnAjoutEquipe"><span>Sauvegarder</span></button>
             <button type="button" class="btnSecondary" onclick="navTo(this,'/Citrus/Equipe{{ equipe.id_equipe }}-0/',false)">Retour</button>
+
         {% else %}
-            <label for="nomInterprete">Nom de l'interprete</label>
-            <input type="text" name="nomInterprete" id="nomInterprete" placeholder="Nom" maxlength="100">
+
+            <menu-deroulant-recherche style="width:300px;" data-no-result-text="Créer un.e interprète">
+              <select onchange="get_pronoms_interprete(this.value)">
+                <option value="">Nom de l'interprète</option>
+                {% for interprete in interpretes %}
+                    <option value="{{ interprete.interprete_id }}">{{ interprete.nom_interprete }}</option>
+                {% endfor %}
+              </select>
+            </menu-deroulant-recherche>
+
             <label for="pronomsInterprete">Pronoms</label>
             <input type="text" name="pronomsInterprete" id="pronomsInterprete" placeholder="Pronoms" maxlength="20">
         
@@ -72,7 +72,25 @@
         
     
     </form>
-    
+
+    <script>
+        function get_pronoms_interprete(interprete_id){
+
+            const pronomInput = document.getElementById("pronomsInterprete");
+
+            fetch(`/api/get-pronom-interprete-${interprete_id}`)
+              .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+              })
+              .then(data => {
+                  pronomInput.value = data.pronoms;
+              })
+              .catch(error => {
+                console.error('Fetch error:', error);
+              });
+        }
+    </script>
      
     
 {% endblock %}
