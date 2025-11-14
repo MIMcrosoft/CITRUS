@@ -1,18 +1,24 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html
+  lang="fr"
+>
   <head>
     <meta charset="UTF-8" />
     <title>CITRUS – Message</title>
 
     <!-- Mobile + scaling -->
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="x-apple-disable-message-reformatting" content="true" />
-    <meta name="format-detection" content="telephone=no, date=no, address=no, email=no, url=no" />
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="x-apple-disable-message-reformatting" content="" />
+    <meta content="target-densitydpi=device-dpi" name="viewport" />
+    <meta content="true" name="HandheldFriendly" />
+    <meta content="width=device-width" name="viewport" />
+    <meta name="format-detection" content="telephone=no, date=no, address=no, email=no, url=no"/>
 
-    <!-- Web fonts (safe to include since Outlook hacks are removed and you don't care about Outlook) -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
 
-    <style>
+    <style type="text/css">
       /* ===== Base resets (email-safe) ===== */
       html, body {
         margin: 0 !important;
@@ -156,36 +162,18 @@
 
                 <!-- Title with divider -->
                 <div class="divider"></div>
-                <h1 class="title">Réinitialisation de votre mot de passe CITRUS</h1>
+                <h1 class="title">{title}</h1>
 
                 <div class="spacer-18"></div>
 
                 <!-- Intro text -->
                 <p class="text">
-                  Bonjour, <br>Suite à votre demande, vous trouverez ci-dessous le lien pour réinitialiser votre mot de passe pour la plateforme CITRUS.
-                </p>
-
-                <div class="spacer-15"></div>
-
-                <!-- Links -->
-                <p class="text">
-                  <a class="link" href="{urlResetPassword}" target="_blank" rel="noopener">
-                    Réinitialiser votre mot de passe
-                  </a>
-                </p>
-
-                <div class="spacer-15"></div>
-
-                <p class="text">
-                  Si vous n'avez pas fait de telle demande, veuillez en aviser les administrateurs de la plateforme le plus rapidement possible.
+                  {message}
                 </p>
 
                 <div class="spacer-20"></div>
 
-                <!-- Closing -->
-                <p class="text">Merci et à bientôt,</p>
-                <div class="spacer-20"></div>
-                <p class="text"><strong>L'équipe CITRUS</strong></p>
+                <p class="text"><strong>{signature}</strong></p>
 
                 <!-- Footer -->
                 <div class="footer-divider"></div>
