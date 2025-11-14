@@ -88,6 +88,12 @@
         color: #f15e60;
       }
 
+      .code {
+        font-weight: 900;
+        font-size: 25px;
+        color: #f15e60;
+      }
+
       /* ===== Header/logo row ===== */
       .brand-row {
         width: 100%;
@@ -156,22 +162,26 @@
 
                 <!-- Title with divider -->
                 <div class="divider"></div>
-                <h1 class="title">Bienvenue sur CITRUS !</h1>
+                <h1 class="title">Votre code de sécurité CITRUS</h1>
 
                 <div class="spacer-18"></div>
 
                 <!-- Intro text -->
                 <p class="text">
-                  Félicitations! Vous avez été invité à joindre la plateforme CITRUS. En tant qu'entraîneur, vous pourrez voir vos matchs passés et à venir, consulter vos statistiques et modifier votre alignement. Vous pouvez vous inscrire en suivant le lien ci-dessous.
+                  Bonjour, <br>Voici votre code de sécurité CITRUS.
                 </p>
 
                 <div class="spacer-15"></div>
 
                 <!-- Links -->
+                <p class="text code">
+                  {code}
+                </p>
+
+                <div class="spacer-15"></div>
+
                 <p class="text">
-                  <a class="link" href="{urlSignIn}" target="_blank" rel="noopener">
-                    Inscription à la plateforme Citrus
-                  </a>
+                  Si vous n'avez pas fait de demande, veuillez en avisez les administrateurs de la plateforme le plus rapidement possible.
                 </p>
 
                 <div class="spacer-20"></div>
@@ -179,12 +189,12 @@
                 <!-- Closing -->
                 <p class="text">Merci et à bientôt,</p>
                 <div class="spacer-20"></div>
-                <p class="text"><strong>L'équipe CITRUS</strong></p>
+                <p class="text"><strong>L&#39;équipe CITRUS</strong></p>
 
                 <!-- Footer -->
                 <div class="footer-divider"></div>
                 <div class="footer">
-                  <span class="foot-text">CITRUS - {currentYear}</span>
+                  <span class="foot-text">CITRUS - {currentYear}&nbsp;</span>
                 </div>
 
               </td>

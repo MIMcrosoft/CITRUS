@@ -16,7 +16,7 @@ def composants_html(request):
     return render(request, 'composants_individuels.html')
 
 def test(request):
-    return render(request, 'templatesCourriel/email_code_QR.html')
+    return render(request, 'templatesCourriel/email_code_verif.html')
 
 def page_404(request,exception):
     return render(request, 'fenetre_erreur.html', {
