@@ -29,7 +29,7 @@ urlpatterns = [
     path('validateCoach/',views.validateCoach,name='validateCoach'),
     path('FicheCodeQR-<int:equipeId>-<int:saisonId>/', views.fiche_code_QR, name='FicheCodeQR'),
     path('Report_Match-<str:demandeToken>/', views.demande_report_match, name='reporterMatch'),
-    path('MesÉquipes', views.mes_equipes, name='MesEquipes'),
+    path('MesEquipes', views.mes_equipes, name='MesEquipes'),
     path('adminMatchs-<int:id_saison>/', views.admin_matchs, name='AdminMatchs'),
 ]
 
