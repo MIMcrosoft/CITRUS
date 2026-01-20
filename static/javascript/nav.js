@@ -1,4 +1,3 @@
-//Get parameters from URL
 
 function getParams() {
     let idx = document.URL.indexOf('?');
