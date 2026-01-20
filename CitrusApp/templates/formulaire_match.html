@@ -514,7 +514,7 @@
             </div>
             <div class="modalFooter">
                 <button type="button" class="btnSecondary btnInline" onclick="closeModal('signatureCoachModal1')"><span>Annuler</span></button>
-                <button type="button" class="btnPrimary btnInline" onclick="signCoach({{match.equipe1.id_equipe}},1)"><span>Confirmer</span></button>
+                <button type="button" class="btnPrimary btnInline" onclick="signCoach({{match.equipe1.id_equipe}},1, {{ match.match_id }})"><span>Confirmer</span></button>
             </div>
             </form>
         </div>
@@ -535,7 +535,7 @@
             </div>
             <div class="modalFooter">
                 <button type="button" class="btnSecondary btnInline" onclick="closeModal('signatureCoachModal2')"><span>Annuler</span></button>
-                <button type="button" class="btnPrimary btnInline" onclick="signCoach({{ match.equipe2.id_equipe }},2)"><span>Confirmer</span></button>
+                <button type="button" class="btnPrimary btnInline" onclick="signCoach({{ match.equipe2.id_equipe }},2, {{ match.match_id }})"><span>Confirmer</span></button>
             </div>
             </form>
         </div>
@@ -1035,7 +1035,7 @@
             event.preventDefault(); // Prevents the page from refreshing
         });
         
-        async function signCoach(teamID,teamNum) {
+        async function signCoach(teamID,teamNum, matchId) {
             let passwordElement = document.getElementById("passwordCoachTeam" + teamNum);
             let password = passwordElement.value;
             let divMsgError = document.getElementById('msgPasswordChangeTeam' + teamNum);
@@ -1053,7 +1053,8 @@
                     },
                     body: JSON.stringify({
                         password: password,
-                        teamID: teamID
+                        teamId: teamID,
+                        matchId : matchId
                     })
                 });
 

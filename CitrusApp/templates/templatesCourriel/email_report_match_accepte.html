@@ -194,54 +194,20 @@
 
                 <!-- Title with divider -->
                 <div class="divider"></div>
-                <h1 class="title">Une demande de report de match à été créée</h1>
+                <h1 class="title">Une demande de report de match a été acceptée</h1>
 
                 <div class="spacer-18"></div>
 
                 <!-- Intro text -->
                 <p class="text">
-                  Bonjour, <br>Une demande de report de match à été créée sur Citrus.<br>
-                    <b>Match à reporté</b> <br>
+                  Bonjour, <br>la demande de report de match suivante à été acceptée par tous les parties : <br>
+                    <b>Match reporté</b> <br>
                     Match : <b>{matchEq1} vs {matchEq2}</b><br>
-                    Date : <b>{ancienneDateMatch}</b><br>
-                    Nouvelle date proposée : <b>{nouvelleDateMatch}</b><br>
+                    Nouvelle date : <b>{nouvelleDateMatch}</b><br>
                     Lieu : <b>{collegeRec}</b><br>
-                    La demande doit être validée par les deux coachs concernés et un administrateur.
+                    La demande a été validé par les deux coachs concernés et un administrateur.
                 </p>
 
-                <div class="spacer-15"></div>
-
-                <table>
-                    <tr>
-                        <th>Coach</th>
-                        <th>Courriel</th>
-                        <th>Validation</th>
-                    </tr>
-                    <tr>
-                        <td>{coachEq1}</td>
-                        <td>{coachEq1Courriel}</td>
-                        <td>{coachEq1Statut}</td>
-                    </tr>
-                    <tr>
-                        <td>{coachEq2}</td>
-                        <td>{coachEq2Courriel}</td>
-                        <td>{coachEq2Statut}</td>
-                    </tr>
-                    <tr>
-                        <td>{admin}</td>
-                        <td>{adminCourriel}</td>
-                        <td>{adminCourrielStatut}</td>
-                    </tr>
-                </table>
-
-                <div class="spacer-15"></div>
-
-                <!-- Links (duplicated intentionally as in source) -->
-                <p class="text">
-                  <a class="link" href="{urlRequeteReport}" target="_blank" rel="noopener">
-                    Répondre à la demande de report
-                  </a>
-                </p>
 
                 <div class="spacer-20"></div>
 

@@ -10,6 +10,7 @@ urlpatterns = [
     path("creer_interprete", views.creer_interprete, name='creerInterprete'),
     path("ajouter_interprete_alignement",views.ajouter_interprete_alignement, name='ajouterInterpreteAlignment'),
     path("modifier_interprete", views.modifier_interprete, name='modifierInterprete'),
+    path("creer_requete_report_match/", views.creer_requete_report_match, name='creerRequeteReportMatch'),
 ]
 
 if settings.DEBUG:

@@ -1,5 +1,8 @@
+import uuid
+
 from django.db import models, IntegrityError
 from django.contrib.auth.models import AbstractUser, BaseUserManager, PermissionsMixin
+from django.db.models import Case, When, Value, IntegerField
 from googlemaps import geocoding, Client
 import segno
 from .NOTPUBLIC import API_KEY
@@ -26,7 +29,6 @@ def hash_code(code: str) -> str:
 
     return hash_hex
 
-
 DIVISION_CHOICES = [
     ("Pamplemousse", "Pamplemousse"),
     ("Tangerine", "Tangerine"),
@@ -37,7 +39,6 @@ SESSION_CHOICES = [
     ("Automne", "Automne"),
     ("Hiver", "Hiver")
 ]
-
 
 class Saison(models.Model):
     saison_id = models.AutoField(primary_key=True)
@@ -931,9 +932,14 @@ class Coach(AbstractUser):
 
         # Proper password hashing
         coach.set_password(coachPwd)
-
         coach.save()
 
+        alignement = Alignement.create_alignement(
+            equipe = coach.equipe,
+            saison = Saison.objects.get(est_active=True),
+            coach = coach
+        )
+        alignement.save()
         return coach
 
 
@@ -951,6 +957,7 @@ class Punition(models.Model):
 
 
     equipe_punie = models.ForeignKey(Equipe, on_delete=models.DO_NOTHING, related_name='equipe_punie', null=True)
+
     @classmethod
     def createPunition(cls, nom_punition, est_majeure,equipePunie):
         punition = cls(
@@ -1068,7 +1075,7 @@ class Match(models.Model):
 
         type = session.type if session else "SERIE"
 
-        return str(self.match_id) + " - " + str(date_formatted) + " - " + type + " - " + equipe2.nom_equipe + " VS " + equipe1.nom_equipe
+        return str(date_formatted) + " - " + type + " - " + equipe2.nom_equipe + " VS " + equipe1.nom_equipe
 
 class Alignement(models.Model):
     id_alignement = models.AutoField(primary_key=True)
@@ -1077,11 +1084,11 @@ class Alignement(models.Model):
     saison = models.ForeignKey(Saison, related_name="saison", on_delete=models.CASCADE, null=False)
 
     @classmethod
-    def create_alignement(cls, equipe, saison):
+    def create_alignement(cls, equipe, saison, coach=None):
         alignement = cls(
             equipe=equipe,
             saison=saison,
-            coach_id=None
+            coach_id=coach.coach_id
         )
         alignement.save()
         return alignement
@@ -1125,6 +1132,66 @@ class DetailsInterprete(models.Model):
         except IntegrityError:
             raise ValueError("This interprete is already assigned to this alignement.")
 
+    @classmethod
+    def get_interpretes_triees(cls, alignement):
+        """
+        Retourne les interpretes triés selon les règles :
+        - Rôle C en dernier
+        - Rôle A avant-dernier
+        - Le reste en premier
+        - Puis tri par numéro croissant
+        """
+        return cls.objects.filter(alignement=alignement).select_related("interprete").annotate(
+            ordre_role=Case(
+                When(role_interprete='C', then=Value(2)),
+                When(role_interprete='A', then=Value(1)),
+                default=Value(0),
+                output_field=IntegerField(),
+            )
+        ).order_by('ordre_role', 'numero_interprete')
+
 
     def __str__(self):
             return f"{self.interprete.nom_interprete} - {self.alignement.equipe.nom_equipe} ({self.role_interprete})"
+
+class RequeteReportMatch(models.Model):
+    match = models.ForeignKey('Match', on_delete=models.DO_NOTHING, related_name="requete_report_match")
+    nouvelle_date = models.DateField()
+
+    coach_1 = models.ForeignKey(
+        Coach,
+        related_name="requetes_report_comme_coach1",
+        on_delete=models.SET_NULL,
+        null=True
+    )
+
+    coach_2 = models.ForeignKey(
+        Coach,
+        related_name="requetes_report_comme_coach2",
+        on_delete=models.SET_NULL,
+        null=True
+    )
+
+    coach1_validation = models.BooleanField(default=False)
+    coach2_validation = models.BooleanField(default=False)
+    admin_validation = models.BooleanField(default=False)
+
+    cree_par = models.ForeignKey(Coach, on_delete=models.DO_NOTHING, related_name="cree_par")
+    date_creation = models.DateTimeField(auto_now_add=True)
+
+    token = models.UUIDField(default=uuid.uuid4, unique=True)
+
+    STATUS_CHOICES = [
+        ("en_attente", "En attente"),
+        ("approuve", "Approuvé"),
+        ("rejete", "Rejeté"),
+    ]
+
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="en_attente")
+
+    def all_validated(self):
+        return self.coach1_validated and self.coach2_validated and self.admin_validated
+
+    def __str__(self):
+        return f"{self.match} - {self.nouvelle_date} - {self.status} - {self.token}"
+

@@ -5,6 +5,7 @@
     <h1>Mes Matchs</h1>
     <p>Cette section vous permet d'accéder aux liens de vos matchs !</p>
 
+    
 
     <h1>Matchs à venir</h1>
     <div class="buttonsContainer">
@@ -17,12 +18,8 @@
             </select>
         </menu-deroulant-recherche>
 
-        <button onclick="openNewWindow('/Citrus/FicheCodeQR-{{ equipe.id_equipe }}')">Obtenir toutes mes fiches de match</button>
         <button onclick="openModalReport()">Reporter un match</button>
-        {% if current_user.admin_flag %}
-            <i class="fa-solid fa-eye fa-xl" onclick="window.location.href = `/Citrus/adminMatchs-${ {{ saison_selectionne.saison_id }} }`"></i>
-        {% endif %}
-
+        <i class="fa-solid fa-eye fa-xl" onclick="window.location.href = `/Citrus/MesMatchs-${ {{ saison_selectionne.saison_id }} }`"></i>
     </div>
     <table>
         <tr class="tableHeaderRow">
@@ -207,9 +204,10 @@
         }
 
 
+
         function changeSaison(selectElement) {
             const saisonId = selectElement.value;
-            window.location.href = `/Citrus/MesMatchs-${saisonId}`;
+            window.location.href = `/Citrus/adminMatchs-${saisonId}`;
         }
         function openNewWindow(url) {
             const saisonId = document.getElementById("saisonDropdown").value

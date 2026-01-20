@@ -16,7 +16,7 @@ django.setup()
 
 from Helpers.EmailHelper import EmailHelper
 from CitrusApp.admin import CoachCreationForm
-from CitrusApp.models import Calendrier, Session, Semaine, Match, College, Equipe, Coach, Saison
+from CitrusApp.models import Calendrier, Session, Semaine, Match, College, Equipe, Coach, Saison, RequeteReportMatch
 
 
 def hash_code(code: str) -> str:
@@ -302,8 +302,22 @@ def ajoutSemaines():
         row+=1
 
 if __name__ == "__main__":
+    match_test = Match.createMatch(
+        division="Pamplemousse",
+        equipe1=Equipe.objects.get(id_equipe=59),
+        equipe2=Equipe.objects.get(id_equipe=13),
+        semaine=Semaine.objects.first()
+    )
+
     emailHelper = EmailHelper()
-    emailHelper.courrielInvitation("felixrobillardWork@gmail.com")
+    rr = RequeteReportMatch.objects.create(
+        match = match_test,
+        nouvelle_date="2025-01-01",
+        cree_par=Coach.objects.get(courriel="felixrobillard@gmail.com"),
+        coach_1=Coach.objects.get(courriel="felixrobillard@gmail.com"),
+        coach_2=Coach.objects.get(courriel="felixrobillard@gmail.com")
+    )
+    emailHelper.courrielCreationReportMatch("felixrobillard@gmail.com","felixrobillard@gmail.com","felixrobillard@gmail.com",rr)
     #ajoutSemaines()
     #getMatchTeams("Plan B")
     #getMachManquants()

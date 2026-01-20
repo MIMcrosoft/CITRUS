@@ -21,7 +21,7 @@
             <th>Local</th>
             <th>Date</th>
         </tr>
-        {% for match in allMatchs %}
+        {% for match in matchs %}
 
             <tr class="pamps">
                 <td><img src="{% if match.equipe2.logo %}{{ match.equipe2.logo.url }}{% endif %}" alt=""></td>

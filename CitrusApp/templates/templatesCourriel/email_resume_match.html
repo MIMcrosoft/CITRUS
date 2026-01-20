@@ -11,7 +11,6 @@
 
     <!-- Web fonts (safe to include since Outlook hacks are removed and you don't care about Outlook) -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 
     <style>
       /* ===== Base resets (email-safe) ===== */
@@ -194,52 +193,49 @@
 
                 <!-- Title with divider -->
                 <div class="divider"></div>
-                <h1 class="title">Une demande de report de match à été créée</h1>
+                <h1 class="title">Résumé de votre match</h1>
 
                 <div class="spacer-18"></div>
 
                 <!-- Intro text -->
                 <p class="text">
-                  Bonjour, <br>Une demande de report de match à été créée sur Citrus.<br>
-                    <b>Match à reporté</b> <br>
-                    Match : <b>{matchEq1} vs {matchEq2}</b><br>
-                    Date : <b>{ancienneDateMatch}</b><br>
-                    Nouvelle date proposée : <b>{nouvelleDateMatch}</b><br>
-                    Lieu : <b>{collegeRec}</b><br>
-                    La demande doit être validée par les deux coachs concernés et un administrateur.
+                  Bonjour, <br>Le match suivant as été validé et comptabilisé dans le classement.<br>
+                    Date : <b>{dateMatch}</b><br>
+                    Lieu : <b>{collegeRec}</b>
+
                 </p>
 
                 <div class="spacer-15"></div>
 
-                <table>
-                    <tr>
-                        <th>Coach</th>
-                        <th>Courriel</th>
-                        <th>Validation</th>
-                    </tr>
-                    <tr>
-                        <td>{coachEq1}</td>
-                        <td>{coachEq1Courriel}</td>
-                        <td>{coachEq1Statut}</td>
-                    </tr>
-                    <tr>
-                        <td>{coachEq2}</td>
-                        <td>{coachEq2Courriel}</td>
-                        <td>{coachEq2Statut}</td>
-                    </tr>
-                    <tr>
-                        <td>{admin}</td>
-                        <td>{adminCourriel}</td>
-                        <td>{adminCourrielStatut}</td>
-                    </tr>
+                <!-- SCORE CARD (email-safe, no flexbox) -->
+                <table role="presentation" width="100%" style="margin-top: 20px;">
+                  <tr>
+                    <!-- Team Visiteur -->
+                    <td align="center" width="33%">
+                      <div class="team-name">{equipeVis}</div>
+                      <div class="team-college">{equipeVisCollege}</div>
+                      <div class="team-score">{scoreVis}</div>
+                    </td>
+
+                    <!-- VS -->
+                    <td align="center" width="33%">
+                      <div class="team-name">VS</div>
+                    </td>
+
+                    <!-- Team Hôte -->
+                    <td align="center" width="33%">
+                      <div class="team-name">{equipeHote}</div>
+                      <div class="team-college">{equipeHoteCollege}</div>
+                      <div class="team-score">{scoreHote}</div>
+                    </td>
+                  </tr>
                 </table>
 
-                <div class="spacer-15"></div>
 
                 <!-- Links (duplicated intentionally as in source) -->
                 <p class="text">
-                  <a class="link" href="{urlRequeteReport}" target="_blank" rel="noopener">
-                    Répondre à la demande de report
+                  <a class="link" href="{urlConnexion}" target="_blank" rel="noopener">
+                    Consulter mes matchs
                   </a>
                 </p>
 

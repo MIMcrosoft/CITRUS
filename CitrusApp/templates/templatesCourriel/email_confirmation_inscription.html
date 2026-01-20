@@ -11,7 +11,6 @@
 
     <!-- Web fonts (safe to include since Outlook hacks are removed and you don't care about Outlook) -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 
     <style>
       /* ===== Base resets (email-safe) ===== */
@@ -97,43 +96,6 @@
         width: 42px;
       }
 
-      .score-card{
-          display: flex;
-          flex-direction: row;
-          justify-content: space-around;
-      }
-      td .team-name{
-            margin: 0 0 5px 0;
-            font-family: Montserrat, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-            font-weight: 700;
-            font-size: 24px;
-            line-height: 28px;
-            letter-spacing: -1px;
-            color: #141414;
-            text-align: center;
-
-      }
-      td .team-college{
-            margin: -5px 0 18px 0;
-            font-family: Montserrat, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-            font-size: 16px;
-            line-height: 28px;
-            letter-spacing: -1px;
-            color: #141414;
-            text-align: center;
-
-      }
-      td .team-score{
-            margin: 0 0 18px 0;
-            font-family: Montserrat, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-            font-weight: 700;
-            font-size: 24px;
-            line-height: 28px;
-            letter-spacing: -1px;
-            color: #141414;
-            text-align: center;
-      }
-
       /* ===== Dividers ===== */
       .divider {
         border-bottom: 1px solid #eff1f4;
@@ -194,53 +156,21 @@
 
                 <!-- Title with divider -->
                 <div class="divider"></div>
-                <h1 class="title">Une demande de report de match à été créée</h1>
+                <h1 class="title">Votre compte CITRUS est en attente de validation</h1>
 
                 <div class="spacer-18"></div>
 
                 <!-- Intro text -->
                 <p class="text">
-                  Bonjour, <br>Une demande de report de match à été créée sur Citrus.<br>
-                    <b>Match à reporté</b> <br>
-                    Match : <b>{matchEq1} vs {matchEq2}</b><br>
-                    Date : <b>{ancienneDateMatch}</b><br>
-                    Nouvelle date proposée : <b>{nouvelleDateMatch}</b><br>
-                    Lieu : <b>{collegeRec}</b><br>
-                    La demande doit être validée par les deux coachs concernés et un administrateur.
+                  Félicitations! Vous êtes maintenant inscrit sur la plateforme CITRUS. Votre compte est en attente de validation par les administrateurs. Vous recevrez un courriel lorsque la validation aura été effectuée.
                 </p>
 
                 <div class="spacer-15"></div>
 
-                <table>
-                    <tr>
-                        <th>Coach</th>
-                        <th>Courriel</th>
-                        <th>Validation</th>
-                    </tr>
-                    <tr>
-                        <td>{coachEq1}</td>
-                        <td>{coachEq1Courriel}</td>
-                        <td>{coachEq1Statut}</td>
-                    </tr>
-                    <tr>
-                        <td>{coachEq2}</td>
-                        <td>{coachEq2Courriel}</td>
-                        <td>{coachEq2Statut}</td>
-                    </tr>
-                    <tr>
-                        <td>{admin}</td>
-                        <td>{adminCourriel}</td>
-                        <td>{adminCourrielStatut}</td>
-                    </tr>
-                </table>
-
                 <div class="spacer-15"></div>
 
-                <!-- Links (duplicated intentionally as in source) -->
                 <p class="text">
-                  <a class="link" href="{urlRequeteReport}" target="_blank" rel="noopener">
-                    Répondre à la demande de report
-                  </a>
+                  Si vous n'avez pas fait de telle demande, veuillez en avisez les administrateurs de la plateforme le plus rapidement possible.
                 </p>
 
                 <div class="spacer-20"></div>
@@ -248,7 +178,7 @@
                 <!-- Closing -->
                 <p class="text">Merci et à bientôt,</p>
                 <div class="spacer-20"></div>
-                <p class="text"><strong>L&#39;équipe CITRUS</strong></p>
+                <p class="text"><strong>L'équipe CITRUS</strong></p>
 
                 <!-- Footer -->
                 <div class="footer-divider"></div>

@@ -20,7 +20,7 @@ urlpatterns = [
     path('Inscription/', views.inscription_coach, name='InscriptionCoach'),
     path('UserManagement/', views.gestion_utilisateurs, name='GestionUtilisateur'),
     path('MonUser-<int:userID>/', views.profile_utilisateur, name='ProfileUtilisateur'),
-    path('ResetPassword-<str:hashedCoachID>/', views.reinitialisation_mdp, name='ReinitialisationMdp'),
+    path('reinitialisationMdp-<str:hashedCoachID>/', views.reinitialisation_mdp, name='ReinitialisationMdp'),
     path('Match-<str:hashedCode>/', views.formulaire_match, name='FormulaireMatch'),
     path('MesMatchs/', views.mes_matchs, name='MesMatchs'),
     path('MesMatchs-<int:id_saison>/',views.mes_matchs,name='MesMatchs'),
@@ -28,8 +28,9 @@ urlpatterns = [
     path('checkPassword/',views.checkPassword,name='checkPassword'),
     path('validateCoach/',views.validateCoach,name='validateCoach'),
     path('FicheCodeQR-<int:equipeId>-<int:saisonId>/', views.fiche_code_QR, name='FicheCodeQR'),
-    path('formulaire-report-match', views.reporter_match, name='reporterMatch'),
+    path('Report_Match-<str:demandeToken>/', views.demande_report_match, name='reporterMatch'),
     path('MesÉquipes', views.mes_equipes, name='MesEquipes'),
+    path('adminMatchs-<int:id_saison>/', views.admin_matchs, name='AdminMatchs'),
 ]
 
 if settings.DEBUG:

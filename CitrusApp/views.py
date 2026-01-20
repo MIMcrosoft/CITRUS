@@ -1,22 +1,25 @@
+import datetime
+
 from django.contrib.auth.models import AnonymousUser
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 
-from Helpers.EmailHelper import EmailHelper
+
 from .models import Coach, Equipe, College, Interprete, Saison, Alignement, Match, CoachManager, Punition, \
-    DetailsInterprete
+    DetailsInterprete, RequeteReportMatch
 from .functions import *
 import json
 from django.http import JsonResponse
 from django.contrib.auth.hashers import check_password
+from django.contrib import messages
 
 def composants_html(request):
     return render(request, 'composants_individuels.html')
 
 def test(request):
-    return render(request, 'templatesCourriel/email_code_verif.html')
+    return render(request, 'templatesCourriel/email_report_match_accepte.html')
 
 def page_404(request,exception):
     return render(request, 'fenetre_erreur.html', {
@@ -25,23 +28,25 @@ def page_404(request,exception):
 
 def accueil(request):
     current_user = request.user
-
+    saison = Saison.objects.get(est_active=True)
     if isinstance(current_user, AnonymousUser) or not current_user.is_authenticated:
         # Redirect or handle the case when the user is not logged in
-        return redirect('Connexion')
+        return redirect('ConnexionUtilisateur')
 
     if current_user.is_superuser == True:
-        allMatchs = Match.objects.all()
+        matchs = Match.objects.all()
     else:
-        equipe = current_user.information_equipe
-        allMatchs = Match.objects.filter(Q(equipe1=equipe) | Q(equipe2=equipe)).all()
+        alignement = Alignement.objects.get(Q(saison=saison) & Q(coach=current_user))
+        equipe = alignement.equipe
+        matchs = Match.objects.filter((Q(equipe1=equipe) | Q(equipe2=equipe)) & Q(saison=saison)).all()
     if request.method == 'POST':
         pass
 
-    return render(request, 'accueil.html', {"user": current_user,
-                                            'allMatchs': allMatchs,
-                                            'activeTab' : "ACCUEIL"
-                                            })
+    return render(request, 'accueil.html', {
+        "user": current_user,
+        'matchs': matchs,
+        'activeTab' : "ACCUEIL"
+        })
 
 @login_required
 def gestion_utilisateurs(request):
@@ -116,7 +121,7 @@ def reinitialisation_mdp(request, hashedCoachID):
             else:
                 coachToReset.set_password(newPassword)
                 coachToReset.save()
-                return redirect("Connexion")
+                return redirect("ConnexionUtilisateur")
 
     return render(request, "reinitialisation_mdp.html", {
         'errors' : errors,
@@ -152,13 +157,12 @@ def connexion_utilisateur(request):
             emailHelper = EmailHelper()
             email = request.POST['emailToReset'].strip().lower()
             coachToReset = Coach.objects.filter(courriel__iexact=email).first()
-            #print(coachToReset)
             if coachToReset:
                 code = str(coachToReset.prenom_coach) + str(coachToReset.nom_coach) + str(coachToReset.coach_id)
-                emailHelper.courrielResetPwd(coachToReset)
+                emailHelper.courrielResetPwd(coachToReset.courriel,code)
                 print("COURRIEL ENVOYÉ")
 
-            return redirect('Connexion')
+            return redirect('ConnexionUtilisateur')
 
         elif buttonClicked == "inscription":
             pass
@@ -193,7 +197,9 @@ def inscription_coach(request):
             })
 
         # Retrieve the team from the database
-        coachTeam = Equipe.objects.get(id_equipe=coachTeamId)
+        equipeCoach = Equipe.objects.get(id_equipe=coachTeamId)
+        saisonActuelle = Saison.objects.get(est_active=True)
+        alignementCoach = Alignement.objects.get(equipe=equipeCoach, saison=saisonActuelle)
 
         # Create the coach using CoachManager
         coach = Coach.objects.create_user(
@@ -202,11 +208,16 @@ def inscription_coach(request):
             pronom_coach=coachPronom,
             courriel=coachCourriel.strip().lower(),
             password=coachPassword,
-            equipe=coachTeam
+            equipe=equipeCoach
         )
 
-        # Optionally redirect to a login or success page after successful signup
-        return redirect('Connexion')  # Assuming you have a login view
+        alignementCoach.coach = coach
+        alignementCoach.save()
+
+        emailHelper = EmailHelper()
+        emailHelper.courrielConfirmationInscription(coach.courriel)
+
+        return redirect('ConnexionUtilisateur')  # Assuming you have a login view
 
     # Render the signup form with all available teams
     return render(request, "inscription_coach.html", {
@@ -247,7 +258,7 @@ def information_equipe(request, id_equipe, id_saison=None):
     if id_saison:
         saison = get_object_or_404(Saison, saison_id=id_saison)
         alignement = Alignement.objects.filter(equipe=equipe, saison=saison).first()
-        details_interpretes = DetailsInterprete.objects.filter(alignement=alignement).select_related("interprete")
+        details_interpretes = DetailsInterprete.get_interpretes_triees(alignement)
         coach = alignement.coach
 
         # Handle logic where both `equipe` and `saison` are used
@@ -416,6 +427,7 @@ def mes_matchs(request, id_saison=None):
     equipe = alignement.equipe
 
     return render(request, "mes_matchs.html", {
+        'current_user' : current_user,
         'equipe': equipe,
         'saisons' : Saison.objects.all(),
         'saison_selectionne' : saison,
@@ -423,9 +435,93 @@ def mes_matchs(request, id_saison=None):
         'activeTab': "MATCH",
     })
 
-def reporter_match(request):
-    return render(request, "formulaire_report_match.html", {
-        'activeTab': "MATCH"
+@login_required()
+def demande_report_match(request, demandeToken):
+
+    rr = RequeteReportMatch.objects.get(token=demandeToken)
+    current_user = request.user
+    emailHelper = EmailHelper()
+
+    if request.method == 'POST':
+        choice = request.POST.get('choice')
+        date_str  = request.POST.get('nouvelle_date')
+        if choice == "accepter":
+
+            if current_user.coach_id == rr.coach_1.coach_id:
+                rr.coach1_validation = True
+
+            if current_user.coach_id == rr.coach_2.coach_id:
+                rr.coach2_validation = True
+
+            if current_user.admin_flag:
+                rr.admin_validation = True
+
+            if rr.coach1_validation and rr.coach2_validation and rr.admin_validation:
+                rr.match.date_match = rr.nouvelle_date
+                rr.status = "approuve"
+                rr.save()
+                rr.match.save()
+                emailHelper.courrielReportMatchAccepte(
+                    rr.coach_1.courriel,
+                    rr.coach_2.courriel,
+                    EmailHelper.COURRIEL_ADMIN,
+                    EmailHelper.COURRIEL_RESPO_COM,
+                    rr
+                )
+
+            else:
+                rr.save()
+                emailHelper.courrielUpdateReportMatch(
+                    rr.coach_1.courriel,
+                    rr.coach_2.courriel,
+                    EmailHelper.COURRIEL_ADMIN,
+                    rr
+                )
+
+            return redirect('ConnexionUtilisateur')
+
+        if choice == "decliner":
+
+            if date_str is None or date_str == "":
+                messages.error(request, "Veuillez sélectionner une nouvelle date.")
+                return redirect(request.path)
+
+            nouvelle_date = datetime.strptime(date_str, '%d/%m/%Y').strftime('%Y-%m-%d')
+
+            rr.coach1_validation = False
+            rr.coach2_validation = False
+            rr.admin_validation = False
+
+            if current_user.coach_id == rr.coach_1.coach_id:
+                rr.coach1_validation = True
+
+            if current_user.coach_id == rr.coach_2.coach_id:
+                rr.coach2_validation = True
+
+            if current_user.admin_flag:
+                rr.admin_validation = True
+
+            rr.nouvelle_date = nouvelle_date
+            rr.save()
+            emailHelper.courrielUpdateReportMatch(
+                rr.coach_1.courriel,
+                rr.coach_2.courriel,
+                EmailHelper.COURRIEL_ADMIN,
+                rr
+            )
+            messages.success(request, "Votre réponse a été enregistrée.")
+            return redirect('ConnexionUtilisateur')
+
+
+    coach_complete = False
+    if current_user == rr.coach_1 and rr.coach1_validation:
+        coach_complete = True
+    elif current_user == rr.coach_2 and rr.coach2_validation:
+        coach_complete = True
+
+    return render(request, "demande_report_match.html",{
+        "requete" : rr,
+        "coach_complete" : coach_complete,
     })
 def formulaire_match(request, hashedCode):
 
@@ -456,24 +552,34 @@ def formulaire_match(request, hashedCode):
             matchSelected.improvisations = matchData.get("improvisations")
 
             for punition in matchData.get("punitions"):
-                equipe = Equipe.objects.get(nom_equipe=punition[0])
-                if punition[2] == "Oui":
+                print(punition)
+                equipe = Equipe.objects.get((Q(id_equipe=matchSelected.equipe1.id_equipe) | Q(id_equipe=matchSelected.equipe2.id_equipe)) & Q(nom_equipe=punition['equipe']))
+                if punition['majeure'] == "Oui":
                     est_majeure = True
                 else:
                     est_majeure = False
 
-                Punition.createPunition(punition[1],est_majeure,equipe)
+                Punition.createPunition(punition['titre'],est_majeure,equipe)
         matchSelected.save()
-        print("MATCHSAVED")
+
+        alignementEq1 = Alignement.objects.get(equipe=matchSelected.equipe1, saison=matchSelected.saison)
+        coachEq1 = alignementEq1.coach
+
+        alignementEq2 = Alignement.objects.get(equipe=matchSelected.equipe2, saison=matchSelected.saison)
+        coachEq2 = alignementEq2.coach
+
+        if not TEST and not settings.DEBUG:
+            emailHelper = EmailHelper()
+            emailHelper.courrielResumeMatch(coachEq1.courriel, coachEq2.courriel, matchSelected)
 
     if matchSelected is not None:
         saison = Saison.objects.get(est_active=True)
         alignementEquipe1 = Alignement.objects.filter(equipe=matchSelected.equipe1, saison=saison).first()
-        detailsInterpretesEq1 = DetailsInterprete.objects.filter(alignement=alignementEquipe1).select_related("interprete")
+        detailsInterpretesEq1 = DetailsInterprete.get_interpretes_triees(alignementEquipe1)
         coachEquipe1 = alignementEquipe1.coach
 
         alignementEquipe2 = Alignement.objects.filter(equipe=matchSelected.equipe2, saison=saison).first()
-        detailsInterpretesEq2 = DetailsInterprete.objects.filter(alignement=alignementEquipe2).select_related("interprete")
+        detailsInterpretesEq2 = DetailsInterprete.get_interpretes_triees(alignementEquipe2)
         coachEquipe2 = alignementEquipe2.coach
 
         # Your original code
@@ -499,7 +605,6 @@ def formulaire_match(request, hashedCode):
             'domain': domain,
             'current_user': current_user
         })
-
 def fiche_code_QR(request, equipeId, saisonId):
 
     equipe =Equipe.objects.get(id_equipe=equipeId)
@@ -559,7 +664,33 @@ def deconnexion_utilisateur(request):
     logout(request)
     return redirect("/Citrus/Connexion/?animation=2")
 
-## THESE FUNCTIONS DONT BELONG HERE
+"""
+ADMIN VIEWS
+"""
+@login_required()
+def admin_matchs(request, id_saison=None):
+    current_user = request.user
+    if current_user.admin_flag:
+        if id_saison is None:
+            saison = Saison.objects.get(est_active=True)
+        else:
+            try:
+                saison = Saison.objects.get(saison_id=id_saison)
+            except Saison.DoesNotExist:
+                saison = Saison.objects.get(est_active=True)
+                return redirect('AdminMatchs', saison.saison_id)
+
+        return render(request, "admin/admin_matchs.html", {
+            'saisons': Saison.objects.all(),
+            'saison_selectionne': saison,
+            'matchs': Match.objects.filter(saison=saison).all(),
+            'activeTab': "MATCH",
+        })
+    else:
+        return redirect('/Citrus/Accueil')
+
+
+## THESE FUNCTIONS DON'T BELONG HERE
 ## TO MOVE TO API
 def saveToDB(request):
     if request.method == "POST":
@@ -589,16 +720,20 @@ def checkPassword(request):
     if request.method == "POST":
         data = json.loads(request.body)
         password = data.get('password')
-        teamID = data.get('teamID')
+        teamID = data.get('teamId')
+        matchId = data.get('matchId')
 
-
-
+        # Retrieve the team from the database
         equipe = Equipe.objects.get(id_equipe=teamID)
-        for coach in Coach.objects.filter(equipe=equipe):
-            if check_password(password, coach.password):
-                return JsonResponse({'message': 'Password matched'},status=200)
-            else:
-                return JsonResponse({'message': 'Password invalid'},status=401)
+        match = Match.objects.get(match_id=matchId)
+        saison = match.saison
+        alignement = Alignement.objects.get(equipe=equipe, saison=saison)
+        coach = alignement.coach
+
+        if check_password(password, coach.password):
+            return JsonResponse({'message': 'Password matched'},status=200)
+        else:
+            return JsonResponse({'message': 'Password invalid'},status=401)
 
         return JsonResponse({'message': 'Invalid request'},status=404)
 

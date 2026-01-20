@@ -1,11 +1,14 @@
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from django.db.models import Q
 from rest_framework.response import Response
 from rest_framework import status
-from CitrusApp.models import Coach, Equipe, Match, Punition, Interprete, Alignement, DetailsInterprete, Saison
+from CitrusApp.models import Coach, Equipe, Match, Punition, Interprete, Alignement, DetailsInterprete, Saison, RequeteReportMatch
+from Helpers.EmailHelper import EmailHelper
 from .serializers import *
 import ast
+from datetime import datetime
 from django.http import JsonResponse
 
 # Create your views here.
@@ -83,8 +86,9 @@ def classement(request, division):
                                     v += 1
                                 elif match.score_eq2 < match.score_eq1:
                                     d += 1
-
-                pen += len(Punition.objects.filter(equipe_punie=equipe))
+                    for punition in match.punitions.all():
+                        if punition.equipe_punie == equipe:
+                            pen += 1
 
                 # Calculate additional stats
                 pourc_impro_gagner = (pp / (pp + pc) * 100) if (pp + pc) > 0 else 0
@@ -175,4 +179,64 @@ def modifier_interprete(request):
     return JsonResponse({
         "success": True
     })
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def creer_requete_report_match(request):
+    current_user = request.user
+    match_id = request.data.get('match_id')
+    nouvelle_date = request.data.get('nouvelle_date')
+
+
+    if not match_id or not nouvelle_date:
+        return Response({"error": "match et nouvelle_date sont requis"}, status=400)
+
+    # Vérifier match
+    match = Match.objects.filter(match_id=match_id).first()
+    if not match:
+        return Response({"error": "Match introuvable"}, status=404)
+
+    try:
+        nouvelle_date_obj = datetime.fromisoformat(nouvelle_date)
+    except:
+        return Response({"error": "Format de date invalide (ISO attendu)"}, status=400)
+
+    alignementEq1 = Alignement.objects.get(equipe=match.equipe1, saison=match.saison)
+    coachEq1 = alignementEq1.coach
+
+    alignementEq2 = Alignement.objects.get(equipe=match.equipe2, saison=match.saison)
+    coachEq2 = alignementEq2.coach
+
+
+    # Créer la demande
+    rr = RequeteReportMatch.objects.create(
+        match=match,
+        nouvelle_date=nouvelle_date_obj,
+        cree_par=request.user,
+        coach_1=coachEq1,
+        coach_2=coachEq2,
+    )
+
+    if coachEq1 is not None and current_user.coach_id == coachEq1.coach_id:
+        rr.coach1_validation = True
+    elif coachEq2 is not None and current_user.coach_id == coachEq2.coach_id:
+        rr.coach2_validation = True
+
+    rr.save()
+    # Envoi des courriels
+    emailHelper = EmailHelper()
+    emailHelper.courrielCreationReportMatch(
+        coachEq1.courriel if coachEq1 else None,
+        coachEq2.courriel if coachEq2 else None,
+        EmailHelper.COURRIEL_ADMIN,
+        rr)
+
+    return Response({
+        "success": True,
+        "message": "Demande de report créée et courriels envoyés.",
+        "token": str(rr.token)
+    }, status=201)
+
+
+
 
