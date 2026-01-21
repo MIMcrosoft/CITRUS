@@ -2,223 +2,247 @@
 {% load static %}
 {% block content %}
 
-    <header>
-        <div class="buttonsTeams">
-            {% if request.user.admin_flag == True %}
-            <button class="btnPrimary" onclick="navTo(this,'/Citrus/ModificationEquipe{{ equipe.id_equipe }}',false)"><span>Modifier</span></button>
-            {% endif %}
-            {% if current_user.coach_id == coach.coach_id %}
-            <button class="btnPrimary" onclick="openModalAjout()"><span>Ajouter un interprète</span></button>
-            {% endif %}
+    {% if alignement %}
+        <header>
+            <div class="buttonsTeams">
+                {% if request.user.admin_flag == True %}
+                <button class="btnPrimary" onclick="navTo(this,'/Citrus/ModificationEquipe{{ equipe.id_equipe }}',false)"><span>Modifier</span></button>
+                {% endif %}
+                {% if current_user.coach_id == coach.coach_id %}
+                <button class="btnPrimary" onclick="openModalAjout()"><span>Ajouter un interprète</span></button>
+                {% endif %}
+            </div>
+        </header>
+
+        <div class="upperBody">
+
+            <div class="teamDetails">
+                <h1 id="teamName">{{ equipe.nom_equipe }}</h1>
+                <h3 id="collegeName">{{ equipe.college }}</h3>
+
+
+                <label class="division {{ equipe.division }}">{{ equipe.division }}</label>
+
+
+                <menu-deroulant-recherche >
+                  <select onchange="changeSaison(this, {{ equipe.id_equipe }})">
+                    <option>Choisir une saison</option>
+                    {% for saison in saisons %}
+                        <option value="{{ saison.saison_id }}"  {% if saison.saison_id == saison_selectionne.saison_id %}selected{% endif %} >{{ saison.nom_saison }}</option>
+                    {% endfor %}
+                  </select>
+                </menu-deroulant-recherche>
+
+
+            </div>
+
+            <img id="logoEquipe" src="{% if equipe.logo %}{{ equipe.getUrlPhoto }}{% endif %}" alt="LOGO">
+
         </div>
-    </header>
 
-    <div class="upperBody">
+        <div class="lowerBody">
 
-        <div class="teamDetails">
-            <h1 id="teamName">{{ equipe.nom_equipe }}</h1>
-            <h3 id="collegeName">{{ equipe.college }}</h3>
-
-
-            <label class="division {{ equipe.division }}">{{ equipe.division }}</label>
-
-
-            <menu-deroulant-recherche >
-              <select onchange="changeSaison(this, {{ equipe.id_equipe }})">
-                <option>Choisir une saison</option>
-                {% for saison in saisons %}
-                    <option value="{{ saison.saison_id }}"  {% if saison.saison_id == saison_selectionne.saison_id %}selected{% endif %} >{{ saison.nom_saison }}</option>
-                {% endfor %}
-              </select>
-            </menu-deroulant-recherche>
-
-
-        </div>
-
-        <img id="logoEquipe" src="{% if equipe.logo %}{{ equipe.getUrlPhoto }}{% endif %}" alt="LOGO">
-
-    </div>
-
-    <div class="lowerBody">
-        
-        <div class="alignementsTeam">
-            <h1>Alignement</h1>
-            <table>
-                <tr class="tableHeaderRow">
-                    <th>#</th>
-                    <th>Prénom et nom</th>
-                    <th>C/A</th>
-                    <th>Pronoms</th>
-                    <th></th>
-                </tr>
-                {% for details  in details_interpretes %}
-                    <tr class="pamps">
-                        <td>{{ details.numero_interprete }}</td>
-                        <td>{{ details.interprete.nom_interprete }}</td>
-                        <td>{{ details.role_interprete }}</td>
-                        <td>{{ details.interprete.pronom_interprete }}</td>
-                        <td class="iconRow"><button class="iconBtn" onclick="openModalModifier(
-                            '{{ details.interprete.interprete_id }}',
-                            '{{ details.interprete.nom_interprete  }}',
-                            '{{ details.role_interprete }}',
-                            '{{ details.interprete.pronom_interprete }}',
-                            '{{ details.numero_interprete }}'
-                        )"><img src="../../static/icons/pencil.png" alt="" class=""></button></td>
-                        <!---<td><button class="btnSecondary btnInline"><span>Supprimer</span></button></td>--->
+            <div class="alignementsTeam">
+                <h1>Alignement</h1>
+                <table>
+                    <tr class="tableHeaderRow">
+                        <th>#</th>
+                        <th>Prénom et nom</th>
+                        <th>C/A</th>
+                        <th>Pronoms</th>
+                        <th></th>
                     </tr>
-                {% endfor %}
-            </table>
+                    {% for details  in details_interpretes %}
+                        <tr class="pamps">
+                            <td>{{ details.numero_interprete }}</td>
+                            <td>{{ details.interprete.nom_interprete }}</td>
+                            <td>{{ details.role_interprete }}</td>
+                            <td>{{ details.interprete.pronom_interprete }}</td>
+                            <td class="iconRow"><button class="iconBtn" onclick="openModalModifier(
+                                '{{ details.interprete.interprete_id }}',
+                                '{{ details.interprete.nom_interprete  }}',
+                                '{{ details.role_interprete }}',
+                                '{{ details.interprete.pronom_interprete }}',
+                                '{{ details.numero_interprete }}'
+                            )"><img src="../../static/icons/pencil.png" alt="" class=""></button></td>
+                            <!---<td><button class="btnSecondary btnInline"><span>Supprimer</span></button></td>--->
+                        </tr>
+                    {% endfor %}
+                </table>
 
-            <table>
-                <tr class="tableHeaderRow">
-                    <th></th>
-                    <th>Prénom et nom</th>
-                    <th>Courriel</th>
-                    <th>Pronoms</th>
-                </tr>
+                <table>
+                    <tr class="tableHeaderRow">
+                        <th></th>
+                        <th>Prénom et nom</th>
+                        <th>Courriel</th>
+                        <th>Pronoms</th>
+                    </tr>
 
-                <tr class="pamps">
-                    <td>Coach</td>
-                    <td>{{ coach.prenom_coach }} {{ coach.nom_coach }}</td>
-                    <td>{{ coach.courriel }}</td>
-                    <td>{{ coach.pronom_coach }}</td>
-                    <!---<td><button class="btnSecondary btnInline" onclick=""><span>Modifier</span></button></td>
-                    <td><button class="btnSecondary btnInline"><span>Supprimer</span></button></td>--->
-                </tr>
+                    <tr class="pamps">
+                        <td>Coach</td>
+                        <td>{{ coach.prenom_coach }} {{ coach.nom_coach }}</td>
+                        <td>{{ coach.courriel }}</td>
+                        <td>{{ coach.pronom_coach }}</td>
+                        <!---<td><button class="btnSecondary btnInline" onclick=""><span>Modifier</span></button></td>
+                        <td><button class="btnSecondary btnInline"><span>Supprimer</span></button></td>--->
+                    </tr>
 
-            </table>
-        </div>
+                </table>
+            </div>
 
-        <div class="calendrier">
-            <h1 id="titleMatch">Matchs</h1>
-            <div class="matchs">
-                {% for match in matchs_saisons %}
-                    <div class="match">
-                        <div class="matchDate">{{ match.get_dateFormatted}}</div>
-                        {% if match.validated_flag == False %}
-                            <div class="matchDetailsValidated">
-                                <div class="teamDetailsMatch">
-                                    <span>{{ match.equipe2.nom_equipe }}</span>
-                                    <span>{{ match.score_eq2 }}</span>
+            <div class="calendrier">
+                <h1 id="titleMatch">Matchs</h1>
+                <div class="matchs">
+                    {% for match in matchs_saisons %}
+                        <div class="match">
+                            <div class="matchDate">{{ match.get_dateFormatted}}</div>
+                            {% if match.validated_flag == False %}
+                                <div class="matchDetailsValidated">
+                                    <div class="teamDetailsMatch">
+                                        <span>{{ match.equipe2.nom_equipe }}</span>
+                                        <span>{{ match.score_eq2 }}</span>
+                                    </div>
+                                    <span id="lieuMatch">{{ match.equipe1.college.nom_college }}</span>
+                                    <div class="teamDetailsMatch">
+                                        <span>{{ match.equipe1.nom_equipe }}</span>
+                                        <span>{{ match.score_eq1 }}</span>
+                                    </div>
                                 </div>
-                                <span id="lieuMatch">{{ match.equipe1.college.nom_college }}</span>
-                                <div class="teamDetailsMatch">
-                                    <span>{{ match.equipe1.nom_equipe }}</span>
+                            {% else %}
+                                <div class="matchDetails">
+                                    <span>{{ match.score_eq2 }}</span>
+                                    <span>{{ match.equipe2.nom_equipe }} Vs {{ match.equipe1.nom_equipe }}</span>
+                                    <span id="lieuMatch">{{ match.equipe1.college.nom_college }}</span>
                                     <span>{{ match.score_eq1 }}</span>
                                 </div>
-                            </div>
-                        {% else %}
-                            <div class="matchDetails">
-                                <span>{{ match.score_eq2 }}</span>
-                                <span>{{ match.equipe2.nom_equipe }} Vs {{ match.equipe1.nom_equipe }}</span>
-                                <span id="lieuMatch">{{ match.equipe1.college.nom_college }}</span>
-                                <span>{{ match.score_eq1 }}</span>
-                            </div>
-                        {% endif %}
-                    </div>
-                {% endfor %}
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
             </div>
         </div>
-    </div>
 
-    <div id="ajout_interprete_modal" class="modal">
-        <div class="modal-content">
-          <h1>Ajouter un·e interprète</h1>
+        <div id="ajout_interprete_modal" class="modal">
+            <div class="modal-content">
+              <h1>Ajouter un·e interprète</h1>
 
-          <section>
-            <h2>Informations personnelles</h2>
+              <section>
+                <h2>Informations personnelles</h2>
 
-            <menu-deroulant-recherche data-no-result-text="Créer un·e interprète">
-              <select onchange="getInformationsInterprete(this.value)">
-                <option value="">Nom de l’interprète</option>
-                {% for interprete in interpretes %}
-                  <option value="{{ interprete.interprete_id }}">{{ interprete.nom_interprete }}</option>
-                {% endfor %}
-              </select>
-            </menu-deroulant-recherche>
+                <menu-deroulant-recherche data-no-result-text="Créer un·e interprète">
+                  <select onchange="getInformationsInterprete(this.value)">
+                    <option value="">Nom de l’interprète</option>
+                    {% for interprete in interpretes %}
+                      <option value="{{ interprete.interprete_id }}">{{ interprete.nom_interprete }}</option>
+                    {% endfor %}
+                  </select>
+                </menu-deroulant-recherche>
 
-            <input type="hidden" class="interpreteID" value="null">
+                <input type="hidden" class="interpreteID" value="null">
 
-            <div class="form-grid modal_info_perso">
-              <div class="form-group">
-                <label>Nom</label>
-                <input type="text" class="nom_interprete" name="nom_interprete" placeholder="Entrez le nom">
-              </div>
-              <div class="form-group">
-                <label>Pronom</label>
-                <input type="text" class="pronom_interprete" name="pronom_interprete" placeholder="Ex. elle/il/iel">
+                <div class="form-grid modal_info_perso">
+                  <div class="form-group">
+                    <label>Nom</label>
+                    <input type="text" class="nom_interprete" name="nom_interprete" placeholder="Entrez le nom">
+                  </div>
+                  <div class="form-group">
+                    <label>Pronom</label>
+                    <input type="text" class="pronom_interprete" name="pronom_interprete" placeholder="Ex. elle/il/iel">
+                  </div>
+                </div>
+              </section>
+
+              <section>
+                <h2>Informations de saison</h2>
+
+                <div class="form-group">
+                  <label>Numéro</label>
+                  <input type="text" name="numeroInterprete" class="numeroInterprete" placeholder="Ex. 12">
+                </div>
+
+                <div class="form-group">
+                  <div class="radio-group">
+                    <label><input type="radio" name="roleInterprete" checked="true" value=""> Aucun rôle</label>
+                    <label><input type="radio" name="roleInterprete" value="A"> Assistant·e</label>
+                    <label><input type="radio" name="roleInterprete" value="C"> Capitaine</label>
+                  </div>
+                </div>
+              </section>
+
+              <div class="modal-actions">
+                <button type="button" class="btnSecondary" onclick="closeModalInterprete('ajout_interprete_modal')">Annuler</button>
+                <button type="submit" class="btnPrimary" onclick="ajouterInterprete()">Enregistrer</button>
               </div>
             </div>
-          </section>
-
-          <section>
-            <h2>Informations de saison</h2>
-
-            <div class="form-group">
-              <label>Numéro</label>
-              <input type="text" name="numeroInterprete" class="numeroInterprete" placeholder="Ex. 12">
-            </div>
-
-            <div class="form-group">
-              <div class="radio-group">
-                <label><input type="radio" name="roleInterprete" checked="true" value=""> Aucun rôle</label>
-                <label><input type="radio" name="roleInterprete" value="A"> Assistant·e</label>
-                <label><input type="radio" name="roleInterprete" value="C"> Capitaine</label>
-              </div>
-            </div>
-          </section>
-
-          <div class="modal-actions">
-            <button type="button" class="btnSecondary" onclick="closeModalInterprete('ajout_interprete_modal')">Annuler</button>
-            <button type="submit" class="btnPrimary" onclick="ajouterInterprete()">Enregistrer</button>
-          </div>
         </div>
-    </div>
 
-    <div id="modifier_interprete_modal" class="modal">
-        <div class="modal-content">
-          <h1>Modifier un·e interprète</h1>
+        <div id="modifier_interprete_modal" class="modal">
+            <div class="modal-content">
+              <h1>Modifier un·e interprète</h1>
 
-          <section>
-            <h2>Informations personnelles</h2>
+              <section>
+                <h2>Informations personnelles</h2>
 
-            <input type="hidden" class="interpreteID" value="null">
+                <input type="hidden" class="interpreteID" value="null">
 
-            <div class="form-grid modal_info_perso">
-              <div class="form-group">
-                <label>Nom</label>
-                <input type="text" class="nom_interprete" name="nom_interprete" placeholder="Entrez le nom">
-              </div>
-              <div class="form-group">
-                <label>Pronom</label>
-                <input type="text" class="pronom_interprete" name="pronom_interprete" placeholder="Ex. elle/il/iel">
+                <div class="form-grid modal_info_perso">
+                  <div class="form-group">
+                    <label>Nom</label>
+                    <input type="text" class="nom_interprete" name="nom_interprete" placeholder="Entrez le nom">
+                  </div>
+                  <div class="form-group">
+                    <label>Pronom</label>
+                    <input type="text" class="pronom_interprete" name="pronom_interprete" placeholder="Ex. elle/il/iel">
+                  </div>
+                </div>
+              </section>
+
+              <section>
+                <h2>Informations de saison</h2>
+
+                <div class="form-group">
+                  <label>Numéro</label>
+                  <input type="text" name="numeroInterprete" class="numeroInterprete" placeholder="Ex. 12">
+                </div>
+
+                <div class="form-group">
+                  <div class="radio-group">
+                    <label><input type="radio" name="roleInterprete" checked="true" value=""> Aucun rôle</label>
+                    <label><input type="radio" name="roleInterprete" value="A"> Assistant·e</label>
+                    <label><input type="radio" name="roleInterprete" value="C"> Capitaine</label>
+                  </div>
+                </div>
+              </section>
+
+              <div class="modal-actions">
+                <button type="button" class="btnSecondary" onclick="closeModalInterprete('modifier_interprete_modal')">Annuler</button>
+                <button type="submit" class="btnPrimary" onclick="modifierInterprete()">Modifier</button>
               </div>
             </div>
-          </section>
-
-          <section>
-            <h2>Informations de saison</h2>
-
-            <div class="form-group">
-              <label>Numéro</label>
-              <input type="text" name="numeroInterprete" class="numeroInterprete" placeholder="Ex. 12">
-            </div>
-
-            <div class="form-group">
-              <div class="radio-group">
-                <label><input type="radio" name="roleInterprete" checked="true" value=""> Aucun rôle</label>
-                <label><input type="radio" name="roleInterprete" value="A"> Assistant·e</label>
-                <label><input type="radio" name="roleInterprete" value="C"> Capitaine</label>
-              </div>
-            </div>
-          </section>
-
-          <div class="modal-actions">
-            <button type="button" class="btnSecondary" onclick="closeModalInterprete('modifier_interprete_modal')">Annuler</button>
-            <button type="submit" class="btnPrimary" onclick="modifierInterprete()">Modifier</button>
-          </div>
         </div>
-    </div>
+    {% else %}
+         <div class="upperBody">
+            <div class="teamDetails">
+                <h1 id="teamName">{{ equipe.nom_equipe }}</h1>
+                <h3 id="collegeName">{{ equipe.college }}</h3>
+                <label class="division {{ equipe.division }}">{{ equipe.division }}</label>
+                <menu-deroulant-recherche >
+                  <select onchange="changeSaison(this, {{ equipe.id_equipe }})">
+                    <option>Choisir une saison</option>
+                    {% for saison in saisons %}
+                        <option value="{{ saison.saison_id }}"  {% if saison.saison_id == saison_selectionne.saison_id %}selected{% endif %} >{{ saison.nom_saison }}</option>
+                    {% endfor %}
+                  </select>
+                </menu-deroulant-recherche>
+            </div>
+
+            <img id="logoEquipe" src="{% if equipe.logo %}{{ equipe.getUrlPhoto }}{% endif %}" alt="LOGO">
+
+        </div>
+        <p>
+            Cette équipe n'a aucune donnée pour cette saison.
+        </p>
+    {% endif %}
 
     <script>
         function changeSaison(selectElement,equipeId) {

@@ -255,18 +255,23 @@ def mes_equipes(request):
 def information_equipe(request, id_equipe, id_saison=None):
 
     equipe = get_object_or_404(Equipe, id_equipe=id_equipe)
+
     if id_saison:
         saison = get_object_or_404(Saison, saison_id=id_saison)
-        alignement = Alignement.objects.filter(equipe=equipe, saison=saison).first()
-        details_interpretes = DetailsInterprete.get_interpretes_triees(alignement)
-        coach = alignement.coach
-
-        # Handle logic where both `equipe` and `saison` are used
     else:
         saison = Saison.objects.get(est_active=True)
-        alignement = Alignement.objects.filter(equipe=equipe, saison=saison).first()
-        details_interpretes = None
+
+    alignement = Alignement.objects.filter(equipe=equipe, saison=saison).first()
+
+    if alignement:
+        details_interpretes = DetailsInterprete.get_interpretes_triees(alignement)
         coach = alignement.coach
+        matchs = Match.objects.filter((Q(equipe1=equipe) | Q(equipe2=equipe)) & Q(saison=saison)).all()
+
+    else:
+        coach = None
+        matchs = None
+        details_interpretes = None
 
     if request.method == 'POST':
         pass
@@ -276,7 +281,7 @@ def information_equipe(request, id_equipe, id_saison=None):
                    'saisons': Saison.objects.all(),
                    'alignement': alignement,
                    'coach': coach,
-                   'matchs_saisons' : Match.objects.filter((Q(equipe1=equipe) | Q(equipe2=equipe)) & Q(saison=saison)).all(),
+                   'matchs_saisons' : matchs ,
                    'activeTab': "EQUIPE",
                    'current_user' : request.user,
                    'saison_selectionne' : saison,
@@ -423,15 +428,24 @@ def mes_matchs(request, id_saison=None):
         except Saison.DoesNotExist:
             saison = Saison.objects.get(est_active=True)
             return redirect('MesMatchs',saison.saison_id)
-    alignement = Alignement.objects.get(Q(saison=saison) & Q(coach=current_user))
-    equipe = alignement.equipe
+
+    try:
+        alignement = Alignement.objects.get(Q(saison=saison) & Q(coach=current_user))
+        equipe = alignement.equipe
+        matchs = Match.objects.filter((Q(equipe1=equipe) | Q(equipe2=equipe)) & Q(saison=saison)).all()
+
+    except Alignement.DoesNotExist:
+        equipe = None
+        matchs = Match.objects.none()
+
+
 
     return render(request, "mes_matchs.html", {
         'current_user' : current_user,
         'equipe': equipe,
         'saisons' : Saison.objects.all(),
         'saison_selectionne' : saison,
-        'matchs' : Match.objects.filter((Q(equipe1=equipe) | Q(equipe2=equipe)) & Q(saison=saison)).all(),
+        'matchs' : matchs,
         'activeTab': "MATCH",
     })
 

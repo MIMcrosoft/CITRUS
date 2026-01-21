@@ -5,53 +5,76 @@
     <h1>Mes Matchs</h1>
     <p>Cette section vous permet d'accéder aux liens de vos matchs !</p>
 
+    {% if matchs %}
+        <h1>Matchs à venir</h1>
+        <div class="buttonsContainer">
+            <menu-deroulant-recherche style="width:300px;" >
+                <select name="saisonDropdown" id="saisonDropdown" onchange="changeSaison(this)" >
+                    <option>Choisir une saison</option>
+                    {% for saison in saisons %}
+                        <option value="{{ saison.saison_id }}"  {% if saison.saison_id == saison_selectionne.saison_id %}selected{% endif %} >{{ saison.nom_saison }}</option>
+                    {% endfor %}
+                </select>
+            </menu-deroulant-recherche>
 
-    <h1>Matchs à venir</h1>
-    <div class="buttonsContainer">
-        <menu-deroulant-recherche style="width:300px;" >
-            <select name="saisonDropdown" id="saisonDropdown" onchange="changeSaison(this)" >
-                <option>Choisir une saison</option>
-                {% for saison in saisons %}
-                    <option value="{{ saison.saison_id }}"  {% if saison.saison_id == saison_selectionne.saison_id %}selected{% endif %} >{{ saison.nom_saison }}</option>
-                {% endfor %}
-            </select>
-        </menu-deroulant-recherche>
+            <button onclick="openNewWindow('/Citrus/FicheCodeQR-{{ equipe.id_equipe }}')">Obtenir toutes mes fiches de match</button>
+            <button onclick="openModalReport()">Reporter un match</button>
+            {% if current_user.admin_flag %}
+                <i class="fa-solid fa-eye fa-xl" onclick="window.location.href = `/Citrus/adminMatchs-${ {{ saison_selectionne.saison_id }} }`"></i>
+            {% endif %}
 
-        <button onclick="openNewWindow('/Citrus/FicheCodeQR-{{ equipe.id_equipe }}')">Obtenir toutes mes fiches de match</button>
-        <button onclick="openModalReport()">Reporter un match</button>
-        {% if current_user.admin_flag %}
-            <i class="fa-solid fa-eye fa-xl" onclick="window.location.href = `/Citrus/adminMatchs-${ {{ saison_selectionne.saison_id }} }`"></i>
-        {% endif %}
-
-    </div>
-    <table>
-        <tr class="tableHeaderRow">
-            <th>Équipe hôte</th>
-            <th>Équipe visiteure</th>
-            <th>Lieu</th>
-            <th>Date</th>
-            <th>Validation</th>
-            <th></th>
-        </tr>
-        {% for match in matchs %}
-            <tr>
-                <td>{{ match.equipe1.nom_equipe }}</td>
-                <td>{{ match.equipe2.nom_equipe }}</td>
-                <td>{{ match.equipe1.college.nom_college }}</td>
-                <td>{{ match.get_dateFormatted }}</td>
-                <td>
-                    {% if match.completed_flag %}
-                        <i class="fa-solid fa-check fa-2xl" style="color: #0fc254;"></i>
-                    {% else %}
-                        <i class="fa-solid fa-x fa-2xl" style="color: #df0707;"></i>
-                    {% endif %}
-                </td>
-                <td><button id="modalBtn" onclick="openModalLien('{{ match.get_QrCode }}','{{ match.get_urlMatch }}')">Lien du match</button></td>
-
-            
+        </div>
+        <table>
+            <tr class="tableHeaderRow">
+                <th>Équipe hôte</th>
+                <th>Équipe visiteure</th>
+                <th>Lieu</th>
+                <th>Date</th>
+                <th>Validation</th>
+                <th></th>
             </tr>
-        {% endfor %}
-    </table>
+            {% for match in matchs %}
+                <tr>
+                    <td>{{ match.equipe1.nom_equipe }}</td>
+                    <td>{{ match.equipe2.nom_equipe }}</td>
+                    <td>{{ match.equipe1.college.nom_college }}</td>
+                    <td>{{ match.get_dateFormatted }}</td>
+                    <td>
+                        {% if match.completed_flag %}
+                            <i class="fa-solid fa-check fa-2xl" style="color: #0fc254;"></i>
+                        {% else %}
+                            <i class="fa-solid fa-x fa-2xl" style="color: #df0707;"></i>
+                        {% endif %}
+                    </td>
+                    <td><button id="modalBtn" onclick="openModalLien('{{ match.get_QrCode }}','{{ match.get_urlMatch }}')">Lien du match</button></td>
+
+
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <h1>Matchs à venir</h1>
+        <div class="buttonsContainer">
+            <menu-deroulant-recherche style="width:300px;" >
+                <select name="saisonDropdown" id="saisonDropdown" onchange="changeSaison(this)" >
+                    <option>Choisir une saison</option>
+                    {% for saison in saisons %}
+                        <option value="{{ saison.saison_id }}"  {% if saison.saison_id == saison_selectionne.saison_id %}selected{% endif %} >{{ saison.nom_saison }}</option>
+                    {% endfor %}
+                </select>
+            </menu-deroulant-recherche>
+
+            <button disabled>Obtenir toutes mes fiches de match</button>
+            <button disabled>Reporter un match</button>
+            {% if current_user.admin_flag %}
+                <i class="fa-solid fa-eye fa-xl" onclick="window.location.href = `/Citrus/adminMatchs-${ {{ saison_selectionne.saison_id }} }`"></i>
+            {% endif %}
+
+        </div>
+        <p>
+            Vous n'avez aucun match disponible pour cette saison.
+        </p>
+    {% endif %}
 
     <div id="modal_report_match" class="modal">
         <div class="modal-content">
