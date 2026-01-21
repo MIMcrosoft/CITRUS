@@ -1,0 +1,310 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <h1>Mes Matchs</h1>
+    <p>Cette section vous permet d'accéder aux liens de vos matchs !</p>
+
+    
+
+    <h1>Matchs à venir</h1>
+    <div class="buttonsContainer">
+        <menu-deroulant-recherche style="width:300px;" >
+            <select name="saisonDropdown" id="saisonDropdown" onchange="changeSaison(this)" >
+                <option>Choisir une saison</option>
+                {% for saison in saisons %}
+                    <option value="{{ saison.saison_id }}"  {% if saison.saison_id == saison_selectionne.saison_id %}selected{% endif %} >{{ saison.nom_saison }}</option>
+                {% endfor %}
+            </select>
+        </menu-deroulant-recherche>
+
+        <button onclick="openModalReport()">Reporter un match</button>
+        <i class="fa-solid fa-eye fa-xl" onclick="window.location.href = `/Citrus/MesMatchs-${ {{ saison_selectionne.saison_id }} }`"></i>
+    </div>
+    <table>
+        <tr class="tableHeaderRow">
+            <th>Équipe hôte</th>
+            <th>Équipe visiteure</th>
+            <th>Lieu</th>
+            <th>Date</th>
+            <th>Validation</th>
+            <th></th>
+        </tr>
+        {% for match in matchs %}
+            <tr>
+                <td>{{ match.equipe1.nom_equipe }}</td>
+                <td>{{ match.equipe2.nom_equipe }}</td>
+                <td>{{ match.equipe1.college.nom_college }}</td>
+                <td>{{ match.get_dateFormatted }}</td>
+                <td>
+                    {% if match.completed_flag %}
+                        <i class="fa-solid fa-check fa-2xl" style="color: #0fc254;"></i>
+                    {% else %}
+                        <i class="fa-solid fa-x fa-2xl" style="color: #df0707;"></i>
+                    {% endif %}
+                </td>
+                <td><button id="modalBtn" onclick="openModalLien('{{ match.get_QrCode }}','{{ match.get_urlMatch }}')">Lien du match</button></td>
+
+            
+            </tr>
+        {% endfor %}
+    </table>
+
+    <div id="modal_report_match" class="modal">
+        <div class="modal-content">
+            <section class="modal-header">
+                <h1>Reporter un match</h1>
+            </section>
+            <section class="modal-body">
+                <h2>Sélectionnez le match à reporté</h2>
+
+                <menu-deroulant-recherche>
+                    <select id="match_selection">
+                        <option value="">Match à reporté</option>
+
+                        {% for match in matchs %}
+                        {% if not match.completed_flag %}
+                            <option value="{{ match.match_id }}">{{ match }}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                </menu-deroulant-recherche>
+
+                <h2>Sélectionnez la nouvelle date</h2>
+                <input type="text" id="nouvelleDateCalendar" class="calendar" autocomplete="off">
+
+            </section>
+            <section class="modal-footer">
+                <div class="modal-actions">
+                    <button type="button" class="btnSecondary" onclick="closeModalReport(this)">Annuler</button>
+                    <button type="button" class="btnPrimary" onclick="demandeReportMatch()">Envoyer</button>
+                </div>
+            </section>
+        </div>
+
+    </div>
+
+    <div id="modal-lien-match" class="modal">
+        <div class="modal-content">
+            <section class="modal-header">
+                <h1>Lien du match</h1>
+            </section>
+            <section class="modal-body">
+                <img id="match-QR-code" style="width: 250px; height: 250px;">
+            </section>
+            <section class="modal-footer">
+                <div class="modal-actions">
+                   <button type="button" class="btnSecondary" onclick="closeModalReport(this)">Fermer</button>
+                    <div style="display: flex; justify-content: space-around;">
+                        <button id="openWindowBtn" type="button" class="btnPrimary">Ouvrir dans une nouvelle fenêtre</button>
+                        <button id="copyBtn" type="button" class="btnPrimary" onclick="">Copier le lien</button>
+                    </div>
+                </div>
+
+            </section>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.3/air-datepicker.min.js"></script>
+
+    <script>
+
+        function toISODate(dateStr) {
+            const [day, month, year] = dateStr.split('/');
+            return `${year}-${month}-${day}`;
+        }
+        function demandeReportMatch() {
+            const matchId = document.querySelector("#match_selection").value;
+            const newDate = document.querySelector("#nouvelleDateCalendar").value;
+
+            fetch("/api/creer_requete_report_match/", {
+                method: "POST",
+                credentials: "same-origin",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCookie("csrftoken")
+                },
+                body: JSON.stringify({
+                    match_id: matchId,
+                    nouvelle_date: toISODate(newDate)
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Match reporté avec succès !");
+                    closeModalReport("report_match_modal");
+                    location.reload();
+                } else {
+                    alert("Erreur : " + data.error);
+                }
+            });
+        }
+
+        function closeAllModals() {
+            return new Promise(resolve => {
+                const modals = document.querySelectorAll(".modal");
+                let remaining = modals.length;
+
+                if (remaining === 0) {
+                    resolve();
+                    return;
+                }
+
+                modals.forEach(modal => {
+                    modal.classList.remove("show");
+
+                    setTimeout(() => {
+                        modal.style.display = "none";
+                        remaining--;
+                        if (remaining === 0) resolve();
+                    }, 100); // must match CSS transition duration
+                });
+            });
+        }
+
+        async function openModalReport() {
+            await closeAllModals();
+
+            const modal = document.getElementById("modal_report_match");
+            modal.style.display = "flex";
+
+            modal.style.display = "block";
+            setTimeout(() => modal.classList.add("show"), 10);
+        }
+
+        async function openModalLien(imgSrc, matchUrl){
+            await closeAllModals();
+            const modal = document.getElementById("modal-lien-match");
+
+            const qrCode = modal.querySelector("img");
+            qrCode.src = imgSrc;
+
+            const copyBtn = modal.querySelector("#copyBtn");
+            copyBtn.onclick = function (){
+                navigator.clipboard.writeText(matchUrl).then(function () {
+                    alert("Le lien a été copié !");
+                }).catch(function (err) {
+                    alert('Erreur dans la copie du lien : ', err);
+                });
+            };
+
+            const openWindowBtn = modal.querySelector("#openWindowBtn");
+            openWindowBtn.onclick = function (){
+                window.open(matchUrl,"_blank");
+            };
+
+            modal.style.display = "block";
+            setTimeout(() => modal.classList.add("show"), 10);
+        }
+
+        function closeModalReport(childEl) {
+            const modal = childEl.closest(".modal");
+            modal.classList.remove("show");
+            setTimeout(() => (modal.style.display = "none"), 300); // wait for animation
+        }
+
+
+
+        function changeSaison(selectElement) {
+            const saisonId = selectElement.value;
+            window.location.href = `/Citrus/adminMatchs-${saisonId}`;
+        }
+        function openNewWindow(url) {
+            const saisonId = document.getElementById("saisonDropdown").value
+            // Check if a valid URL is provided
+            if (!url || typeof url !== "string") {
+                console.error("Invalid URL");
+                return;
+            }
+        
+            // Open a new window with the given URL
+            const newWindow = window.open(url + "-" + saisonId, '_blank');
+        
+            // Check if the new window was successfully opened
+            if (!newWindow) {
+                console.error("Failed to open a new window. Please check your browser settings.");
+            }
+        }
+
+    </script>
+
+    <style>
+        .air-datepicker-global-container{
+            z-index: 9999;
+        }
+        /* MODAL STYLE */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            z-index: 1000;
+
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+
+            width: auto;
+            height: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            background-color: #f3f3f3;
+            border-radius: 25px;
+            box-shadow: var(--shadow);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        .modal-content{
+            padding: 2rem;
+        }
+        .modal.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-actions{
+            display: flex;
+            flex-direction: row;
+            padding: 1rem;
+        }
+            .modal-actions button{
+                margin: 1rem;
+            }
+
+        .modal .modal_info_perso{
+            display: none;
+            flex-direction: column;
+        }
+        /* FIN STYLE MODAL */
+
+        .modal-body{
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .modal-body img{
+            align-self: center;
+        }
+
+        .modal-footer{
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+        }
+    
+        .buttonsContainer{
+            margin: 1.5rem;
+            display: flex;
+            flex-direction: row;
+
+        }
+        .buttonsContainer button{
+            margin-right: 1rem;
+        }
+        td i{
+            margin: 0.5rem 0.5rem 0.5rem 0.5rem;
+        }
+        td button{
+            margin: 0.5rem 0 0.5rem 0;
+        }
+    </style>
+{% endblock %}

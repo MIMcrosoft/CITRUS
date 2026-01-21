@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block content %}
+    
+    <h1>Ajouter une équipe</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label for="nomEquipe">Nom de l'équipe</label>
+        <input name="nomEquipe" id="nomEquipe" type="text" placeholder="Nom de l'équipe">
+    
+        <label for="divisionEquipe">Division</label>
+        <div class="select" style="width:200px;">
+            <select name="divisionEquipe" id="divisionEquipe">
+                <option value="">Dropdown menu</option>
+                <option value="Pamplemousse">Pamplemousse</option>
+                <option value="Tangerine">Tangerine</option>
+                <option value="Clémentine">Clémentine</option>
+            </select>
+        </div>
+    
+        <label for="logoEquipe">Logo de l'équipe</label>
+        <input name="logoEquipe" id="logoEquipe" type="file" placeholder="Logo de l'équipe">
+    
+        <label for="collegeEquipe">College de l'équipe</label>
+        <div class="select select-search" style="width:400px;">
+            <select name="collegeEquipe" id="collegeEquipe">
+                <option value="">Choisir un collège</option>
+                {% for college in allColleges %}
+                    <option value="{{ college.college_id }}">{{ college.nom_college }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    
+        <label for="coachEquipe">nom de l'entraîneur.euse</label>
+        <div class="select select-search" style="width:400px;">
+            <select name="coachEquipe" id="coachEquipe">
+                <option value="">Entraîneur.euse</option>
+                {% for coach in allCoachs %}
+                    <option value="{{ coach.coach_id }}">{{ coach.prenom_coach }} {{ coach.nom_coach }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    
+        <label for="indispoEquipe">Indisponibilités</label>
+        <input name="indispoEquipe" id="indispoEquipe" type="date">
+    
+        <button type="submit" class="btnPrimary" id="btnAjoutEquipe"><span>Ajouter</span></button>
+    
+    </form>
+        <button type="button" class="btnSecondary" onclick="navTo(this,'/Citrus/Equipes/',false)"><span>Retour</span></button>
+
+    
+{% endblock %}

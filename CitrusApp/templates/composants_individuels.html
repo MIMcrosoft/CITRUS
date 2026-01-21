@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="..ts/components/generalStyles.css">
+    <link rel="stylesheet" href="../../static/stylesheets/components/generalStyles.css">
     <link rel="stylesheet" href="{% static 'stylesheets/components/generalStyles.css' %}">
 
 </head>
@@ -72,17 +72,28 @@
     </div>
     <!-- End of Dropdown Code-->
 
+    <deroulant-recherche style="width:300px;">
+      <select onchange="alert('Valeur choisie : ' + this.value)">
+        <option value="">Choisir une option...</option>
+        <option value="1">Option 1</option>
+        <option value="2">Option 2</option>
+        <option value="3">Option 3</option>
+        <option value="4">Option 4</option>
+      </select>
+    </deroulant-recherche>
+
+
     <div class="select select-search" style="width:400px;">
         <select name="" id="">
-            <option value="">Dropdown menu with search</option>
-            <option value="">Option active</option>
-            <option value="">Option hover</option>
-            <option value="">Option similar</option>
-            <option value="">Similar option</option>
-            <option value="">Option 5</option>
-            <option value="">Option 6</option>
-            <option value="">Option 7</option>
-            <option value="">Option 8</option>
+            <option value="1">Dropdown menu with search</option>
+            <option value="2">Option active</option>
+            <option value="3">Option hover</option>
+            <option value="4">Option similar</option>
+            <option value="5">Similar option</option>
+            <option value="6">Option 5</option>
+            <option value="7">Option 6</option>
+            <option value="8">Option 7</option>
+            <option value="9">Option 8</option>
         </select>
     </div>
 
@@ -219,13 +230,13 @@
             // Parcourir chaque option dans l'élément <select>
             for (j = 1; j < optionsCount; j++) {
                 // Créer un nouveau DIV pour chaque option
-                optionDiv = document.createElement("DIV");
+                optionDiv = document.createElement("option");
+                optionDiv.value = selectElements.options[j].value;
                 optionDiv.innerHTML = selectElements.options[j].innerHTML;
                 optionDiv.classList.add("select-option");
                 optionDiv.addEventListener("click", function(e) {
                     // Lorsque l'option est cliquée, mettre à jour l'élément <select> original et l'élément sélectionné
                     var selectElement, optionsLength, optionText, selectedDiv, allSelectedDivs;
-
                     selectElement = this.parentNode.parentNode.getElementsByTagName("select")[0];
                     optionsLength = selectElement.length;
                     selectedDiv = this.parentNode.previousSibling;
@@ -346,7 +357,7 @@
             clear: 'Effacer',
             dateFormat: 'dd/MM/yyyy',
             timeFormat: 'HH:mm',
-            firstDay: 0
+            firstDay: 1
         }
 
         calendars = document.getElementsByClassName("calendar");
@@ -356,7 +367,7 @@
             //multipleDates: true,
         });
         }
-
+        
     </script>
 
     <script>
@@ -404,5 +415,9 @@
         });
         }
     </script>
+<script src="../../static/javascript/menu_deroulant_avec_recherche.js"></script>
+<script>
+    customElements.define("deroulant-recherche", MenuDeroulantRecherche);
+</script>
 </body>
 </html>

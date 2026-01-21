@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <h1>Utilisateurs</h1>
+    <p>Cette section vous permet de modifier les informations des utilisateurs de la Ligue des Pamplemousses.</p>
+    <button class="btnPrimary" onclick="navTo(this,'/Citrus/AjoutEquipe/',false)"><span>Inviter un.e coach</span></button>
+    
+
+    <h1>Coachs Pamplemousses</h1>
+    <table>
+        <tr class="tableHeaderRow">
+            <th>Nom du coach</th>
+            <th>Courriel</th>
+            <th>Équipe</th>
+            <th>College</th>
+            <th>Validation</th>
+            <th>Fonctions</th>
+        </tr>
+        {% for coach in allUsers %}
+            {% if coach.is_superuser != True and coach.equipe.division == "Pamplemousse" %}
+                <tr class="clems">
+                    <td>{{ coach.prenom_coach }} {{ coach.nom_coach }}</td>
+                    <td>{{ coach.courriel }}</td>
+                    <td>{{ coach.equipe }}</td>
+                    <td>{{ coach.equipe.college }}</td>
+                    <td>
+                        {% if coach.validated_flag == True %}
+                            <img src="{% static 'icons/yes.png' %}" alt="" class="navItemIcon">
+                        {% else %}
+                            <img src="{% static 'icons/no.png' %}" alt="" class="navItemIcon">
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if coach.validated_flag == False %}
+                            <button class="btnSecondary btnInline" onclick="validateCoach({{ coach.coach_id }})"><span>Valider</span></button>
+                        {% endif %}
+                        <button class="btnSecondary btnInline" onclick="navTo(this,'/Citrus/Equipe{{ equipe.id_equipe }}-{{ saisonActive.saison_id }}',false)"><span>Modifier</span></button>
+                        <button class="btnSecondary btnInline"><span>Supprimer</span></button>
+                    </td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+    </table>
+
+    <h1>Coachs Tangerines</h1>
+    <table>
+        <tr class="tableHeaderRow">
+            <th>Nom du coach</th>            
+            <th>Courriel</th>
+            <th>Équipe</th>
+            <th>College</th>
+            <th>Validation</th>
+            <th>Fonctions</th>
+        </tr>
+        {% for coach in allUsers %}
+            {% if coach.is_superuser != True and coach.equipe.division == "Tangerine" %}
+                <tr class="clems">
+                    <td>{{ coach.prenom_coach }} {{ coach.nom_coach }}</td>
+                    <td>{{ coach.courriel }}</td>
+                    <td>{{ coach.equipe }}</td>
+                    <td>{{ coach.equipe.college }}</td>
+                    <td>
+                        {% if coach.validated_flag == True %}
+                            <img src="../../static/icons/yes.png" alt="" class="navItemIcon">
+                        {% else %}
+                            <img src="../../static/icons/no.png" alt="" class="navItemIcon">
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if coach.validated_flag == False %}
+                            <button class="btnSecondary btnInline" onclick="validateCoach({{ coach.coach_id }})"><span>Valider</span></button>
+                        {% endif %}
+                        <button class="btnSecondary btnInline" onclick="navTo(this,'/Citrus/Equipe{{ equipe.id_equipe }}-{{ saisonActive.saison_id }}',false)"><span>Modifier</span></button>
+                        <button class="btnSecondary btnInline"><span>Supprimer</span></button>
+                    </td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+    </table>
+
+    <h1>Coachs Clémentines</h1>
+    <table>
+        <tr class="tableHeaderRow">
+            <th>Nom du coach</th>
+            <th>Courriel</th>
+            <th>Équipe</th>
+            <th>College</th>
+            <th>Validation</th>
+            <th>Fonctions</th>
+        </tr>
+        {% for coach in allUsers %}
+            {% if coach.is_superuser != True and coach.equipe.division == "Clementine" %}
+                <tr class="clems">
+                    <td>{{ coach.prenom_coach }} {{ coach.nom_coach }}</td>
+                    <td>{{ coach.courriel }}</td>
+                    <td>{{ coach.equipe }}</td>
+                    <td>{{ coach.equipe.college }}</td>
+                    <td>
+                        {% if coach.validated_flag == True %}
+                            <img src="../../static/icons/yes.png" alt="" class="">
+                        {% else %}
+                            <img src="../../static/icons/no.png" alt="" class="">
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if coach.validated_flag == False %}
+                            <button class="btnSecondary btnInline" onclick="validateCoach({{ coach.coach_id }})"><span>Valider</span></button>
+                        {% endif %}
+                        <button class="btnSecondary btnInline" onclick="navTo(this,'/Citrus/MonUser-{{ coach.coach_id }}',false)"><span>Modifier</span></button>
+                        <button class="btnSecondary btnInline"><span>Supprimer</span></button>
+                    </td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+    </table>
+
+        <h1>Coachs sans équipe</h1>
+    <table>
+        <tr class="tableHeaderRow">
+            <th>Nom du coach</th>
+            <th>Courriel</th>
+            <th>Équipe</th>
+            <th>College</th>
+            <th>Validation</th>
+            <th>Fonctions</th>
+        </tr>
+        {% for coach in allUsers %}
+            {% if coach.is_superuser != True and coach.equipe.division == None %}
+                <tr class="">
+                    <td>{{ coach.prenom_coach }} {{ coach.nom_coach }}</td>
+                    <td>{{ coach.courriel }}</td>
+                    <td>{{ coach.equipe }}</td>
+                    <td>{{ coach.equipe.college }}</td>
+                    <td>
+                        {% if coach.validated_flag == True %}
+                            <img src="../../static/icons/yes.png" alt="" class="">
+                        {% else %}
+                            <img src="../../static/icons/no.png" alt="" class="">
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if coach.validated_flag == False %}
+                            <button class="btnSecondary btnInline" onclick="validateCoach({{ coach.coach_id }})"><span>Valider</span></button>
+                        {% endif %}
+                        <button class="btnSecondary btnInline" onclick="navTo(this,'/Citrus/Equipe{{ equipe.id_equipe }}-{{ saisonActive.saison_id }}',false)"><span>Modifier</span></button>
+                        <button class="btnSecondary btnInline"><span>Supprimer</span></button>
+                    </td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+    </table>
+
+    <script>
+        async function validateCoach(coachID) {
+            
+            // Hash the input password
+            let csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            // Send a POST request with hashed password and team ID
+            try {
+                const response = await fetch('{{domain}}/Citrus/validateCoach/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        "X-CSRFToken": csrfToken  // Include the CSRF token here
+                    },
+                    body: JSON.stringify({
+                        coachID: coachID,
+                    })
+                });
+    
+                // Check the status of the response
+                if (response.ok) {
+                    alert("Le coach a été validé et un courriel a été envoyé");
+                    console.log("Coach validated");
+                    
+                } else {
+                    alert("Une erreur s'est produite !");
+                    console.log("An error occurred:", response.status);
+                }
+            } catch (error) {
+                alert("Une erreur s'est produite !");
+                console.error("Network error:", error);
+                // Handle network error, e.g., server is unreachable
+            }
+            }
+    </script>
+
+    
+{% endblock %}

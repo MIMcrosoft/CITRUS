@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    
+    <h1>Équipes</h1>
+    <p>Cette section vous permet de modifier les informations des équipes de la Ligue des Pamplemousses</p>
+    <button class="btnPrimary" onclick="navTo(this,'/Citrus/AjoutEquipe/',false)"><span>Ajouter une Équipe</span></button>
+    
+
+    <h1>Équipes Pamplemousses</h1>
+    <table>
+        <tr class="tableHeaderRow">
+            <th>Nom de l'équipe</th>
+            <th>Collège</th>
+        </tr>
+        {% for equipe in allEquipes %}
+            {% if equipe.division == "Pamplemousse" %}
+                <tr class="pamps">
+                    <td>{{ equipe.nom_equipe }}</td>
+                    <td>{{ equipe.college.nom_college }}</td>
+                    <td>
+                        <button class="btnSecondary btnInline" onclick="navTo(this,'/Citrus/Equipe{{ equipe.id_equipe }}-{{ saisonActive.saison_id }}',false)"><span>Modifier</span></button>
+                        <button class="btnSecondary btnInline"><span>Supprimer</span></button>
+                    </td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+    </table>
+
+    <h1>Équipes Tangerines</h1>
+    <table>
+        <tr class="tableHeaderRow">
+            <th>Nom de l'équipe</th>
+            <th>Collège</th>
+        </tr>
+        {% for equipe in allEquipes %}
+            {% if equipe.division == "Tangerine" %}
+                <tr class="tangs">
+                    <td>{{ equipe.nom_equipe }}</td>
+                    <td>{{ equipe.college.nom_college }}</td>
+                    <td>
+                        <button class="btnSecondary btnInline" onclick="navTo(this,'/Citrus/Equipe{{ equipe.id_equipe }}-{{ saisonActive.saison_id }}',false)"><span>Modifier</span></button>
+                        <button class="btnSecondary btnInline"><span>Supprimer</span></button>
+                    </td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+    </table>
+
+    <h1>Équipes Clémentines</h1>
+    <table>
+        <tr class="tableHeaderRow">
+            <th>Nom de l'équipe</th>
+            <th>Collège</th>
+        </tr>
+        {% for equipe in allEquipes %}
+            {% if equipe.division == "Clementine" %}
+                <tr class="clems">
+                    <td>{{ equipe.nom_equipe }}</td>
+                    <td>{{ equipe.college.nom_college }}</td>
+                    <td>
+                        <button class="btnSecondary btnInline" onclick="navTo(this,'/Citrus/Equipe{{ equipe.id_equipe }}-{{ saisonActive.saison_id }}',false)"><span>Modifier</span></button>
+                        <button class="btnSecondary btnInline"><span>Supprimer</span></button>
+                    </td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+    </table>
+    
+
+    
+{% endblock %}

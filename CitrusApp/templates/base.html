@@ -1,172 +1,102 @@
 {% load static %}
+{% csrf_token %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Components</title>
+    <title>CITRUS</title>
     <link href="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.3/air-datepicker.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="..ts/components/generalStyles.css">
     <link rel="stylesheet" href="{% static 'stylesheets/components/generalStyles.css' %}">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 </head>
-<body>
-    <h1>Title</h1>
-
-    <h2>Secondary Title</h2>
-
-    <p>Text body</p>
-
-    <p>Clickable <a href="">link</a> in text</p>
-
-    <!-- Tooltip Code -->
-    <p>Tooltip text<i class="tooltip fa-solid fa-circle-info" data-tippy-content="Tooltip content"></i></p>
-    <script src="https://kit.fontawesome.com/b6c9a53dc1.js" crossorigin="anonymous"></script>
-
-    <script src="https://unpkg.com/@popperjs/core@2"></script>
-    <script src="https://unpkg.com/tippy.js@6"></script>
-    <script>
-        tippy('.tooltip', {
-            allowHTML: true,
-            theme: 'citrus',
-            hideOnClick: false,
-            interactive: true,
-            interactiveDebounce: 25,
-            maxWidth: 350,
-        });
-    </script>
-    <!-- End of Tooltip Code -->
-
-
-    <button class="btnPrimary"><span>Primary</span></button>
-
-    <button class="btnSecondary"><span>Secondary</span></button>
-
-    <button class="btnPrimary btnInline"><span>Primary inline</span></button>
-    <button class="btnSecondary btnInline"><span>Secondary inline</span></button>
-
-    <button class="btnPrimary btnStretch"><span>Primary stretch</span></button>
-
-    <button class="btnSecondary btnStretch"><span>Secondary stretch</span></button>
-
-    <label for="text" class="label onTop">Label for field</label>
-    <input type="text" id="text" value="Text input">
-
-    <label for="text" class="label">Label for field</label>
-    <!-- Dropdown Code-->
-    <div class="select" style="width:200px;">
-        <select name="" id="">
-            <option value="">Dropdown menu</option>
-            <option value="">Option active</option>
-            <option value="">Option hover</option>
-            <option value="">Option</option>
-            <option value="">Option</option>
-            <option value="">Option</option>
-            <option value="">Option</option>
-            <option value="">Option</option>
-            <option value="">Option</option>
-        </select>
-    </div>
-    <!-- End of Dropdown Code-->
-
-    <div class="select select-search" style="width:400px;">
-        <select name="" id="">
-            <option value="">Dropdown menu with search</option>
-            <option value="">Option active</option>
-            <option value="">Option hover</option>
-            <option value="">Option similar</option>
-            <option value="">Similar option</option>
-            <option value="">Option 5</option>
-            <option value="">Option 6</option>
-            <option value="">Option 7</option>
-            <option value="">Option 8</option>
-        </select>
-    </div>
-
-    <label class="checkboxContainer">Checkbox checked
-        <input type="checkbox" checked>
-        <span class="checkmark"></span>
-    </label>
-
-    <label class="checkboxContainer">Checkbox
-        <input type="checkbox" >
-        <span class="checkmark"></span>
-    </label>
-
-    <label class="radioContainer">Radio checked
-        <input type="radio" name="radio" checked>
-        <span class="checkmark"></span>
-    </label>
-
-    <label class="radioContainer">Radio
-        <input type="radio" name="radio">
-        <span class="checkmark"></span>
-    </label>
-
-    <input type="text" id="exampleCalendar" class="calendar" autocomplete="off">
-
-    <table>
-        <tr class="tableHeaderRow">
-            <th>Header</th>
-            <th>Header</th>
-        </tr>
-        <tr class="pamps">
-            <td>Text</td>
-            <td>Text</td>
-        </tr>
-        <tr class="tangs">
-            <td>Text</td>
-            <td>Text</td>
-        </tr>
-        <tr class="clems">
-            <td>Text</td>
-            <td>Text</td>
-        </tr>
-    </table>
-
-    <div class="tab">
-        <button class="tablinks active" onclick="openTab(event, 'Tab1')">Tab 1</button>
-        <button class="tablinks" onclick="openTab(event, 'Tab2')">Tab 2</button>
-        <button class="tablinks" onclick="openTab(event, 'Tab3')">Tab 3</button>
-    </div>
-
-    <div id="Tab1" class="tabcontent">
-        <h2>Tab1 Content</h2>
-    </div>
-    <div id="Tab2" class="tabcontent">
-        <h3>Tab2 Content</h3>
-    </div>
-    <div id="Tab3" class="tabcontent">
-        <h3>Tab3 Content</h3>
-    </div>
-
-    <button type="button" class="collapsible">Open Collapsible</button>
-    <div class="collapsibleContent">
-        <p>Collapsible content. Lorem ipsum dolor sit amet consectetur, adipisicing elit. Excepturi, repellat illum consequuntur error debitis sint asperiores pariatur odit corrupti doloribus quis recusandae quidem culpa quaerat magni possimus temporibus eligendi provident?</p>
-    </div>
-
-    <button id="modalBtn" onclick="openModal('exampleModal')">Open Modal</button>
-
-    <div id="modal" class="modal" data-modal="exampleModal">
-        <div class="modalContent">
-            <div class="modalHeader">
-                <h1>Modal header</h1>
-                <span class="close" id="modalClose" onclick="closeModal('exampleModal')">&times;</span>
-            </div>
-            <div class="modalBody">
-                <p>Modal body. Lorem, ipsum dolor sit amet consectetur adipisicing elit. Deleniti, laborum dolore! Ea expedita nam dolores voluptas, nesciunt, esse aut unde necessitatibus temporibus quisquam odit numquam obcaecati tempore deleniti vitae. Numquam.</p>
-            </div>
-            <div class="modalFooter">
-                <button class="btnPrimary btnInline"><span>Autre action</span></button>
-                <button class="btnSecondary btnInline" onclick="closeModal('exampleModal')"><span>Close</span></button>
-            </div>
+<body class="basicPage">
+    <nav class="primaryNav hover" id="primaryNav">
+        <div class="navLogoContainer">
+            <img src="{% static 'icons/CitrusLogo.png' %}" alt="" class="navLogo">
+            <h2 class="navLogoText">CITRUS</h2>
         </div>
-    </div>
+        <div class="hamburger" onclick="toggleNav(this)">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="navLists">
+            <ul class="navList">
+                <li class="navListItem {% if activeTab == "ACCUEIL" %}active{% endif %}" onclick="navTo(this, '/Citrus/', false)">
+                    <img src="{% static 'icons/home.png' %}"  alt="" class="navItemIcon">
+                    <h2 class="navItemText">Accueil</h2>
+                </li>
+                <li class="navListItem {% if activeTab == "EQUIPE" %}active{% endif %}" onclick="navTo(this, '/Citrus/MesEquipes', false)">
+                    <img src="{% static 'icons/teams.png' %}" alt="" class="navItemIcon">
+                    <h2 class="navItemText">Équipes</h2>
+                </li>
+                {% if request.user.admin_flag == True %}
+                <li class="navListItem {% if activeTab == "CALENDRIER" %}active{% endif %}" onclick="navTo(this, '/Citrus/Calendrier', false)">
+                    <img src="{% static 'icons/calendar.png' %}" alt="" class="navItemIcon">
+                    <h2 class="navItemText">Calendrier</h2>
+                </li>
 
-    <script>
+                <li class="navListItem {% if activeTab == "TOURNOI" %}active{% endif %}" onclick="navTo(this, '/Citrus/', false)">
+                    <img src="{% static 'icons/trophy.png' %}" alt="" class="navItemIcon">
+                    <h2 class="navItemText">Tournois</h2>
+                </li>
+                {% endif %}
+                <li class="navListItem {% if activeTab == "MATCH" %}active{% endif %}" onclick="navTo(this, '/Citrus/MesMatchs', false)">
+                    <img src="{% static 'icons/match.png' %}" alt="" class="navItemIcon">
+                    <h2 class="navItemText">Matchs</h2>
+                </li>
+
+            </ul>
+
+            <ul class="navList">
+                <li class="navListItem {% if activeTab == "USER" %}active{% endif %}" onclick="navTo(this, '/Citrus/UserManagement', false)">
+                    <img src="{% static 'icons/user.png' %}" alt="" class="navItemIcon">
+                    <h2 class="navItemText">{{ request.user.prenom_coach }}</h2>
+                </li>
+                <li class="navListItem" onclick="disconnect('/Citrus/Deconnexion/')">
+                    <img src="{% static 'icons/quit.png' %}" alt="" class="navItemIcon">
+                    <h2 class="navItemText">Déconnexion</h2>
+                </li>
+            </ul>    
+        </div>
+        <div class="selector" id="selector"></div>
+    </nav>
+    <main>
+        <div class="pageContent hidden">
+            {% block content %}
+            <h1>Page header</h1>
+            <p>Page content Lorem ipsum dolor sit amet consectetur adipisicing elit. Consectetur, aliquam? Atque enim velit accusantium, earum a dolore ab, soluta, iste non sequi veniam quisquam officiis eum rem dolores. Ipsam, similique!</p>
+            {% endblock %}
+        </div>
+        
+    </main>
+    <div id="pageCover"></div>
+    <script src="../../static/javascript/nav.js"></script>
+
+
+<script>
+
+function disconnect(sendToLink) {
+    //DISCONNECT CODE HERE
+    let transition = false;
+    //Page closing animation
+    if (transition === false) {
+        transition = true;
+        document.getElementById("primaryNav").classList.add("hover");
+        const cover = document.getElementById("pageCover");
+        cover.style.animation = "1.5s forwards hiddenToFull";
+        setTimeout(function() {
+            window.location.href = sendToLink;  
+        }, 1500);
+    }
+}
+
+    </script>
+<script>
         /* À ajouter une fois si dropdowns présents */
         // Variables globales
         var selectContainers, selectElements, optionsCount, i, j;
@@ -346,7 +276,7 @@
             clear: 'Effacer',
             dateFormat: 'dd/MM/yyyy',
             timeFormat: 'HH:mm',
-            firstDay: 0
+            firstDay: 1
         }
 
         calendars = document.getElementsByClassName("calendar");
@@ -356,10 +286,25 @@
             //multipleDates: true,
         });
         }
-
+        
     </script>
 
     <script>
+        function getCookie(name) {
+          let cookieValue = null;
+          if (document.cookie && document.cookie !== "") {
+            const cookies = document.cookie.split(";");
+            for (let i = 0; i < cookies.length; i++) {
+              const cookie = cookies[i].trim();
+              if (cookie.substring(0, name.length + 1) === name + "=") {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+              }
+            }
+          }
+          return cookieValue;
+        }
+
         function openTab(evt, tabName) {
         // Declare all variables
         var i, tabcontent, tablinks;
@@ -403,6 +348,12 @@
             this.classList.toggle("active");
         });
         }
+    </script>
+    <script src="../../static/javascript/menu_deroulant_avec_recherche.js"></script>
+
+    <script>
+        customElements.define("menu-deroulant-recherche", MenuDeroulantRecherche);
+
     </script>
 </body>
 </html>
