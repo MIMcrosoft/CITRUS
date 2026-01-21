@@ -25,8 +25,8 @@ class EmailTemplate(Enum):
 
 
 class EmailHelper:
-    COURRIEL_ADMIN = "citrus@liguedespamplemousses.com"
-    COURRIEL_RESPO_COM = "citrus@liguedespamplemousses.com"
+    COURRIEL_ADMIN = "felixrobillard@gmail.com"
+    COURRIEL_RESPO_COM = "edouardp2005@gmail.com"
     def __init__(self):
         self.smtpServer = 'node38-ca.n0c.com'
         self.smtpPort = 465

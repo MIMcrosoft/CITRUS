@@ -797,11 +797,10 @@ class Interprete(models.Model):
             nom_interprete=nom_interprete,
             pronom_interprete=pronom_interprete,
         )
-        details_interprete = DetailsInterprete()
         interprete.save()
 
         if alignement:
-            interprete.alignements.add(alignement)
+            alignement.ajouter_interprete(interprete,role_interprete, numero_interprete)
             interprete.save()
             alignement.save()
 
@@ -817,7 +816,7 @@ class Interprete(models.Model):
             return equipes[0]
 
     def __str__(self):
-        return f"{self.nom_interprete} #{self.numero_interprete} ({self.pronom_interprete})"
+        return f"{self.nom_interprete} ({self.pronom_interprete})"
 
 class Equipe(models.Model):
     id_equipe = models.AutoField(primary_key=True)

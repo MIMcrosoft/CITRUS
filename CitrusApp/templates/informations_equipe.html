@@ -157,14 +157,14 @@
 
                 <div class="form-group">
                   <label>Numéro</label>
-                  <input type="text" name="numeroInterprete" class="numeroInterprete" placeholder="Ex. 12">
+                  <input type="text" name="numero_interprete" class="numero_interprete" placeholder="Ex. 12">
                 </div>
 
                 <div class="form-group">
                   <div class="radio-group">
-                    <label><input type="radio" name="roleInterprete" checked="true" value=""> Aucun rôle</label>
-                    <label><input type="radio" name="roleInterprete" value="A"> Assistant·e</label>
-                    <label><input type="radio" name="roleInterprete" value="C"> Capitaine</label>
+                    <label><input type="radio" name="role_interprete_ajout" value="NONE" checked> Aucun rôle</label>
+                    <label><input type="radio" name="role_interprete_ajout" value="A"> Assistant·e</label>
+                    <label><input type="radio" name="role_interprete_ajout" value="C"> Capitaine</label>
                   </div>
                 </div>
               </section>
@@ -202,14 +202,14 @@
 
                 <div class="form-group">
                   <label>Numéro</label>
-                  <input type="text" name="numeroInterprete" class="numeroInterprete" placeholder="Ex. 12">
+                  <input type="text" name="numero_interprete" class="numero_interprete" placeholder="Ex. 12">
                 </div>
 
                 <div class="form-group">
                   <div class="radio-group">
-                    <label><input type="radio" name="roleInterprete" checked="true" value=""> Aucun rôle</label>
-                    <label><input type="radio" name="roleInterprete" value="A"> Assistant·e</label>
-                    <label><input type="radio" name="roleInterprete" value="C"> Capitaine</label>
+                    <label><input type="radio" name="role_interprete_modif" value="NONE" checked> Aucun rôle</label>
+                    <label><input type="radio" name="role_interprete_modif" value="A"> Assistant·e</label>
+                    <label><input type="radio" name="role_interprete_modif" value="C"> Capitaine</label>
                   </div>
                 </div>
               </section>
@@ -261,8 +261,7 @@
             const idInputModif = document.querySelector("#modifier_interprete_modal .interpreteID");
             const nomInputModif = document.querySelector("#modifier_interprete_modal .nom_interprete");
             const pronomInputModif = document.querySelector("#modifier_interprete_modal .pronom_interprete");
-            const numInputModif = document.querySelector("#modifier_interprete_modal .numeroInterprete")
-            const radioToCheck = document.querySelector(`#modifier_interprete_modal input[type="radio"][value="${role_interprete}"]`);
+            const numInputModif = document.querySelector("#modifier_interprete_modal .numero_interprete")
             const infosPersoContainer = document.querySelector("#modifier_interprete_modal .modal_info_perso")
 
             infosPersoContainer.style.display = "flex";
@@ -270,7 +269,20 @@
             nomInputModif.value = nom_interprete;
             pronomInputModif.value = pronom_interprete;
             numInputModif.value = numero_interprete;
-            if(radioToCheck) radioToCheck.checked = true;
+            // Reset all radios
+            modal.querySelectorAll('input[name="role_interprete_modif"]').forEach(r => {
+                r.checked = false;
+            });
+
+            if (role_interprete) {
+                modal.querySelector(
+                    `input[name="role_interprete_modif"][value="${role_interprete}"]`
+                ).checked = true;
+            } else {
+                modal.querySelector(
+                    'input[name="role_interprete_modif"][value="NONE"]'
+                ).checked = true;
+            }
 
             nomInputModif.disabled = true;
 
@@ -334,51 +346,57 @@
         });
 
         async function ajouterInterprete() {
-          const pronomInput = document.querySelector("#ajout_interprete_modal .pronom_interprete");
-          const nomInput = document.querySelector("#ajout_interprete_modal .nom_interprete");
-          const interpreteID = document.querySelector("#ajout_interprete_modal .interpreteID");
-          const numInterprete = document.querySelector("#ajout_interprete_modal .numeroInterprete");
-          const roleValue = document.querySelector('#ajout_interprete_modal input[name="roleInterprete"]:checked')?.value || "";
-          const csrftoken = getCookie("csrftoken");
+            const pronomInput = document.querySelector("#ajout_interprete_modal .pronom_interprete");
+            const nomInput = document.querySelector("#ajout_interprete_modal .nom_interprete");
+            const interpreteID = document.querySelector("#ajout_interprete_modal .interpreteID");
+            const numInterprete = document.querySelector("#ajout_interprete_modal .numero_interprete");
+            let roleValue = document.querySelector(
+              '#ajout_interprete_modal input[name="role_interprete_ajout"]:checked'
+            )?.value || "NONE";
 
-          // Prepare the form data
-          const formData = new FormData();
-          formData.append("alignement_id", "{{ alignement.id_alignement }}");
-          formData.append("numero_interprete", numInterprete.value);
-          formData.append("role_interprete", roleValue);
+            if (roleValue === "NONE") roleValue = "";
+              const csrftoken = getCookie("csrftoken");
 
-          // Decide which endpoint to call
-          let url = "";
-          if (interpreteID.value) {
-            // existing interprete
-            formData.append("interprete_id", interpreteID.value);
-            url = "/api/ajouter_interprete_alignement";
-          } else {
-            // new interprete
-            formData.append("nom_interprete", nomInput.value);
-            formData.append("pronom_interprete", pronomInput.value);
-            url = "/api/creer_interprete";
-          }
+              // Prepare the form data
+              const formData = new FormData();
+              formData.append("alignement_id", "{{ alignement.id_alignement }}");
+              formData.append("numero_interprete", numInterprete.value);
 
-          try {
-            const response = await fetch(url, {
-              method: "POST",
-              headers: { "X-CSRFToken": csrftoken },
-              body: formData,
-            });
+              formData.append("role_interprete", roleValue);
 
-            const result = await response.json();
+              // Decide which endpoint to call
+              let url = "";
+              if (interpreteID.value) {
+                // existing interprete
+                formData.append("interprete_id", interpreteID.value);
+                url = "/api/ajouter_interprete_alignement";
 
-            if (result.success) {
-              alert("Interprète enregistré avec succès !");
-              closeModalInterprete("ajout_interprete_modal");
-              window.location.reload();
-            } else {
-              alert("Erreur lors de l'enregistrement");
-            }
-          } catch (error) {
-            console.error("Fetch error:", error);
-            alert("Erreur de connexion au serveur");
+              } else {
+                // new interprete
+                formData.append("nom_interprete", nomInput.value);
+                formData.append("pronom_interprete", pronomInput.value);
+                url = "/api/creer_interprete";
+              }
+
+              try {
+                const response = await fetch(url, {
+                  method: "POST",
+                  headers: { "X-CSRFToken": csrftoken },
+                  body: formData,
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                  alert("Interprète enregistré avec succès !");
+                  closeModalInterprete("ajout_interprete_modal");
+                  window.location.reload();
+                } else {
+                  alert("Erreur lors de l'enregistrement");
+                }
+              } catch (error) {
+                console.error("Fetch error:", error);
+                alert("Erreur de connexion au serveur");
           }
         }
 
@@ -386,8 +404,12 @@
             const csrftoken = getCookie("csrftoken");
             const idInputModif = document.querySelector("#modifier_interprete_modal .interpreteID");
             const pronomInputModif = document.querySelector("#modifier_interprete_modal .pronom_interprete");
-            const numInputModif = document.querySelector("#modifier_interprete_modal .numeroInterprete");
-            const roleValue = document.querySelector('#modifier_interprete_modal input[name="roleInterprete"]:checked')?.value || "";
+            const numInputModif = document.querySelector("#modifier_interprete_modal .numero_interprete");
+            let roleValue = document.querySelector(
+              '#modifier_interprete_modal input[name="role_interprete_modif"]:checked'
+            )?.value || "NONE";
+
+            if (roleValue === "NONE") roleValue = "";
 
             // Prepare the form data
             const formData = new FormData();

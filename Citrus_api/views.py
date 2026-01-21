@@ -139,8 +139,8 @@ def creer_interprete(request):
     Interprete.createInterprete(
         nom_interprete=request.POST['nom_interprete'],
         pronom_interprete=request.POST['pronom_interprete'],
-        numero_interprete=request.POST['numero_interprete'],
         role_interprete=request.POST['role_interprete'],
+        numero_interprete=request.POST['numero_interprete'],
         alignement=alignement
     )
 
