@@ -1,4 +1,4 @@
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view, permission_classes
 from django.db.models import Q
@@ -19,6 +19,15 @@ DIVISION_CHOICES = [
     ("Clementine", "Clementine")
 ]
 @api_view(['GET'])
+def get_pronoms_interprete(request, interprete_id):
+    interprete = Interprete.objects.filter(interprete_id=interprete_id).first()
+    return JsonResponse({
+        "pronoms" : interprete.pronom_interprete,
+        "nom" : interprete.nom_interprete,
+    })
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
 def classement(request, division):
     if request.method == 'GET':
         if (division,division) in DIVISION_CHOICES:
@@ -121,14 +130,6 @@ def classement(request, division):
             return JsonResponse({'division': division, 'stats': stats}, safe=False)
         else:
             return JsonResponse({'error': 'Invalid division'}, status=400)
-
-@api_view(['GET'])
-def get_pronoms_interprete(request, interprete_id):
-    interprete = Interprete.objects.filter(interprete_id=interprete_id).first()
-    return JsonResponse({
-        "pronoms" : interprete.pronom_interprete,
-        "nom" : interprete.nom_interprete,
-    })
 
 @api_view(['POST'])
 def creer_interprete(request):
