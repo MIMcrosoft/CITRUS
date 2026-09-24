@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+from django.core.exceptions import ImproperlyConfigured
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,12 +26,29 @@ MEDIA_URL = '/media/'
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-=+)t0_@t+dye0w22$cn&35b2)!45y@1e-y^=jwn&go+#73ajd&'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
+
+if not SECRET_KEY:
+    secret_key_file = BASE_DIR.parent / '.citrus_secret_key'
+    if secret_key_file.exists():
+        SECRET_KEY = secret_key_file.read_text().strip()
+
+if not SECRET_KEY:
+    raise ImproperlyConfigured(
+        "No Django secret key configured. Set the DJANGO_SECRET_KEY environment "
+        "variable, or create a '.citrus_secret_key' file containing the key at "
+        f"{BASE_DIR.parent / '.citrus_secret_key'}."
+    )
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DJANGO_DEBUG') == '1'
 
-ALLOWED_HOSTS = ["citrus.liguedespamplemousses.com","dev.liguedespamplemousses.com","localhost","127.0.0.1"]
+ALLOWED_HOSTS = [".liguedespamplemousses.com", "localhost", "127.0.0.1"]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://liguedespamplemousses.com",
+    "https://*.liguedespamplemousses.com",
+]
 
 
 # Application definition
@@ -51,13 +69,14 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware'
 ]
 
 ROOT_URLCONF = 'CITRUS.urls'
@@ -150,5 +169,6 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ORIGIN_WHITELIST = [
-    "https://www.liguedespamplemousses.com"
+    "https://liguedespamplemousses.com",
+    "https://www.liguedespamplemousses.com",
 ]
