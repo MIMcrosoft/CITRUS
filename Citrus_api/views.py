@@ -1,15 +1,15 @@
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.views import APIView
-from rest_framework.decorators import api_view, permission_classes
 from django.db.models import Q
-from rest_framework.response import Response
-from rest_framework import status
 from CitrusApp.models import Coach, Equipe, Match, Punition, Interprete, Alignement, DetailsInterprete, Saison, RequeteReportMatch
 from Helpers.EmailHelper import EmailHelper
-from .serializers import *
-import ast
 from datetime import datetime
 from django.http import JsonResponse
+import os
+from django.db import connection
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from rest_framework import status
 
 # Create your views here.
 
@@ -31,9 +31,21 @@ def get_pronoms_interprete(request, interprete_id):
 def classement(request, division):
     if request.method == 'GET':
         if (division,division) in DIVISION_CHOICES:
-            saison = Saison.objects.get(est_active=True)
+            saison_id = request.GET.get('saison_id')
+            if saison_id:
+                saison = Saison.objects.filter(saison_id=saison_id).first()
+                if saison is None:
+                    return JsonResponse({'error': 'Saison introuvable'}, status=404)
+            else:
+                saison = Saison.objects.filter(est_active=True).first()
+                if saison is None:
+                    return JsonResponse({'division': division, 'stats': []}, safe=False)
             stats = []  # List to hold stats for all teams
-            for equipe in Equipe.objects.filter(division=division):
+            alignements = Alignement.objects.filter(
+                saison=saison, division=division, est_active=True
+            ).select_related('equipe')
+            for alignement in alignements:
+                equipe = alignement.equipe
 
                 if "EQUIPE TEST" in equipe.nom_equipe:
                     continue
@@ -95,6 +107,7 @@ def classement(request, division):
                                     v += 1
                                 elif match.score_eq2 < match.score_eq1:
                                     d += 1
+
                     for punition in match.punitions.all():
                         if punition.equipe_punie == equipe:
                             pen += 1
@@ -130,6 +143,30 @@ def classement(request, division):
             return JsonResponse({'division': division, 'stats': stats}, safe=False)
         else:
             return JsonResponse({'error': 'Invalid division'}, status=400)
+
+def load_sql(relative_path):
+    """Reads a .sql file relative to the app directory."""
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    full_path = os.path.join(base_dir, relative_path)
+    with open(full_path, 'r', encoding='utf-8') as f:
+        return f.read()
+
+
+IPP_EQUIPE_SQL = load_sql('SQL/ipp_equipe.sql')
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_ipp_equipe(request, equipe_id, saison_id):
+    with connection.cursor() as cursor:
+        cursor.execute(IPP_EQUIPE_SQL, [saison_id, equipe_id])
+        columns = [col[0] for col in cursor.description]
+        row = cursor.fetchone()
+
+    if row is None:
+        return Response({"detail": "Équipe introuvable."}, status=status.HTTP_404_NOT_FOUND)
+
+    return Response(dict(zip(columns, row)), status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 def creer_interprete(request):
@@ -203,10 +240,10 @@ def creer_requete_report_match(request):
         return Response({"error": "Format de date invalide (ISO attendu)"}, status=400)
 
     alignementEq1 = Alignement.objects.get(equipe=match.equipe1, saison=match.saison)
-    coachEq1 = alignementEq1.coach
+    coachEq1 = alignementEq1.coachs.first()
 
     alignementEq2 = Alignement.objects.get(equipe=match.equipe2, saison=match.saison)
-    coachEq2 = alignementEq2.coach
+    coachEq2 = alignementEq2.coachs.first()
 
 
     # Créer la demande

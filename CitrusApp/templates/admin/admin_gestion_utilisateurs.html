@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load equipe_extras %}
 
 {% block content %}
 
@@ -20,7 +21,7 @@
             <th>Fonctions</th>
         </tr>
         {% for coach in allUsers %}
-            {% if coach.is_superuser != True and coach.equipe.division == "Pamplemousse" %}
+            {% if coach.is_superuser != True and coach.equipe|division_pour:saisonActive == "Pamplemousse" %}
                 <tr class="clems">
                     <td>{{ coach.prenom_coach }} {{ coach.nom_coach }}</td>
                     <td>{{ coach.courriel }}</td>
@@ -56,7 +57,7 @@
             <th>Fonctions</th>
         </tr>
         {% for coach in allUsers %}
-            {% if coach.is_superuser != True and coach.equipe.division == "Tangerine" %}
+            {% if coach.is_superuser != True and coach.equipe|division_pour:saisonActive == "Tangerine" %}
                 <tr class="clems">
                     <td>{{ coach.prenom_coach }} {{ coach.nom_coach }}</td>
                     <td>{{ coach.courriel }}</td>
@@ -64,9 +65,9 @@
                     <td>{{ coach.equipe.college }}</td>
                     <td>
                         {% if coach.validated_flag == True %}
-                            <img src="../../static/icons/yes.png" alt="" class="navItemIcon">
+                            <img src="../../../static/icons/yes.png" alt="" class="navItemIcon">
                         {% else %}
-                            <img src="../../static/icons/no.png" alt="" class="navItemIcon">
+                            <img src="../../../static/icons/no.png" alt="" class="navItemIcon">
                         {% endif %}
                     </td>
                     <td>
@@ -92,7 +93,7 @@
             <th>Fonctions</th>
         </tr>
         {% for coach in allUsers %}
-            {% if coach.is_superuser != True and coach.equipe.division == "Clementine" %}
+            {% if coach.is_superuser != True and coach.equipe|division_pour:saisonActive == "Clementine" %}
                 <tr class="clems">
                     <td>{{ coach.prenom_coach }} {{ coach.nom_coach }}</td>
                     <td>{{ coach.courriel }}</td>
@@ -100,9 +101,9 @@
                     <td>{{ coach.equipe.college }}</td>
                     <td>
                         {% if coach.validated_flag == True %}
-                            <img src="../../static/icons/yes.png" alt="" class="">
+                            <img src="../../../static/icons/yes.png" alt="" class="">
                         {% else %}
-                            <img src="../../static/icons/no.png" alt="" class="">
+                            <img src="../../../static/icons/no.png" alt="" class="">
                         {% endif %}
                     </td>
                     <td>
@@ -128,7 +129,7 @@
             <th>Fonctions</th>
         </tr>
         {% for coach in allUsers %}
-            {% if coach.is_superuser != True and coach.equipe.division == None %}
+            {% if coach.is_superuser != True and coach.equipe|division_pour:saisonActive == None %}
                 <tr class="">
                     <td>{{ coach.prenom_coach }} {{ coach.nom_coach }}</td>
                     <td>{{ coach.courriel }}</td>
@@ -136,9 +137,9 @@
                     <td>{{ coach.equipe.college }}</td>
                     <td>
                         {% if coach.validated_flag == True %}
-                            <img src="../../static/icons/yes.png" alt="" class="">
+                            <img src="../../../static/icons/yes.png" alt="" class="">
                         {% else %}
-                            <img src="../../static/icons/no.png" alt="" class="">
+                            <img src="../../../static/icons/no.png" alt="" class="">
                         {% endif %}
                     </td>
                     <td>

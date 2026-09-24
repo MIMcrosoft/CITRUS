@@ -11,6 +11,7 @@ urlpatterns = [
     path("ajouter_interprete_alignement",views.ajouter_interprete_alignement, name='ajouterInterpreteAlignment'),
     path("modifier_interprete", views.modifier_interprete, name='modifierInterprete'),
     path("creer_requete_report_match/", views.creer_requete_report_match, name='creerRequeteReportMatch'),
+    path("get_ipp_equipe-<int:equipe_id>-<int:saison_id>/", views.get_ipp_equipe, name='get_ipp_equipe'),
 ]
 
 if settings.DEBUG:

@@ -27,26 +27,31 @@
         <div class="navLists">
             <ul class="navList">
                 <li class="navListItem {% if activeTab == "ACCUEIL" %}active{% endif %}" onclick="navTo(this, '/Citrus/', false)">
-                    <img src="{% static 'icons/home.png' %}"  alt="" class="navItemIcon">
+                    <i class="fa-solid fa-house fa-xl" style="color: rgb(255, 255, 255); margin-left: 5px"></i>
                     <h2 class="navItemText">Accueil</h2>
                 </li>
                 <li class="navListItem {% if activeTab == "EQUIPE" %}active{% endif %}" onclick="navTo(this, '/Citrus/MesEquipes', false)">
-                    <img src="{% static 'icons/teams.png' %}" alt="" class="navItemIcon">
+                    <i class="fa-solid fa-users fa-xl" style="color: rgb(255, 255, 255); margin-left: 5px"></i>
                     <h2 class="navItemText">Équipes</h2>
                 </li>
                 {% if request.user.admin_flag == True %}
                 <li class="navListItem {% if activeTab == "CALENDRIER" %}active{% endif %}" onclick="navTo(this, '/Citrus/Calendrier', false)">
-                    <img src="{% static 'icons/calendar.png' %}" alt="" class="navItemIcon">
+                    <i class="fa-solid fa-calendar-days fa-xl" style="color: rgb(255, 255, 255); margin-left: 5px"></i>
                     <h2 class="navItemText">Calendrier</h2>
                 </li>
 
                 <li class="navListItem {% if activeTab == "TOURNOI" %}active{% endif %}" onclick="navTo(this, '/Citrus/', false)">
-                    <img src="{% static 'icons/trophy.png' %}" alt="" class="navItemIcon">
+                    <i class="fa-solid fa-trophy fa-xl" style="color: rgb(255, 255, 255); margin-left: 5px"></i>
                     <h2 class="navItemText">Tournois</h2>
+                </li>
+
+                <li class="navListItem {% if activeTab == "ADMIN" %}active{% endif %}" onclick="navTo(this, '/Citrus/admin', false)">
+                    <i class="fa-solid fa-gauge fa-xl" style="color: rgb(255, 255, 255); margin-left: 5px"></i>
+                    <h2 class="navItemText">Administration</h2>
                 </li>
                 {% endif %}
                 <li class="navListItem {% if activeTab == "MATCH" %}active{% endif %}" onclick="navTo(this, '/Citrus/MesMatchs', false)">
-                    <img src="{% static 'icons/match.png' %}" alt="" class="navItemIcon">
+                    <i class="fa-solid fa-file-lines fa-xl" style="color: rgb(255, 255, 255); margin-left: 5px"></i>
                     <h2 class="navItemText">Matchs</h2>
                 </li>
 
@@ -54,11 +59,11 @@
 
             <ul class="navList">
                 <li class="navListItem {% if activeTab == "USER" %}active{% endif %}" onclick="navTo(this, '/Citrus/UserManagement', false)">
-                    <img src="{% static 'icons/user.png' %}" alt="" class="navItemIcon">
+                    <i class="fa-solid fa-user fa-xl" style="color: rgb(255, 255, 255); margin-left: 5px"></i>
                     <h2 class="navItemText">{{ request.user.prenom_coach }}</h2>
                 </li>
                 <li class="navListItem" onclick="disconnect('/Citrus/Deconnexion/')">
-                    <img src="{% static 'icons/quit.png' %}" alt="" class="navItemIcon">
+                    <i class="fa-solid fa-right-from-bracket fa-xl" style="color: rgb(255, 255, 255); margin-left: 5px"></i>
                     <h2 class="navItemText">Déconnexion</h2>
                 </li>
             </ul>    
@@ -76,8 +81,7 @@
     </main>
     <div id="pageCover"></div>
     <script src="../../static/javascript/nav.js"></script>
-
-
+    <script src="https://kit.fontawesome.com/0dcbe40522.js" crossorigin="anonymous"></script>
 <script>
 
 function disconnect(sendToLink) {

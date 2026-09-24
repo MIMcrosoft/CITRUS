@@ -35,6 +35,13 @@ class CoachAdmin(BaseUserAdmin):
     search_fields = ('courriel', 'nom_coach', 'prenom_coach')
     ordering = ('courriel',)
 
+class AlignementAdmin(admin.ModelAdmin):
+    list_display = ('__str__', 'saison', 'equipe', 'division', 'est_active')
+    list_filter = ('saison', 'division', 'est_active')
+    list_editable = ('division', 'est_active')
+    search_fields = ('equipe__nom_equipe',)
+
+
 class MatchAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'completed_flag_display', 'url_match_display')
 
@@ -60,4 +67,4 @@ admin.site.register(College)
 admin.site.register(Interprete)
 admin.site.register(Semaine)
 admin.site.register(Coach, CoachAdmin)
-admin.site.register(Alignement)
+admin.site.register(Alignement, AlignementAdmin)

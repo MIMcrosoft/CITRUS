@@ -1,0 +1,433 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="ippHeader">
+    <div class="ippTeamInfo">
+        <img id="logoEquipe" src="{% if equipe.logo %}{{ equipe.getUrlPhoto }}{% endif %}" alt="Logo de l'équipe">
+        <div class="ippTeamDetails">
+            <h1 id="teamName">{{ equipe.nom_equipe }}</h1>
+            {% with division=alignement.division|default:equipe.division %}
+            <span class="division {{ division }}">{{ division }}</span>
+            {% endwith %}
+        </div>
+    </div>
+    <menu-deroulant-recherche>
+        <select onchange="changeSaison(this, {{ equipe.id_equipe }})">
+            {% for s in saisons %}
+                <option value="{{ s.saison_id }}" {% if s.saison_id == saison.saison_id %}selected{% endif %}>{{ s.nom_saison }}</option>
+            {% endfor %}
+        </select>
+    </menu-deroulant-recherche>
+</div>
+
+<div id="ippLoading" class="ippLoading">
+    <div class="ippSpinner"></div>
+    <p>Chargement des statistiques...</p>
+</div>
+
+<div id="ippError" class="ippError" style="display:none;">
+    <p id="ippErrorMessage">Aucune donnée d'IPP n'est disponible pour cette équipe pour cette saison.</p>
+</div>
+
+<div id="ippContent" class="ippContent" style="display:none;">
+
+    <div class="ippCards">
+        <div class="ippCard ippCardHighlight">
+            <span class="ippCardLabel">IPP</span>
+            <span class="ippCardValue" id="valIpp">-</span>
+            <span class="ippCardSub">Indice de performance à la pige</span>
+        </div>
+        <div class="ippCard">
+            <span class="ippCardLabel">Rang dans la ligue</span>
+            <span class="ippCardValue"><span id="valRang">-</span><span class="ippCardValueMuted" id="valRangTotal"></span></span>
+            <span class="ippCardSub">Toutes divisions confondues</span>
+        </div>
+        <div class="ippCard">
+            <span class="ippCardLabel">Cote Z</span>
+            <span class="ippCardValue" id="valZScore">-</span>
+            <span class="ippCardSub">Écarts-types p/r à la moyenne</span>
+        </div>
+        <div class="ippCard">
+            <span class="ippCardLabel">Force globale</span>
+            <span class="ippCardValue" id="valForce">-</span>
+            <span class="ippCardSub">Domicile <span id="valMaison">-</span> · Extérieur <span id="valExterieur">-</span></span>
+        </div>
+    </div>
+
+    <div class="ippChartCard">
+        <h2>Distribution de la ligue</h2>
+        <p class="ippChartSubtitle">Position de l'équipe par rapport à la courbe normale des IPP de toutes les équipes qualifiées.</p>
+        <div class="ippChartWrapper">
+            <canvas id="bellCurveCanvas"></canvas>
+        </div>
+        <div class="ippChartLegend">
+            <span><i class="legendDot legendDotCurve"></i> Distribution de la ligue</span>
+            <span><i class="legendDot legendDotTeam"></i> {{ equipe.nom_equipe }}</span>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    const EQUIPE_ID = {{ equipe.id_equipe }};
+    const SAISON_ID = {{ saison.saison_id }};
+
+    function changeSaison(selectElement, equipeId) {
+        window.location.href = `/Citrus/EquipeIPP${equipeId}-${selectElement.value}`;
+    }
+
+    function normalPdf(x, mean, std) {
+        if (!std) return 0;
+        const exponent = -((x - mean) ** 2) / (2 * std * std);
+        return (1 / (std * Math.sqrt(2 * Math.PI))) * Math.exp(exponent);
+    }
+
+    function drawBellCurve(canvas, mean, std, teamValue) {
+        const dpr = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        const ctx = canvas.getContext('2d');
+        ctx.scale(dpr, dpr);
+
+        const width = rect.width;
+        const height = rect.height;
+        const paddingLeft = 20;
+        const paddingRight = 20;
+        const paddingTop = 20;
+        const paddingBottom = 34;
+        const plotWidth = width - paddingLeft - paddingRight;
+        const plotHeight = height - paddingTop - paddingBottom;
+
+        ctx.clearRect(0, 0, width, height);
+
+        const safeStd = std && std > 0 ? std : 1;
+        const rangeMin = mean - 3.5 * safeStd;
+        const rangeMax = mean + 3.5 * safeStd;
+
+        const points = [];
+        const steps = 200;
+        let maxDensity = 0;
+        for (let i = 0; i <= steps; i++) {
+            const x = rangeMin + ((rangeMax - rangeMin) * i) / steps;
+            const y = normalPdf(x, mean, safeStd);
+            maxDensity = Math.max(maxDensity, y);
+            points.push({ x, y });
+        }
+
+        const xToPixel = (x) => paddingLeft + ((x - rangeMin) / (rangeMax - rangeMin)) * plotWidth;
+        const yToPixel = (y) => paddingTop + plotHeight - (y / maxDensity) * plotHeight;
+
+        const styles = getComputedStyle(document.documentElement);
+        const mainColor = styles.getPropertyValue('--mainPamps').trim() || '#F15E60';
+        const textColor = styles.getPropertyValue('--textBlack').trim() || '#5d5d5d';
+
+        // Axe de base
+        ctx.strokeStyle = 'rgba(0,0,0,0.15)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(paddingLeft, paddingTop + plotHeight);
+        ctx.lineTo(paddingLeft + plotWidth, paddingTop + plotHeight);
+        ctx.stroke();
+
+        // Graduations en écarts-types
+        ctx.fillStyle = textColor;
+        ctx.font = '11px "Maven Pro", sans-serif';
+        ctx.textAlign = 'center';
+        for (let dev = -3; dev <= 3; dev++) {
+            const x = mean + dev * safeStd;
+            if (x < rangeMin || x > rangeMax) continue;
+            const px = xToPixel(x);
+            ctx.strokeStyle = dev === 0 ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.08)';
+            ctx.beginPath();
+            ctx.moveTo(px, paddingTop);
+            ctx.lineTo(px, paddingTop + plotHeight);
+            ctx.stroke();
+            ctx.fillText(dev === 0 ? 'moy.' : (dev > 0 ? `+${dev}σ` : `${dev}σ`), px, paddingTop + plotHeight + 16);
+        }
+
+        // Remplissage sous la courbe
+        ctx.beginPath();
+        ctx.moveTo(xToPixel(points[0].x), paddingTop + plotHeight);
+        points.forEach((p) => ctx.lineTo(xToPixel(p.x), yToPixel(p.y)));
+        ctx.lineTo(xToPixel(points[points.length - 1].x), paddingTop + plotHeight);
+        ctx.closePath();
+        const gradient = ctx.createLinearGradient(0, paddingTop, 0, paddingTop + plotHeight);
+        gradient.addColorStop(0, 'rgba(241,94,96,0.18)');
+        gradient.addColorStop(1, 'rgba(241,94,96,0.02)');
+        ctx.fillStyle = gradient;
+        ctx.fill();
+
+        // Courbe
+        ctx.beginPath();
+        points.forEach((p, i) => {
+            const px = xToPixel(p.x);
+            const py = yToPixel(p.y);
+            if (i === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+        });
+        ctx.strokeStyle = mainColor;
+        ctx.lineWidth = 2.5;
+        ctx.lineJoin = 'round';
+        ctx.stroke();
+
+        // Marqueur de l'équipe
+        const clampedTeamValue = Math.min(Math.max(teamValue, rangeMin), rangeMax);
+        const teamPx = xToPixel(clampedTeamValue);
+        const teamPy = yToPixel(normalPdf(clampedTeamValue, mean, safeStd));
+
+        ctx.beginPath();
+        ctx.setLineDash([4, 4]);
+        ctx.strokeStyle = textColor;
+        ctx.lineWidth = 1.5;
+        ctx.moveTo(teamPx, paddingTop + plotHeight);
+        ctx.lineTo(teamPx, teamPy);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        ctx.beginPath();
+        ctx.arc(teamPx, teamPy, 7, 0, Math.PI * 2);
+        ctx.fillStyle = '#fff';
+        ctx.fill();
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = mainColor;
+        ctx.stroke();
+
+        ctx.fillStyle = textColor;
+        ctx.font = 'bold 12px "Maven Pro", sans-serif';
+        ctx.textAlign = teamPx > width - 60 ? 'right' : (teamPx < 60 ? 'left' : 'center');
+        ctx.fillText(teamValue.toFixed(2), teamPx, Math.max(teamPy - 14, 12));
+    }
+
+    async function chargerIpp() {
+        const loadingEl = document.getElementById('ippLoading');
+        const errorEl = document.getElementById('ippError');
+        const contentEl = document.getElementById('ippContent');
+
+        try {
+            const response = await fetch(`/api/get_ipp_equipe-${EQUIPE_ID}-${SAISON_ID}/`);
+            if (!response.ok) throw new Error('Réponse invalide');
+            const data = await response.json();
+
+            if (data.ipp === null || data.ipp === undefined) {
+                document.getElementById('ippErrorMessage').textContent =
+                    "Cette équipe n'a pas encore assez de matchs complétés cette saison pour calculer son IPP.";
+                loadingEl.style.display = 'none';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            document.getElementById('valIpp').textContent = data.ipp !== null ? Number(data.ipp).toFixed(2) : '—';
+            document.getElementById('valRang').textContent = data.rang_ipp ?? '—';
+            document.getElementById('valRangTotal').textContent = data.nb_equipes_ligue ? ` / ${data.nb_equipes_ligue}` : '';
+            document.getElementById('valZScore').textContent = data.z_score !== null && data.z_score !== undefined ? Number(data.z_score).toFixed(2) : '—';
+            document.getElementById('valForce').textContent = data.force !== null && data.force !== undefined ? Number(data.force).toFixed(2) : '—';
+            document.getElementById('valMaison').textContent = data.avantageMaison !== null && data.avantageMaison !== undefined ? Number(data.avantageMaison).toFixed(2) : '—';
+            document.getElementById('valExterieur').textContent = data.performanceExterieur !== null && data.performanceExterieur !== undefined ? Number(data.performanceExterieur).toFixed(2) : '—';
+
+            loadingEl.style.display = 'none';
+            contentEl.style.display = 'block';
+
+            const canvas = document.getElementById('bellCurveCanvas');
+            const mean = Number(data.ipp_moyen_ligue);
+            const std = Number(data.ipp_ecart_type_ligue);
+            const teamValue = Number(data.ipp);
+
+            const render = () => drawBellCurve(canvas, mean, std, teamValue);
+            render();
+            window.addEventListener('resize', render);
+        } catch (err) {
+            console.error('Erreur lors du chargement de l\'IPP:', err);
+            loadingEl.style.display = 'none';
+            errorEl.style.display = 'block';
+        }
+    }
+
+    chargerIpp();
+</script>
+
+<style>
+    .ippHeader {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+        margin-bottom: 1.75rem;
+    }
+
+    .ippTeamInfo {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .ippHeader #logoEquipe {
+        width: clamp(56px, 8vw, 80px);
+        height: clamp(56px, 8vw, 80px);
+        object-fit: contain;
+        flex-shrink: 0;
+    }
+
+    .ippTeamDetails {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+    }
+
+    #teamName {
+        margin: 0;
+        font-size: clamp(1.35rem, 3.5vw, 2rem);
+    }
+
+    .division {
+        display: inline-block;
+        font-weight: 800;
+        background: var(--gradient);
+        color: var(--white);
+        padding: 0.2rem 1rem;
+        border-radius: 2rem;
+        font-size: 0.8rem;
+        align-self: flex-start;
+    }
+
+    .ippLoading {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        padding: 4rem 1rem;
+        color: var(--textBlack);
+        opacity: 0.8;
+    }
+
+    .ippSpinner {
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 50%;
+        border: 4px solid var(--mainPampsFade);
+        border-top-color: var(--mainPamps);
+        animation: ippSpin 0.8s linear infinite;
+    }
+
+    @keyframes ippSpin {
+        to { transform: rotate(360deg); }
+    }
+
+    .ippError {
+        background: var(--white);
+        box-shadow: var(--smallerShadow, var(--shadow));
+        border-radius: 1rem;
+        padding: 2rem;
+        text-align: center;
+        color: var(--textBlack);
+    }
+
+    .ippCards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.75rem;
+    }
+
+    .ippCard {
+        background: var(--white);
+        box-shadow: var(--shadow);
+        border-radius: 1rem;
+        padding: 1.25rem 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+    }
+
+    .ippCardHighlight {
+        background: var(--gradient);
+        color: var(--white);
+    }
+
+    .ippCardLabel {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        opacity: 0.75;
+    }
+
+    .ippCardValue {
+        font-size: 2rem;
+        font-weight: 800;
+        line-height: 1.1;
+    }
+
+    .ippCardValueMuted {
+        font-size: 1.1rem;
+        font-weight: 600;
+        opacity: 0.6;
+        margin-left: 0.15rem;
+    }
+
+    .ippCardSub {
+        font-size: 0.8rem;
+        opacity: 0.75;
+    }
+
+    .ippChartCard {
+        background: var(--white);
+        box-shadow: var(--shadow);
+        border-radius: 1rem;
+        padding: 1.5rem;
+    }
+
+    .ippChartCard h2 {
+        margin: 0 0 0.35rem 0;
+    }
+
+    .ippChartSubtitle {
+        margin: 0 0 1.25rem 0;
+        color: var(--textBlack);
+        opacity: 0.7;
+        font-size: 0.9rem;
+    }
+
+    .ippChartWrapper {
+        width: 100%;
+        height: 320px;
+    }
+
+    #bellCurveCanvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+
+    .ippChartLegend {
+        display: flex;
+        gap: 1.5rem;
+        margin-top: 1rem;
+        font-size: 0.85rem;
+        color: var(--textBlack);
+        flex-wrap: wrap;
+    }
+
+    .legendDot {
+        display: inline-block;
+        width: 0.7rem;
+        height: 0.7rem;
+        border-radius: 50%;
+        margin-right: 0.4rem;
+    }
+
+    .legendDotCurve {
+        background: var(--mainPamps);
+        opacity: 0.4;
+    }
+
+    .legendDotTeam {
+        background: var(--white);
+        border: 3px solid var(--mainPamps);
+    }
+</style>
+
+{% endblock %}

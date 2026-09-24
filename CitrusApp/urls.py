@@ -12,6 +12,8 @@ urlpatterns = [
     path('test/',views.test,name='Test'),
     path('Equipe<int:id_equipe>-<int:id_saison>/', views.information_equipe, name='InformationsEquipe'),
     path('Equipes/', views.gestion_equipes, name='GestionEquipes'),
+    path('Equipes-<int:id_saison>/', views.gestion_equipes, name='GestionEquipes'),
+    path('ModifierAlignementSaison/', views.modifier_alignement_saison, name='ModifierAlignementSaison'),
     path('AjoutEquipe/', views.ajout_equipe, name='AjoutEquipe'),
     path('ModificationEquipe<int:idEquipe>/', views.modification_equipe, name='ModificationEquipe'),
     path('AjoutInterprete-<int:alignementID>/', views.ajout_interprete, name='AjoutInterprete'),
@@ -31,6 +33,13 @@ urlpatterns = [
     path('Report_Match-<str:demandeToken>/', views.demande_report_match, name='reporterMatch'),
     path('MesEquipes', views.mes_equipes, name='MesEquipes'),
     path('adminMatchs-<int:id_saison>/', views.admin_matchs, name='AdminMatchs'),
+    path('admin', views.panneau_admin, name='Admin'),
+    path('admin-<int:id_saison>/', views.panneau_admin, name='Admin'),
+    path('AjoutSaison/', views.ajouter_saison, name='AjoutSaison'),
+    path('ActiverSaison-<int:id_saison>/', views.activer_saison, name='ActiverSaison'),
+    path('selectionner-equipe/', views.selectionner_equipe, name='selectionner_equipe'),
+    path('EquipeIPP<int:id_equipe>-<int:id_saison>/', views.equipe_ipp, name='EquipeIPP'),
+
 ]
 
 if settings.DEBUG:

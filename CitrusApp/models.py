@@ -11,11 +11,6 @@ from io import BytesIO
 import base64
 import hashlib
 from django.conf import settings
-import networkx as nx
-from math import sqrt
-import matplotlib.pyplot as plt
-import pulp
-import xlwings as xw
 
 def hash_code(code: str) -> str:
     # Create a SHA-256 hash object
@@ -60,10 +55,10 @@ class Saison(models.Model):
         return saison
 
     def set_active(self):
-        if self.est_active == False:
-            for saison in Saison.objects.all():
-                saison.est_active = False
+        if not self.est_active:
+            Saison.objects.all().update(est_active=False)
             self.est_active = True
+            self.save()
 
     def __str__(self):
         return self.nom_saison
@@ -141,12 +136,22 @@ class Calendrier(models.Model):
         return calendrier
 
     def remplirCalendrier(self, startAut, startHiver):
+        import networkx as nx
+        from math import sqrt
+        import matplotlib.pyplot as plt
+        import pulp
+
+        saison_calendrier = Saison.objects.filter(est_active=True).first()
+
         def creationMatchs(division):
-            # 1️⃣ Récupération des équipes de la division
-            equipes = list(
-                Equipe.objects.filter(division=division,est_active=True)
-                .exclude(nom_equipe="EQUIPE TEST")
-            )
+            # 1️⃣ Récupération des équipes actives de la division, pour cette saison
+            equipes = [
+                alignement.equipe
+                for alignement in Alignement.objects.filter(
+                    saison=saison_calendrier, division=division, est_active=True
+                ).select_related('equipe', 'equipe__college')
+                if alignement.equipe.nom_equipe != "EQUIPE TEST"
+            ]
 
             # 2️⃣ Réinitialisation des compteurs
             for equipe in equipes:
@@ -525,6 +530,7 @@ class Calendrier(models.Model):
             Match.deleteMatch(match.match_id)
 
     def exportCalendrierToExcel(self):
+        import xlwings as xw
         BG_COLOR = (255,52,95)
         FONT_COLOR = (255,255,255)
         SEM_TITLE_COLOR = (235, 0, 129)
@@ -533,6 +539,7 @@ class Calendrier(models.Model):
         TANG_COLOR = (253,15,3)
         CLEMS_COLOR = (254,148,0)
         EMPTY_COLOR = (1,20,62)
+        saison_calendrier = Saison.objects.filter(calendrier_officiel=self).first()
         def formatCell(cell,bgColor,bold=True):
             cell.api.Font.Bold = bold
             cell.color = bgColor
@@ -613,10 +620,11 @@ class Calendrier(models.Model):
 
         #Analyse de la distribution des équipes
         ficheEquipeData = wb.sheets.add("Distribution Equipe")
-        equipes = list(
-            Equipe.objects.all()
-            .exclude(nom_equipe="EQUIPE TEST")
-        )
+        alignements = (
+            Alignement.objects.filter(saison=saison_calendrier, est_active=True)
+            .select_related('equipe')
+            .exclude(equipe__nom_equipe="EQUIPE TEST")
+        ) if saison_calendrier else Alignement.objects.none()
         row = 1
         col = 1
         equIndex = 0
@@ -629,23 +637,22 @@ class Calendrier(models.Model):
             formatCell(cell,HEADER_COLOR)
 
         row+=1
-        for equipe in equipes:
+        for alignement in alignements:
             cell = ficheEquipeData.cells(row+equIndex,1)
-            cell.value = equipe.nom_equipe
-            if (equipe.division == "Pamplemousse"):
+            cell.value = alignement.equipe.nom_equipe
+            if (alignement.division == "Pamplemousse"):
                 formatCell(cell, PAMPS_COLOR, False)
-            elif (equipe.division == "Tangerine"):
+            elif (alignement.division == "Tangerine"):
                 formatCell(cell, TANG_COLOR, False)
-            elif (equipe.division == "Clementine"):
+            elif (alignement.division == "Clementine"):
                 formatCell(cell, CLEMS_COLOR, False)
 
             equIndex += 1
         wb.save(r"C:\Users\felix\Downloads\CalendrierPamps.xlsx")
 
-    import xlwings as xw
-    from datetime import datetime
-
+    @staticmethod
     def importCalendrierFromExcel(calendrier_id, filepath=r"C:\Users\felix\Downloads\CalendrierPamps.xlsx"):
+        import xlwings as xw
         wb = xw.Book(filepath)
         sheet = wb.sheets[0]
 
@@ -741,8 +748,7 @@ class Semaine(models.Model):
         return semaine
 
     def __str__(self):
-        session = Session.objects.get(session_id=self.session_id)
-        return session.__str__() + " - " + str(self.semaine_id)
+        return str(self.session) + " - " + str(self.semaine_id)
 
 class College(models.Model):
     college_id = models.AutoField(primary_key=True)
@@ -767,6 +773,7 @@ class College(models.Model):
 
                 college = cls(
                     nom_college=nom_college,
+                    adresse=adresse,
                     locationX=locationX,
                     locationY=locationY
                 )
@@ -807,13 +814,10 @@ class Interprete(models.Model):
         return interprete
 
     def get_equipe(self, saison):
-
-        equipes = [alignement.information_equipe for alignement in self.alignement.all() if alignement.saison == saison]
-
+        equipes = [alignement.equipe for alignement in self.alignements.all() if alignement.saison == saison]
         if len(equipes) > 1:
             return None
-        else:
-            return equipes[0]
+        return equipes[0] if equipes else None
 
     def __str__(self):
         return f"{self.nom_interprete} ({self.pronom_interprete})"
@@ -828,9 +832,6 @@ class Equipe(models.Model):
     est_active = models.BooleanField(default=True)
 
     college = models.ForeignKey(College, related_name="equipes", on_delete=models.CASCADE, null=True)
-    alignement = models.ForeignKey('Alignement', related_name="Alignement", on_delete=models.SET_NULL, null=True,
-                                    blank=True)
-    matchs = models.ManyToManyField('Match', null=True, blank=True)
 
     @classmethod
     def createEquipe(cls, nomEquipe, logo=None, division=None, college=None):
@@ -845,7 +846,6 @@ class Equipe(models.Model):
 
     def getAlignement(self, saisonID):
         selectedSaison = Saison.objects.filter(saison_id=saisonID).first()
-        print(Alignement.objects.filter(saison=selectedSaison, equipe=self).first().interpretes.all())
         return Alignement.objects.filter(saison=selectedSaison, equipe=self).first().interpretes.all()
 
     def getUrlPhoto(self):
@@ -859,7 +859,22 @@ class Equipe(models.Model):
         else :
             return None
 
+    def get_alignement(self, saison):
+        return Alignement.objects.filter(equipe=self, saison=saison).first()
 
+    def get_division(self, saison):
+        """Division de l'équipe pour une saison donnée (peut différer de sa division par défaut)."""
+        alignement = self.get_alignement(saison)
+        if alignement and alignement.division:
+            return alignement.division
+        return self.division
+
+    def is_active_pour_saison(self, saison):
+        """Une équipe peut être désactivée pour une saison précise si elle n'y participe pas."""
+        alignement = self.get_alignement(saison)
+        if alignement:
+            return alignement.est_active
+        return self.est_active
 
     def __str__(self):
         return self.nom_equipe
@@ -949,6 +964,10 @@ class Coach(AbstractUser):
     def is_admin(self):
         return self.admin_flag
 
+    def est_coach_cette_saison(self, saison_id):
+        return self.alignements.filter(saison_id=saison_id).exists()
+
+
 class Punition(models.Model):
     punition_id = models.AutoField(primary_key=True)
     nom_punition = models.CharField(max_length=50)
@@ -991,10 +1010,10 @@ class Match(models.Model):
     equipe1 = models.ForeignKey(Equipe, on_delete=models.CASCADE, related_name='equipe_hote', null=True)
     equipe2 = models.ForeignKey(Equipe, on_delete=models.CASCADE, related_name='equipe_visiteure', null=True)
     semaine = models.ForeignKey(Semaine, related_name="matchs", on_delete=models.SET_NULL, null=True)
-    punitions = models.ManyToManyField(Punition,blank=True,related_name='punitions', null=True)
+    punitions = models.ManyToManyField(Punition, blank=True, related_name='punitions')
 
     @classmethod
-    def validate_match(self):
+    def validate_match(cls):
         pass
 
     @classmethod
@@ -1006,27 +1025,15 @@ class Match(models.Model):
             equipe2=equipe2,
             semaine=semaine,
             division=division,
-            date_match=semaine.date,
+            date_match=semaine.date if semaine else None,
         )
-
-        equipe1.save()
-        equipe2.save()
-
-        code = str(equipe1.nom_equipe) + str(equipe2.nom_equipe) + str(match.match_id)
-        match.url_match = "http://localhost:8000/Citrus/match-" + hash_code(code)
-
         match.save()
         return match
 
     @classmethod
     def deleteMatch(cls, match_id):
         try:
-            match = cls.objects.get(pk=match_id)
-
-            match.equipe1.save()
-            match.equipe2.save()
-
-            match.delete()
+            cls.objects.get(pk=match_id).delete()
             return True
         except cls.DoesNotExist:
             return False
@@ -1035,11 +1042,8 @@ class Match(models.Model):
     def get_urlMatch(self):
         code = str(self.equipe1.nom_equipe) + str(self.equipe2.nom_equipe) + str(self.match_id)
         if settings.DEBUG:
-            self.url_match = "http://localhost:8000/Citrus/Match-" + hash_code(code)
-        else:
-            self.url_match = "https://citrus.liguedespamplemousses.com/Citrus/Match-" + hash_code(code)
-        self.save()
-        return self.url_match
+            return "http://localhost:8000/Citrus/Match-" + hash_code(code)
+        return "https://citrus.liguedespamplemousses.com/Citrus/Match-" + hash_code(code)
     def get_QrCode(self):
         qr = segno.make(self.get_urlMatch)
 
@@ -1078,18 +1082,30 @@ class Match(models.Model):
 
 class Alignement(models.Model):
     id_alignement = models.AutoField(primary_key=True)
-    coach = models.ForeignKey(Coach, related_name="alignements", on_delete=models.SET_NULL, null=True)
+    coachs = models.ManyToManyField(Coach, related_name="alignements", blank=True)
     equipe = models.ForeignKey(Equipe, related_name="equipe", on_delete=models.CASCADE, null=False)
     saison = models.ForeignKey(Saison, related_name="saison", on_delete=models.CASCADE, null=False)
 
+    # Une équipe peut changer de division d'une saison à l'autre, ou être désactivée
+    # pour une saison précise si elle n'y participe pas. Ces champs surchargent, pour
+    # cette saison, les valeurs par défaut définies sur Equipe.division / Equipe.est_active.
+    division = models.CharField(max_length=50, choices=DIVISION_CHOICES, null=True, blank=True)
+    est_active = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = ('equipe', 'saison')
+
     @classmethod
-    def create_alignement(cls, equipe, saison, coach=None):
+    def create_alignement(cls, equipe, saison, coach=None, division=None, est_active=None):
         alignement = cls(
             equipe=equipe,
             saison=saison,
-            coach_id=coach.coach_id
+            division=division if division is not None else (equipe.division if equipe else None),
+            est_active=est_active if est_active is not None else (equipe.est_active if equipe else True),
         )
         alignement.save()
+        if coach:
+            alignement.coachs.add(coach)
         return alignement
 
     def ajouter_interprete(self, interprete:Interprete, role_interprete, numero_interprete):
@@ -1189,7 +1205,7 @@ class RequeteReportMatch(models.Model):
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="en_attente")
 
     def all_validated(self):
-        return self.coach1_validated and self.coach2_validated and self.admin_validated
+        return self.coach1_validation and self.coach2_validation and self.admin_validation
 
     def __str__(self):
         return f"{self.match} - {self.nouvelle_date} - {self.status} - {self.token}"

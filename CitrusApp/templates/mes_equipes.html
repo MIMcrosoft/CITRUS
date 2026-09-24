@@ -8,13 +8,19 @@
             <th>Division</th>
             <th>Saison</th>
             <th></th>
+
         </tr>
         {% for alignement in alignements %}
             <tr>
                 <td>{{ alignement.equipe.nom_equipe }}</td>
-                <td>{{ alignement.equipe.division }}</td>
+                <td>{{ alignement.division|default:alignement.equipe.division }}</td>
                 <td>{{ alignement.saison.nom_saison }}</td>
-                <td><button id="modalBtn" onclick="navTo(this, '/Citrus/Equipe{{ alignement.equipe.id_equipe }}-{{ alignement.saison.saison_id   }}', false)">Afficher</button></td>
+                <td>
+                    <div style="display: flex; flex-direction: row">
+                        <button id="modalBtn" onclick="navTo(this, '/Citrus/Equipe{{ alignement.equipe.id_equipe }}-{{ alignement.saison.saison_id   }}', false)">Afficher</button>
+                        <button id="modalBtn" onclick="navTo(this, '/Citrus/EquipeIPP{{ alignement.equipe.id_equipe }}-{{ alignement.saison.saison_id   }}', false)">Voir l'IPP</button>
+                    </div></td>
+
 
 
             </tr>

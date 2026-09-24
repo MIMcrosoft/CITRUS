@@ -1,42 +1,100 @@
 {% extends 'base.html' %}
 {% block content %}
-    
+
     <h1>Bonjour {{ user.prenom_coach }}</h1>
     <h2>Bienvenue dans Citrus, la plateforme officiel des coachs de la ligue des pamplemousses !</h2>
     <p>Pour l'instant, tu peux aller essayer les différentes fonctionnalités de l'application.</p>
     <h2>Dans l'onglet Équipe</h2>
     <p>Dans l'onglet Équipe, tu peux voir tes futurs matchs et ajouter les interprètes de ton équipe !</p>
     <h2>Dans l'onglet Matchs</h2>
-    <p>Dans l'onglet Matchs, tu peux voir et accéder aux matchs de ton équipe. Certains matchs seront bloquer pour l'instant et 
+    <p>Dans l'onglet Matchs, tu peux voir et accéder aux matchs de ton équipe. Certains matchs seront bloquer pour l'instant et
     ils seront débloquer seulement à la date du match. Mais tu peux tester le formulaire avec le match EQUIPE TEST ! Pour enregistrer les modifications,
     sache que le mot de passe de l'EQUIPE TEST est 12345 !
     </p>
+
+    {% if user.admin_flag %}
+        <a href="/Citrus/admin" style="position: absolute; top: 1rem; right: 1rem"><i class="fa-solid fa-gear"></i></a>
+    {% endif %}
     <footer>Si tu as des questions, tu peux nous joindre sur messenger Félix Robillard et Raphaël Dumont !</footer>
-    
-    <!---<h2>Matchs à venir</h2>
-    <table>
-        <tr class="tableHeaderRow">
-            <th>Visiteur</th>
-            <th>Match & lieu</th>
-            <th>Local</th>
-            <th>Date</th>
-        </tr>
-        {% for match in matchs %}
 
-            <tr class="pamps">
-                <td><img src="{% if match.equipe2.logo %}{{ match.equipe2.logo.url }}{% endif %}" alt=""></td>
-                <td>
-                    <span>{{ match.equipe2.nom_equipe }} VS {{ match.equipe1.nom_equipe }}</span>
-                    <span>{{ match.score_eq2 }} : {{ match.score_eq1 }}</span>
-                    <span>{{ match.equipe1.college.nom_college }}</span>
-                </td>
-                <td><img src="{% if match.equipe1.logo %}{{ match.equipe1.logo.url }}{% endif %}" alt=""></td>
-                <td>{{ match.date }}</td>
-            </tr>
+    {% if premiere_connexion %}
+        <div id="modalPremiereConnexion" class="modal-overlay">
+            <div class="modal-box">
+                <h2>Sélection de ton équipe</h2>
+                <p>
+                    Il semble que tu ne sois associé à aucun alignement pour la saison en cours.
+                    Avant de continuer, tu dois sélectionner l'équipe que tu coaches pour cette saison.
+                </p>
 
-            
-        {% endfor %}
-    </table>--->
+                <form method="post" action="{% url 'selectionner_equipe' %}">
+                    {% csrf_token %}
+                    <menu-deroulant-recherche style="width:300px;">
+                      <select id="equipeSelect" name="equipe_id">
+                        <option value="">Choississez votre équipe</option>
+                        {% for equipe in equipes %}
+                            <option value="{{ equipe.id_equipe }}">{{ equipe.nom_equipe }}</option>
+                        {% endfor %}
+                      </select>
+                    </menu-deroulant-recherche>
+                    <div class="modal-actions">
+                        <button type="submit" class="btnPrimary" id="confirmerEquipe">Confirmer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
 
-    
+        <style>
+            .modal-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.6);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 1000;
+            }
+
+            .modal-box {
+                background: #fff;
+                padding: 2rem;
+                border-radius: 8px;
+                max-width: 400px;
+                width: 90%;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            }
+
+            .modal-box select {
+                width: 100%;
+                padding: 0.5rem;
+                margin: 1rem 0;
+            }
+
+            .modal-actions {
+                text-align: right;
+            }
+
+            .modal-actions button:disabled {
+                background: #ccc;
+                cursor: not-allowed;
+            }
+        </style>
+
+        <script>
+        (function () {
+            const select = document.getElementById('equipeSelect');
+            const btn = document.getElementById('confirmerEquipe');
+
+            function verifierSelection() {
+                btn.disabled = !select.value;
+            }
+
+            select.addEventListener('change', verifierSelection);
+            verifierSelection();
+        })();
+        </script>
+        {% endif %}
+
 {% endblock %}

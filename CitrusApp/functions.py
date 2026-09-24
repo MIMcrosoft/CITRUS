@@ -5,7 +5,7 @@ import django
 from django.db.models import Q
 import hashlib
 from django.conf import settings
-from datetime import datetime
+from datetime import datetime, timezone
 import json
 import xlwings as xw
 
@@ -16,7 +16,7 @@ django.setup()
 
 from Helpers.EmailHelper import EmailHelper
 from CitrusApp.admin import CoachCreationForm
-from CitrusApp.models import Calendrier, Session, Semaine, Match, College, Equipe, Coach, Saison, RequeteReportMatch
+from CitrusApp.models import Alignement, Calendrier, Session, Semaine, Match, College, Equipe, Coach, Saison, RequeteReportMatch
 
 
 def hash_code(code: str) -> str:
@@ -302,22 +302,13 @@ def ajoutSemaines():
         row+=1
 
 if __name__ == "__main__":
-    match_test = Match.createMatch(
-        division="Pamplemousse",
-        equipe1=Equipe.objects.get(id_equipe=59),
-        equipe2=Equipe.objects.get(id_equipe=13),
-        semaine=Semaine.objects.first()
-    )
 
-    emailHelper = EmailHelper()
-    rr = RequeteReportMatch.objects.create(
-        match = match_test,
-        nouvelle_date="2025-01-01",
-        cree_par=Coach.objects.get(courriel="felixrobillard@gmail.com"),
-        coach_1=Coach.objects.get(courriel="felixrobillard@gmail.com"),
-        coach_2=Coach.objects.get(courriel="felixrobillard@gmail.com")
-    )
-    emailHelper.courrielCreationReportMatch("felixrobillard@gmail.com","felixrobillard@gmail.com","felixrobillard@gmail.com",rr)
+    Calendrier.createCalendrier("2026","2026-09-30","2027-01-20","1",10,10)
+    quit()
+
+    for match in Match.objects.filter(completed_flag=False):
+        if match.date_match < datetime.now(timezone.utc):
+            print(match)
     #ajoutSemaines()
     #getMatchTeams("Plan B")
     #getMachManquants()

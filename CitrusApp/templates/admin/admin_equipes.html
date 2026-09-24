@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+    <meta name="csrf-token" content="{{ csrf_token }}">
+
+    <h1>Équipes</h1>
+    <p>Cette section vous permet de modifier les informations des équipes de la Ligue des Pamplemousses</p>
+    <button class="btnPrimary" onclick="navTo(this,'/Citrus/AjoutEquipe/',false)"><span>Ajouter une Équipe</span></button>
+
+    <div class="buttonsContainer">
+        <menu-deroulant-recherche style="width:300px;">
+            <select name="saisonDropdownEquipes" id="saisonDropdownEquipes" onchange="changeSaisonEquipes(this)">
+                {% for saison in saisons %}
+                    <option value="{{ saison.saison_id }}" {% if saison.saison_id == saison_selectionnee.saison_id %}selected{% endif %}>{{ saison.nom_saison }}</option>
+                {% endfor %}
+            </select>
+        </menu-deroulant-recherche>
+    </div>
+    <p>La division et le statut ci-dessous s'appliquent uniquement à la saison <strong>{{ saison_selectionnee.nom_saison }}</strong> : une équipe peut avoir une division différente d'une saison à l'autre, ou être désactivée pour une saison où elle ne participe pas.</p>
+
+    {% for valeur_division, nom_division in division_choices %}
+        <h1>Équipes {{ nom_division }}</h1>
+        <table>
+            <tr class="tableHeaderRow">
+                <th>Nom de l'équipe</th>
+                <th>Collège</th>
+                <th>Division ({{ saison_selectionnee.nom_saison }})</th>
+                <th>Statut ({{ saison_selectionnee.nom_saison }})</th>
+                <th>Fonctions</th>
+            </tr>
+            {% for row in equipes_rows %}
+                {% if row.division == valeur_division %}
+                    <tr class="{% if valeur_division == 'Pamplemousse' %}pamps{% elif valeur_division == 'Tangerine' %}tangs{% elif valeur_division == 'Clementine' %}clems{% endif %}">
+                        <td>{{ row.equipe.nom_equipe }}</td>
+                        <td>{{ row.equipe.college.nom_college }}</td>
+                        <td>
+                            <select class="divisionSelect" onchange="modifierAlignementSaison({{ row.equipe.id_equipe }}, {{ saison_selectionnee.saison_id }}, {division: this.value}, this)">
+                                {% for valeur, nom in division_choices %}
+                                    <option value="{{ valeur }}" {% if valeur == row.division %}selected{% endif %}>{{ nom }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td>
+                            <label class="toggleActifLabel">
+                                <input type="checkbox" {% if row.est_active %}checked{% endif %}
+                                       onchange="modifierAlignementSaison({{ row.equipe.id_equipe }}, {{ saison_selectionnee.saison_id }}, {est_active: this.checked}, this)">
+                                <span>Active cette saison</span>
+                            </label>
+                        </td>
+                        <td>
+                            <button class="btnSecondary btnInline" onclick="navTo(this,'/Citrus/Equipe{{ row.equipe.id_equipe }}-{{ saison_selectionnee.saison_id }}',false)"><span>Modifier</span></button>
+                            <button class="btnSecondary btnInline"><span>Supprimer</span></button>
+                        </td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        </table>
+    {% endfor %}
+
+    <script>
+        function getEquipesCsrfToken() {
+            return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        }
+
+        function changeSaisonEquipes(selectElement) {
+            window.location.href = `/Citrus/Equipes-${selectElement.value}/`;
+        }
+
+        async function modifierAlignementSaison(equipeId, saisonId, changes, sourceElement) {
+            sourceElement.disabled = true;
+            try {
+                const response = await fetch('/Citrus/ModifierAlignementSaison/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getEquipesCsrfToken()
+                    },
+                    body: JSON.stringify(Object.assign({ equipe_id: equipeId, saison_id: saisonId }, changes))
+                });
+
+                if (response.ok) {
+                    if (Object.prototype.hasOwnProperty.call(changes, 'division')) {
+                        // La division a changé : l'équipe doit être réaffichée dans la bonne section.
+                        location.reload();
+                    } else {
+                        sourceElement.disabled = false;
+                    }
+                } else {
+                    const data = await response.json();
+                    alert("Erreur : " + data.message);
+                    sourceElement.disabled = false;
+                }
+            } catch (error) {
+                alert("Une erreur s'est produite !");
+                console.error(error);
+                sourceElement.disabled = false;
+            }
+        }
+    </script>
+
+    <style>
+        .divisionSelect {
+            font-size: 0.9rem;
+            padding: 0.3rem 0.6rem;
+            border-radius: 1rem;
+            border: 0.1rem solid var(--mainPamps);
+        }
+
+        .toggleActifLabel {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.9rem;
+            accent-color: var(--mainPamps);
+        }
+    </style>
+
+{% endblock %}

@@ -1,0 +1,405 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load equipe_extras %}
+
+{% block content %}
+
+<meta name="csrf-token" content="{{ csrf_token }}">
+
+<h1>Panneau Administrateur</h1>
+<p>Vue d'ensemble de la ligue : saisons, utilisateurs, matchs et statistiques.</p>
+
+<section class="adminSection">
+    <h2>Tableau de bord</h2>
+
+    <div class="statGrid">
+        <div class="statCard">
+            <span class="statValue">{{ dashboard.nb_equipes }}</span>
+            <span class="statLabel">Équipes actives</span>
+        </div>
+        <div class="statCard">
+            <span class="statValue">{{ dashboard.nb_coachs }}</span>
+            <span class="statLabel">Coachs</span>
+        </div>
+        <div class="statCard {% if dashboard.nb_coachs_non_valides > 0 %}statCardAlert{% endif %}">
+            <span class="statValue">{{ dashboard.nb_coachs_non_valides }}</span>
+            <span class="statLabel">Coachs à valider</span>
+        </div>
+        <div class="statCard">
+            <span class="statValue">{{ dashboard.nb_saisons }}</span>
+            <span class="statLabel">Saisons</span>
+        </div>
+        <div class="statCard">
+            <span class="statValue">{{ dashboard.nb_matchs_completes }}/{{ dashboard.nb_matchs_total }}</span>
+            <span class="statLabel">Matchs joués ({{ saison_selectionnee.nom_saison }})</span>
+        </div>
+    </div>
+
+    <div class="repartitionGrid">
+        <div class="repartitionCard">
+            <div style="display: flex; justify-content: space-between;">
+                <h3>Équipes par division</h3>
+                <a href="Equipes"><i class="fa-solid fa-up-right-from-square"></i></a>
+            </div>
+
+
+            {% for division, compte in dashboard.repartition_equipes.items %}
+                <div class="barRow">
+                    <span class="barLabel">{{ division }}</span>
+                    <div class="barTrack">
+                        <div class="barFill barFill{{ division }}" style="width: {% if dashboard.nb_equipes %}{% widthratio compte dashboard.nb_equipes 100 %}{% else %}0{% endif %}%;"></div>
+                    </div>
+                    <span class="barValue">{{ compte }}</span>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="repartitionCard">
+            <h3>Matchs par division ({{ saison_selectionnee.nom_saison }})</h3>
+            {% for division, compte in dashboard.repartition_matchs.items %}
+                <div class="barRow">
+                    <span class="barLabel">{{ division }}</span>
+                    <div class="barTrack">
+                        <div class="barFill barFill{{ division }}" style="width: {% if dashboard.nb_matchs_total %}{% widthratio compte dashboard.nb_matchs_total 100 %}{% else %}0{% endif %}%;"></div>
+                    </div>
+                    <span class="barValue">{{ compte }}</span>
+                </div>
+            {% empty %}
+                <p>Aucune saison sélectionnée.</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="adminSection">
+    <h2>Saisons</h2>
+
+    <div class="buttonsContainer">
+        <input type="text" id="nouvelleSaisonNom" placeholder="Nom de la nouvelle saison" class="adminTextInput">
+        <button class="btnPrimary" onclick="ajouterSaison()"><span>Créer la saison</span></button>
+    </div>
+
+    <table>
+        <tr class="tableHeaderRow">
+            <th>Saison</th>
+            <th>Statut</th>
+            <th>Fonctions</th>
+        </tr>
+        {% for saison in saisons %}
+            <tr>
+                <td>{{ saison.nom_saison }}</td>
+                <td>
+                    {% if saison.est_active %}
+                        <span class="badgeActive">Active</span>
+                    {% else %}
+                        <span class="badgeInactive">Inactive</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if not saison.est_active %}
+                        <button class="btnSecondary btnInline" onclick="activerSaison({{ saison.saison_id }})"><span>Rendre active</span></button>
+                    {% endif %}
+                    <button class="btnSecondary btnInline" onclick="window.location.href = '/Citrus/admin-{{ saison.saison_id }}/'"><span>Voir les matchs</span></button>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+</section>
+
+<section class="adminSection">
+    <h2>Utilisateurs</h2>
+
+    <table>
+        <tr class="tableHeaderRow">
+            <th>Nom du coach</th>
+            <th>Courriel</th>
+            <th>Équipe</th>
+            <th>Validation</th>
+            <th>Fonctions</th>
+        </tr>
+        {% for coach in allUsers %}
+            <tr class="{% with division=coach.equipe|division_pour:saison_selectionnee %}{% if division == 'Pamplemousse' %}pamps{% elif division == 'Tangerine' %}tangs{% elif division == 'Clementine' %}clems{% endif %}{% endwith %}">
+                <td>{{ coach.prenom_coach }} {{ coach.nom_coach }}</td>
+                <td>{{ coach.courriel }}</td>
+                <td>{{ coach.equipe|default:"—" }}</td>
+                <td>
+                    {% if coach.validated_flag %}
+                        <img src="{% static 'icons/yes.png' %}" alt="Validé" class="navItemIcon">
+                    {% else %}
+                        <img src="{% static 'icons/no.png' %}" alt="Non validé" class="navItemIcon">
+                    {% endif %}
+                </td>
+                <td>
+                    {% if not coach.validated_flag %}
+                        <button class="btnSecondary btnInline" onclick="validateCoachAdmin({{ coach.coach_id }})"><span>Valider</span></button>
+                    {% endif %}
+                    <button class="btnSecondary btnInline" onclick="window.location.href = '/Citrus/MonUser-{{ coach.coach_id }}/'"><span>Voir le profil</span></button>
+                </td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="5">Aucun utilisateur.</td></tr>
+        {% endfor %}
+    </table>
+</section>
+
+<section class="adminSection">
+    <h2>Matchs</h2>
+
+    <div class="buttonsContainer">
+        <menu-deroulant-recherche style="width:300px;">
+            <select name="saisonDropdownAdmin" id="saisonDropdownAdmin" onchange="changeSaisonMatchs(this)">
+                {% for saison in saisons %}
+                    <option value="{{ saison.saison_id }}" {% if saison.saison_id == saison_selectionnee.saison_id %}selected{% endif %}>{{ saison.nom_saison }}</option>
+                {% endfor %}
+            </select>
+        </menu-deroulant-recherche>
+    </div>
+
+    <table>
+        <tr class="tableHeaderRow">
+            <th>Équipe hôte</th>
+            <th>Équipe visiteure</th>
+            <th>Division</th>
+            <th>Date</th>
+            <th>Score</th>
+            <th>Complété</th>
+        </tr>
+        {% for match in matchs %}
+            <tr class="{% if match.division == 'Pamplemousse' %}pamps{% elif match.division == 'Tangerine' %}tangs{% elif match.division == 'Clementine' %}clems{% endif %}">
+                <td>{{ match.equipe1.nom_equipe }}</td>
+                <td>{{ match.equipe2.nom_equipe }}</td>
+                <td>{{ match.division }}</td>
+                <td>{{ match.get_dateFormatted }}</td>
+                <td>{{ match.score_eq1 }} - {{ match.score_eq2 }}</td>
+                <td>
+                    {% if match.completed_flag %}
+                        <i class="fa-solid fa-check fa-lg" style="color: #0fc254;"></i>
+                    {% else %}
+                        <i class="fa-solid fa-x fa-lg" style="color: #df0707;"></i>
+                    {% endif %}
+                </td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="6">Aucun match pour cette saison.</td></tr>
+        {% endfor %}
+    </table>
+</section>
+
+<script>
+    function getAdminCsrfToken() {
+        return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    }
+
+    async function ajouterSaison() {
+        const input = document.getElementById('nouvelleSaisonNom');
+        const nomSaison = input.value.trim();
+        if (!nomSaison) {
+            alert("Veuillez entrer un nom de saison.");
+            return;
+        }
+
+        try {
+            const response = await fetch('/Citrus/AjoutSaison/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getAdminCsrfToken()
+                },
+                body: JSON.stringify({ nom_saison: nomSaison })
+            });
+
+            if (response.ok) {
+                location.reload();
+            } else {
+                const data = await response.json();
+                alert("Erreur : " + data.message);
+            }
+        } catch (error) {
+            alert("Une erreur s'est produite !");
+            console.error(error);
+        }
+    }
+
+    async function activerSaison(saisonId) {
+        if (!confirm("Rendre cette saison active ?")) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/Citrus/ActiverSaison-${saisonId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getAdminCsrfToken()
+                }
+            });
+
+            if (response.ok) {
+                location.reload();
+            } else {
+                const data = await response.json();
+                alert("Erreur : " + data.message);
+            }
+        } catch (error) {
+            alert("Une erreur s'est produite !");
+            console.error(error);
+        }
+    }
+
+    async function validateCoachAdmin(coachID) {
+        try {
+            const response = await fetch('/Citrus/validateCoach/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getAdminCsrfToken()
+                },
+                body: JSON.stringify({ coachID: coachID })
+            });
+
+            if (response.ok) {
+                alert("Le coach a été validé et un courriel a été envoyé");
+                location.reload();
+            } else {
+                alert("Une erreur s'est produite !");
+            }
+        } catch (error) {
+            alert("Une erreur s'est produite !");
+            console.error(error);
+        }
+    }
+
+    function changeSaisonMatchs(selectElement) {
+        window.location.href = `/Citrus/admin-${selectElement.value}/`;
+    }
+</script>
+
+<style>
+    .adminSection {
+        margin-bottom: 2.5rem;
+    }
+
+    .adminTextInput {
+        font-size: 1rem;
+        padding: 0.4rem 1rem;
+        border-radius: 2rem;
+        border: 0.1rem solid var(--mainPamps);
+        margin-right: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .statGrid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .statCard {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.25rem;
+        padding: 1.25rem 1rem;
+        border-radius: 1rem;
+        background: var(--white);
+        box-shadow: var(--smallerShadow);
+        text-align: center;
+    }
+
+    .statCardAlert {
+        outline: 0.15rem solid var(--mainPamps);
+        outline-offset: -0.15rem;
+    }
+
+    .statValue {
+        font-size: clamp(1.5rem, 1.1rem + 1.2vw, 2.25rem);
+        font-weight: 800;
+        color: var(--mainPamps);
+    }
+
+    .statLabel {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--textBlack);
+    }
+
+    .repartitionGrid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+        gap: 1.5rem;
+    }
+
+    .repartitionCard {
+        background: var(--white);
+        border-radius: 1rem;
+        box-shadow: var(--smallerShadow);
+        padding: 1rem 1.5rem;
+    }
+
+    .barRow {
+        display: grid;
+        grid-template-columns: 7rem 1fr 2.5rem;
+        align-items: center;
+        gap: 0.75rem;
+        margin: 0.6rem 0;
+    }
+
+    .barLabel {
+        font-size: 0.85rem;
+        color: var(--textBlack);
+    }
+
+    .barValue {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--textBlack);
+        text-align: right;
+    }
+
+    .barTrack {
+        width: 100%;
+        height: 0.6rem;
+        border-radius: 1rem;
+        background: rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+    }
+
+    .barFill {
+        height: 100%;
+        border-radius: 1rem;
+    }
+
+    .barFillPamplemousse {
+        background: #F15E60;
+    }
+
+    .barFillTangerine {
+        background: #F48D42;
+    }
+
+    .barFillClementine {
+        background: #F8B22E;
+    }
+
+    .badgeActive, .badgeInactive {
+        display: inline-block;
+        padding: 0.2rem 0.9rem;
+        border-radius: 2rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .badgeActive {
+        background: var(--mainPampsFade);
+        color: var(--mainPamps);
+    }
+
+    .badgeInactive {
+        background: rgba(0, 0, 0, 0.06);
+        color: var(--textBlack);
+    }
+</style>
+
+{% endblock %}

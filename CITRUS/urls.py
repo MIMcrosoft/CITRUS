@@ -27,5 +27,5 @@ urlpatterns = [
     path('Citrus/', include('CitrusApp.urls')),
     path('Citrus/', include('django.contrib.auth.urls')),
     path('api/',include('Citrus_api.urls')),
-    path('/', include('LigueDesPamplemousseApp.urls'))
+    path('', include('LigueDesPamplemousseApp.urls'))
 ]

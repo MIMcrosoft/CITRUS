@@ -60,7 +60,7 @@ main {
   opacity: 1;
   transition: opacity 0.5s ease;
     height: 100%;
-    overflow-y: scroll;
+    overflow-y: auto;
 
 }
 
