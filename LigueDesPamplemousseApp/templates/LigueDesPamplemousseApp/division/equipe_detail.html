@@ -1,0 +1,19 @@
+{% extends "LigueDesPamplemousseApp/base_public.html" %}
+
+{% block title %}{{ equipe.nom_equipe }}{% endblock %}
+
+{% block content %}
+<div data-division="{{ current_division_slug }}">
+    <header class="ligue-division-band">
+        {% if equipe.getUrlPhoto %}
+        <img class="ligue-page-header__logo" src="{{ equipe.getUrlPhoto }}" alt="Logo — {{ equipe.nom_equipe }}">
+        {% else %}
+        <span class="ligue-team-card__patch" aria-hidden="true">{{ equipe.id_equipe }}</span>
+        {% endif %}
+        <h1 class="ligue-division-band__title">{{ equipe.nom_equipe }}</h1>
+        <p class="ligue-division-band__meta">Division {{ division_nom }}</p>
+    </header>
+
+    <p class="ligue-empty-state">Détails de l'équipe (alignement, historique) à venir.</p>
+</div>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "LigueDesPamplemousseApp/base_public.html" %}
+
+{% block title %}Équipes — {{ division_nom }}{% endblock %}
+
+{% block content %}
+<div data-division="{{ current_division_slug }}">
+    <header class="ligue-division-band">
+        <h1 class="ligue-division-band__title">Équipes — {{ division_nom }}</h1>
+    </header>
+
+    {% if equipes %}
+    <div class="ligue-team-grid">
+        {% for equipe in equipes %}
+        <a class="ligue-team-card" href="{% url 'ligue:equipe_detail' equipe_id=equipe.id_equipe %}">
+            {% if equipe.getUrlPhoto %}
+            <img class="ligue-team-card__logo" src="{{ equipe.getUrlPhoto }}" alt="Logo — {{ equipe.nom_equipe }}" loading="lazy">
+            {% else %}
+            <span class="ligue-team-card__patch" aria-hidden="true">{{ equipe.id_equipe }}</span>
+            {% endif %}
+            <span class="ligue-team-card__name">{{ equipe.nom_equipe }}</span>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="ligue-empty-state">Aucune équipe active dans cette division pour le moment.</p>
+    {% endif %}
+</div>
+{% endblock %}

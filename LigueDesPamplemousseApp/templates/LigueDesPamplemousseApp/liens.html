@@ -1,0 +1,37 @@
+{% extends "LigueDesPamplemousseApp/base_public.html" %}
+
+{% block title %}Liens et documents{% endblock %}
+
+{% block content %}
+<header class="ligue-page-header">
+    <h1 class="ligue-page-header__title">Liens et documents</h1>
+</header>
+
+<section aria-labelledby="documents-ligue">
+    <h2 id="documents-ligue">Documents de ligue</h2>
+    {% if documents_ligue %}
+    <ul class="ligue-document-list">
+        {% for document in documents_ligue %}
+        <li><a href="{{ document.fichier.url }}" target="_blank" rel="noopener">{{ document.titre }}</a> <span class="ligue-document-list__date">— {{ document.date_ajout|date:"d M Y" }}</span></li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p class="ligue-empty-state">Aucun document de ligue pour le moment.</p>
+    {% endif %}
+</section>
+
+<hr class="ligue-divider--sifflet" aria-hidden="true">
+
+<section aria-labelledby="proces-verbaux">
+    <h2 id="proces-verbaux">Procès-verbaux</h2>
+    {% if proces_verbaux %}
+    <ul class="ligue-document-list">
+        {% for document in proces_verbaux %}
+        <li><a href="{{ document.fichier.url }}" target="_blank" rel="noopener">{{ document.titre }}</a> <span class="ligue-document-list__date">— {{ document.date_ajout|date:"d M Y" }}</span></li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p class="ligue-empty-state">Aucun procès-verbal pour le moment.</p>
+    {% endif %}
+</section>
+{% endblock %}

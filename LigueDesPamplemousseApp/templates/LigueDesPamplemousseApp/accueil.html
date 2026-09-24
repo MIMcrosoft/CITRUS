@@ -1,0 +1,155 @@
+{% extends "LigueDesPamplemousseApp/base_public.html" %}
+{% load static %}
+
+{% block title %}Ligue des Pamplemousses{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'stylesheets/ligue/homepage.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="ligue-hero">
+    <h1 class="ligue-hero__title">Ligue des Pamplemousses</h1>
+    <p class="ligue-hero__subtitle">Trois divisions, une même ligue : Pamplemousse, Tangerine et Clémentine. Consultez le calendrier, les équipes et le classement de votre division.</p>
+</section>
+
+<div class="pane-container">
+  <!-- Background color panes -->
+  <div class="pane-bg pane-bg--pamps"></div>
+  <div class="pane-bg pane-bg--tang"></div>
+  <div class="pane-bg pane-bg--clem"></div>
+
+  <!-- Clickable image panes -->
+  <a href="pamplemousse/Equipes" class="pane pane--pamps">
+      <h1>PAMPLEMOUSSE</h1>
+    <picture>
+      <source srcset="{% static 'Images/PLZP.webp' %}" type="image/webp">
+      <img class="pane-photo" src="{% static 'Images/PLZP.jpg' %}" alt="Pamplemousse" width="1333" height="2000" fetchpriority="high">
+    </picture>
+  </a>
+  <a href="tangerine/Equipes" class="pane pane--tang">
+      <h1>TANGERINE</h1>
+    <picture>
+      <source srcset="{% static 'Images/PLZT.webp' %}" type="image/webp">
+      <img class="pane-photo" src="{% static 'Images/PLZT.jpg' %}" alt="Tangerine" width="1333" height="2000" fetchpriority="high">
+    </picture>
+  </a>
+  <a href="clementine/Equipes" class="pane pane--clem">
+      <h1>CLÉMENTINE</h1>
+    <picture>
+      <source srcset="{% static 'Images/PLZC.webp' %}" type="image/webp">
+      <img class="pane-photo" src="{% static 'Images/PLZC.jpg' %}" alt="Clémentine" width="1333" height="2000" fetchpriority="high">
+    </picture>
+  </a>
+</div>
+
+<section class="ligue-intro-grid" aria-label="À propos de la ligue">
+    <article class="ligue-intro-card ligue-reveal" style="--card-accent: var(--color-pamplemousse)">
+        <h3>Mission</h3>
+        <p>Faire vivre l'improvisation comme un vrai sport d'équipe : des matchs joués, des scores qui comptent, une ligue organisée par et pour ses joueurs.</p>
+    </article>
+    <article class="ligue-intro-card ligue-reveal" style="--card-accent: var(--color-tangerine)">
+        <h3>Valeurs</h3>
+        <p>Le respect de l'arbitrage, l'esprit d'équipe et le plaisir de jouer devant public priment sur le résultat final.</p>
+    </article>
+    <article class="ligue-intro-card ligue-reveal" style="--card-accent: var(--color-clementine)">
+        <h3>Ce qu'on fait</h3>
+        <p>Trois divisions, un calendrier complet de matchs, un classement mis à jour en continu et une place pour chaque nouvelle équipe qui veut embarquer.</p>
+    </article>
+</section>
+
+<section class="ligue-archives-section" aria-labelledby="archives-title">
+    <h2 id="archives-title" class="ligue-reveal">Archives</h2>
+    <p class="ligue-archives-intro ligue-reveal">L'histoire des champions de la ligue, saison par saison : équipes gagnantes et prix individuels.</p>
+
+    <div class="ligue-archives-tabs ligue-reveal" role="tablist" aria-label="Choisir une division">
+        {% for division in archives_divisions %}
+        <button type="button"
+                class="ligue-archives-tab{% if forloop.first %} is-active{% endif %}"
+                data-division="{{ division.slug }}"
+                role="tab"
+                aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+                aria-controls="archives-panel-{{ division.slug }}">
+            {{ division.nom }}
+        </button>
+        {% endfor %}
+    </div>
+
+    {% for division in archives_divisions %}
+    <div id="archives-panel-{{ division.slug }}"
+         class="ligue-archives-panel{% if forloop.first %} is-active{% endif %}"
+         data-division="{{ division.slug }}"
+         role="tabpanel">
+        {% if division.saisons %}
+        <ol class="ligue-timeline ligue-reveal">
+            {% for saison in division.saisons %}
+            <li class="ligue-timeline__entry">
+                <span class="ligue-timeline__marker" aria-hidden="true"></span>
+                <details class="ligue-timeline__card">
+                    <summary class="ligue-timeline__summary">
+                        <span class="ligue-timeline__year">{{ saison.annee.saison_label }}</span>
+                        {% for equipe in saison.equipes %}
+                            {% if equipe.role == "champion_plaza" and equipe.nom_equipe %}
+                            <span class="ligue-timeline__champion">
+                                Champion Plaza : {{ equipe.nom_equipe }}{% if equipe.cegep %} — {{ equipe.cegep }}{% endif %}
+                            </span>
+                            {% endif %}
+                        {% endfor %}
+                    </summary>
+
+                    <div class="ligue-timeline__body">
+                        {% for equipe in saison.equipes %}
+                            <div class="ligue-archives-team">
+                                <h4 class="ligue-archives-team__role">{{ equipe.get_role_display }}</h4>
+                                {% if equipe.nom_equipe %}
+                                <p class="ligue-archives-team__name">{{ equipe.nom_equipe }}{% if equipe.cegep %} — {{ equipe.cegep }}{% endif %}</p>
+                                {% endif %}
+                                {% if equipe.interpretes.all %}
+                                <ul class="ligue-archives-roster">
+                                    {% for interprete in equipe.interpretes.all %}
+                                    <li>{{ interprete.nom }}{% if interprete.role %} <span class="ligue-archives-roster__role">({{ interprete.role }})</span>{% endif %}</li>
+                                    {% endfor %}
+                                </ul>
+                                {% endif %}
+                                {% if equipe.coach %}
+                                <p class="ligue-archives-team__coach">Coach : {{ equipe.coach }}</p>
+                                {% endif %}
+                                {% if not equipe.nom_equipe and not equipe.coach and not equipe.interpretes.all %}
+                                <p class="ligue-archives-team__empty">Inconnu</p>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+
+                        {% if saison.prix %}
+                        <div class="ligue-archives-prix">
+                            <h4 class="ligue-archives-team__role">Prix individuels</h4>
+                            <ul>
+                                {% for prix in saison.prix %}
+                                <li>
+                                    <strong>{{ prix.label }}</strong>
+                                    {% if prix.gagnant_nom or prix.gagnant_equipe %}
+                                    —
+                                    {% if prix.gagnant_nom %}{{ prix.gagnant_nom }}{% endif %}
+                                    {% if prix.gagnant_equipe %} ({{ prix.gagnant_equipe }}){% endif %}
+                                    {% endif %}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                    </div>
+                </details>
+            </li>
+            {% endfor %}
+        </ol>
+        {% else %}
+        <p class="ligue-empty-state">Aucune archive pour cette division pour le moment.</p>
+        {% endif %}
+    </div>
+    {% endfor %}
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'javascript/ligue/homepage.js' %}"></script>
+{% endblock %}

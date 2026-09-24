@@ -1,0 +1,29 @@
+{% extends "LigueDesPamplemousseApp/base_public.html" %}
+
+{% block title %}Contact — Conseil d'administration{% endblock %}
+
+{% block content %}
+<header class="ligue-page-header">
+    <h1 class="ligue-page-header__title">Contact — Conseil d'administration</h1>
+</header>
+
+{% if membres %}
+<div class="ligue-team-grid">
+    {% for membre in membres %}
+    <div class="ligue-team-card">
+        {% if membre.photo %}
+        <img class="ligue-team-card__logo" src="{{ membre.photo.url }}" alt="Photo de {{ membre.nom }}" loading="lazy">
+        {% else %}
+        <span class="ligue-team-card__patch" aria-hidden="true">{{ membre.nom|first|upper }}</span>
+        {% endif %}
+        <span class="ligue-team-card__name">{{ membre.nom }}</span>
+        <span>{{ membre.poste }}</span>
+        <a href="mailto:{{ membre.courriel }}">{{ membre.courriel }}</a>
+        {% if membre.telephone %}<span>{{ membre.telephone }}</span>{% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p class="ligue-empty-state">Les coordonnées du conseil d'administration seront ajoutées prochainement.</p>
+{% endif %}
+{% endblock %}

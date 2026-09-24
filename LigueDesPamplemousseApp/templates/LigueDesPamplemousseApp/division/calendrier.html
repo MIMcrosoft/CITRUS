@@ -1,0 +1,109 @@
+{% extends "LigueDesPamplemousseApp/base_public.html" %}
+{% load static %}
+
+{% block title %}Calendrier — {{ division_nom }}{% endblock %}
+
+{% block content %}
+<div data-division="{{ current_division_slug }}" style="padding: var(--space-sm)">
+    <header class="ligue-division-band">
+        <h1 class="ligue-division-band__title">Calendrier — {{ division_nom }}</h1>
+        {% if saison %}
+        <p class="ligue-division-band__meta">Saison {{ saison.nom_saison }}</p>
+        {% endif %}
+    </header>
+
+    {% if not saisons %}
+    <p class="ligue-empty-state">Aucune saison configurée pour le moment.</p>
+    {% else %}
+
+    <form class="ligue-filter-bar" method="get" data-auto-submit>
+        <label for="saison-filtre">Saison :</label>
+        <select id="saison-filtre" name="saison">
+            {% for s in saisons %}
+            <option value="{{ s.saison_id }}" {% if s.saison_id|stringformat:"s" == saison_filtre %}selected{% endif %}>{{ s.nom_saison }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="equipe-filtre">Équipe :</label>
+        <select id="equipe-filtre" name="equipe">
+            <option value="">Toutes les équipes</option>
+            {% for e in equipes %}
+            <option value="{{ e.id_equipe }}" {% if e.id_equipe|stringformat:"s" == equipe_filtre %}selected{% endif %}>{{ e.nom_equipe }}</option>
+            {% endfor %}
+        </select>
+
+        <noscript><button type="submit">Filtrer</button></noscript>
+        {% if request.GET.saison or request.GET.equipe %}<a href="{% url 'ligue:calendrier' division=current_division_slug %}">Réinitialiser</a>{% endif %}
+    </form>
+
+    <section aria-labelledby="matchs-a-venir">
+        <h2 id="matchs-a-venir">Matchs à venir</h2>
+        {% if matchs_a_venir %}
+        <div class="ligue-table-wrap">
+            <table class="ligue-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Date</th>
+                        <th scope="col">Lieu</th>
+                        <th scope="col">Équipe hôte</th>
+                        <th scope="col">Équipe visiteure</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for match in matchs_a_venir %}
+                    <tr>
+                        <td>{{ match.date_match|date:"d M Y, H:i"|default:"À déterminer" }}</td>
+                        <td>{{ match.equipe1.college }}</td>
+                        <td>{{ match.equipe1.nom_equipe }}</td>
+                        <td>{{ match.equipe2.nom_equipe }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="ligue-empty-state">Aucun match à venir pour cette période.</p>
+        {% endif %}
+    </section>
+
+    <hr class="ligue-divider--sifflet" aria-hidden="true">
+
+    <section aria-labelledby="matchs-joues">
+        <h2 id="matchs-joues">Résultats</h2>
+        {% if matchs_joues %}
+        <div class="ligue-table-wrap">
+            <table class="ligue-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Date</th>
+                        <th scope="col">Lieu</th>
+                        <th scope="col">Équipe hôte</th>
+                        <th scope="col">Score</th>
+                        <th scope="col">Équipe visiteure</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for match in matchs_joues %}
+                    <tr>
+                        <td>{{ match.date_match|date:"d M Y" }}</td>
+                        <td>{{ match.equipe1.college }}</td>
+                        <td>{{ match.equipe1.nom_equipe }}</td>
+                        <td class="ligue-table__points">{{ match.score_eq1 }} — {{ match.score_eq2 }}</td>
+                        <td>{{ match.equipe2.nom_equipe }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="ligue-empty-state">Aucun résultat pour cette période.</p>
+        {% endif %}
+    </section>
+
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'javascript/ligue/filtres.js' %}"></script>
+{% endblock %}

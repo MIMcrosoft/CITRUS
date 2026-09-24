@@ -1,0 +1,71 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#15181C">
+    <title>{% block title %}Ligue des Pamplemousses{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'stylesheets/ligue/variables.css' %}">
+    <link rel="stylesheet" href="{% static 'stylesheets/ligue/base.css' %}">
+    <link rel="stylesheet" href="{% static 'stylesheets/ligue/navbar.css' %}">
+    <link rel="stylesheet" href="{% static 'stylesheets/ligue/divisions.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="ligue-body">
+    <nav class="ligue-navbar" aria-label="Navigation principale">
+        <a class="ligue-navbar__brand" href="{% url 'ligue:accueil' %}">
+            <span>Ligue des Pamplemousses</span>
+        </a>
+
+        <button class="ligue-navbar__toggle" type="button" aria-expanded="false" aria-controls="ligue-navbar-menu" aria-label="Ouvrir le menu">
+            <span></span><span></span><span></span>
+        </button>
+
+        <ul class="ligue-navbar__menu" id="ligue-navbar-menu">
+            {% for slug, nom in division_slugs.items %}
+            <li class="ligue-navbar__item ligue-navbar__item--dropdown{% if slug == current_division_slug %} is-active{% endif %}" data-division="{{ slug }}">
+                <button class="ligue-navbar__link" type="button" aria-haspopup="true" aria-expanded="false">
+                    {{ nom }}
+                </button>
+                <ul class="ligue-navbar__dropdown">
+                    <li><a href="{% url 'ligue:calendrier' division=slug %}">Calendrier</a></li>
+                    <li><a href="{% url 'ligue:equipes' division=slug %}">Équipes</a></li>
+                    <li><a href="{% url 'ligue:classement' division=slug %}">Classement</a></li>
+                </ul>
+            </li>
+            {% endfor %}
+
+            {% if tournoi_actif %}
+            <li class="ligue-navbar__item">
+                <a class="ligue-navbar__link" href="{% url 'ligue:tournoi' %}">Tournoi</a>
+            </li>
+            {% else %}
+            <li class="ligue-navbar__item ligue-navbar__item--disabled" aria-disabled="true">
+                <span class="ligue-navbar__link">Tournoi</span>
+            </li>
+            {% endif %}
+
+            <li class="ligue-navbar__item">
+                <a class="ligue-navbar__link" href="{% url 'ligue:liens' %}">Liens</a>
+            </li>
+            <li class="ligue-navbar__item">
+                <a class="ligue-navbar__link" href="{% url 'ligue:contact' %}">Contact</a>
+            </li>
+            <li class="ligue-navbar__item ligue-navbar__item--cta">
+                <a class="ligue-navbar__link" href="{% url 'ConnexionUtilisateur' %}">Citrus</a>
+            </li>
+        </ul>
+    </nav>
+
+    <main class="ligue-main">
+        {% block content %}{% endblock %}
+    </main>
+
+    <script src="{% static 'javascript/ligue/navbar.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

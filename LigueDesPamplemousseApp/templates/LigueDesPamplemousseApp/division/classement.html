@@ -1,0 +1,70 @@
+{% extends "LigueDesPamplemousseApp/base_public.html" %}
+{% load static %}
+
+{% block title %}Classement — {{ division_nom }}{% endblock %}
+
+{% block content %}
+<div data-division="{{ current_division_slug }}">
+    <header class="ligue-division-band">
+        <h1 class="ligue-division-band__title">Classement — {{ division_nom }}</h1>
+        {% if saison %}
+        <p class="ligue-division-band__meta">Saison {{ saison.nom_saison }}</p>
+        {% endif %}
+    </header>
+
+    {% if saisons %}
+    <form class="ligue-filter-bar" method="get" data-auto-submit>
+        <label for="saison-filtre">Saison :</label>
+        <select id="saison-filtre" name="saison">
+            {% for s in saisons %}
+            <option value="{{ s.saison_id }}" {% if s.saison_id|stringformat:"s" == saison_filtre %}selected{% endif %}>{{ s.nom_saison }}</option>
+            {% endfor %}
+        </select>
+        <noscript><button type="submit">Filtrer</button></noscript>
+    </form>
+    {% endif %}
+
+    {% if erreur %}
+    <p class="ligue-empty-state">{{ erreur }}</p>
+    {% elif not stats %}
+    <p class="ligue-empty-state">Aucune donnée de classement pour le moment.</p>
+    {% else %}
+    <div class="ligue-table-wrap">
+        <table class="ligue-table">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Équipe</th>
+                    <th scope="col">PJ</th>
+                    <th scope="col">V</th>
+                    <th scope="col">D</th>
+                    <th scope="col">DP</th>
+                    <th scope="col">Pén.</th>
+                    <th scope="col">Diff.</th>
+                    <th scope="col">Pts</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for equipe in stats %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ equipe.equipe }}</td>
+                    <td>{{ equipe.pj }}</td>
+                    <td>{{ equipe.v }}</td>
+                    <td>{{ equipe.d }}</td>
+                    <td>{{ equipe.dp }}</td>
+                    <td>{{ equipe.pen }}</td>
+                    <td>{{ equipe.diff }}</td>
+                    <td class="ligue-table__points">{{ equipe.point }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'javascript/ligue/filtres.js' %}"></script>
+{% endblock %}
