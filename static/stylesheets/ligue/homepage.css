@@ -1,0 +1,394 @@
+/* ==========================================================================
+   Ligue des Pamplemousses — page d'accueil : intro, révélation au scroll,
+   archives (timeline verticale). Voir LigueDesPamplemousseApp/DESIGN.md
+   pour le vocabulaire visuel (carte tenue, ombre dure, aplats de division).
+   Propre à l'accueil : chargé uniquement via accueil.html.
+   ========================================================================== */
+
+/* --- Révélation au scroll : uniquement opacity/transform (pas de reflow) --- */
+.ligue-reveal {
+  opacity: 0;
+  transform: translateY(1.25rem);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ligue-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ligue-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* --- Colored background panes (unchanged, stay behind everything) --- */
+.pane-container {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  position: relative;
+}
+
+/* Background color panes, sit behind everything */
+.pane-bg {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 33.3333%;
+  z-index: 0;
+}
+.pane-bg--pamps { left: 0;      background-color: #e94f4f; }
+.pane-bg--tang  { left: 33.33%; background-color: #ff8c42; }
+.pane-bg--clem  { left: 66.66%; background-color: #ffb703; }
+
+/* Clickable image panes, sit on top */
+.pane {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.pane-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: filter 0.3s ease, transform 0.3s ease;
+}
+
+/* Color tint overlay, above the image, below the title */
+.pane::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  mix-blend-mode: color;
+  opacity: 0.7;
+  pointer-events: none;
+  z-index: 2;
+  transition: opacity 0.3s ease;
+}
+
+.pane--pamps::after { background-color: #e94f4f; }
+.pane--tang::after  { background-color: #ff8c42; }
+.pane--clem::after  { background-color: #ffb703; }
+
+/* Title, sits above image AND tint */
+.pane h1 {
+  position: relative;
+  z-index: 3;
+  margin: 0;
+  color: #fff;
+  font-size: clamp(1.25rem, 2.5vw, 2.5rem);
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+  padding: 0 1rem;
+  transition: transform 0.3s ease;
+}
+
+/* Hover feedback */
+.pane:hover .pane-photo {
+  transform: scale(1.05);
+}
+.pane:hover::after {
+  opacity: 0.4;
+}
+.pane:hover h1 {
+  transform: translateY(-6px);
+}
+
+/* Décalage léger entre cartes d'une même rangée pour un effet de cascade. */
+.ligue-intro-grid .ligue-reveal:nth-child(2) { transition-delay: 0.08s; }
+.ligue-intro-grid .ligue-reveal:nth-child(3) { transition-delay: 0.16s; }
+
+/* --- Section intro (Mission / Valeurs / Ce qu'on fait) --- */
+.ligue-intro-grid {
+  display: grid;
+  gap: var(--space-md);
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  margin-block: var(--space-xl);
+}
+
+.ligue-intro-card {
+  padding: var(--space-lg);
+  border-radius: var(--radius-carte);
+  background: var(--color-ardoise-carte);
+  box-shadow: var(--shadow-carte);
+  border-block-start: 0.3rem solid var(--card-accent, var(--color-encre));
+}
+
+.ligue-intro-card h3 {
+  color: var(--card-accent, var(--color-encre));
+  font-weight: 900;
+  margin: 0 0 var(--space-2xs);
+}
+
+.ligue-intro-card p {
+  color: var(--color-encre-att);
+  margin: 0;
+}
+
+/* --- Archives : sélecteur de division + historique par saison --- */
+.ligue-archives-section {
+    margin-block-start: var(--space-xl);
+    padding: var(--space-sm);
+}
+
+.ligue-archives-intro {
+  color: var(--color-encre-att);
+  max-inline-size: 55ch;
+  text-wrap: pretty;
+  margin-block-end: var(--space-lg);
+}
+
+/* --- Bouton de bascule entre divisions : chaque bouton porte data-division,
+   qui alimente --division-accent via variables.css. --- */
+.ligue-archives-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin-block-end: var(--space-lg);
+}
+
+.ligue-archives-tab {
+  font: inherit;
+  font-weight: 700;
+  padding: 0.55rem 1.15rem;
+  border-radius: var(--radius-patch);
+  border: 1px solid var(--color-liseret);
+  background: var(--color-ardoise-carte);
+  color: var(--color-encre-att);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.ligue-archives-tab:hover,
+.ligue-archives-tab:focus-visible {
+  color: var(--color-encre);
+  border-color: var(--division-accent, var(--color-liseret));
+}
+
+.ligue-archives-tab.is-active {
+  background: var(--division-accent, var(--color-encre));
+  border-color: transparent;
+  color: var(--color-ardoise);
+}
+
+.ligue-archives-panel {
+  display: none;
+}
+
+.ligue-archives-panel.is-active {
+  display: block;
+}
+
+/* --- Timeline verticale : ligne + marqueurs, alternance gauche/droite en
+   desktop. Chaque carte est un <details> natif (accordéon, sans JS) qui
+   révèle le détail des équipes et des prix de la saison. --- */
+.ligue-timeline {
+  list-style: none;
+  margin: var(--space-lg) 0 0;
+  padding: 0;
+  position: relative;
+}
+
+.ligue-timeline::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0.5rem;
+  inset-block: 0;
+  inline-size: 2px;
+  background: var(--color-liseret);
+}
+
+.ligue-timeline__entry {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: var(--space-md);
+  margin-block-end: var(--space-md);
+}
+
+.ligue-timeline__entry:last-child {
+  margin-block-end: 0;
+}
+
+.ligue-timeline__marker {
+  grid-column: 1;
+  grid-row: 1;
+  inline-size: 1rem;
+  block-size: 1rem;
+  margin-block-start: 0.35rem;
+  border-radius: var(--radius-patch);
+  background: var(--division-accent, var(--color-encre));
+  box-shadow: 0 0 0 4px var(--color-ardoise);
+}
+
+/* --- Carte-année : <details> natif, division accent hérité du panneau.
+   Texte centré, dans la couleur de la division plutôt qu'en blanc. --- */
+.ligue-timeline__card {
+  grid-column: 2;
+  border-radius: var(--radius-carte);
+  background: var(--color-ardoise-carte);
+  box-shadow: var(--shadow-carte);
+  border-block-start: 0.3rem solid var(--division-accent, var(--color-encre));
+  overflow: hidden;
+  text-align: center;
+  color: var(--division-accent, var(--color-encre));
+}
+
+.ligue-timeline__summary {
+  position: relative;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: baseline;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  padding-inline-end: calc(var(--space-md) + 1.5rem);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.ligue-timeline__summary::-webkit-details-marker {
+  display: none;
+}
+
+.ligue-timeline__summary::after {
+  content: "+";
+  position: absolute;
+  inset-block-start: var(--space-md);
+  inset-inline-end: var(--space-md);
+  color: var(--color-encre-att);
+  font-weight: 900;
+  transition: transform 0.15s ease;
+}
+
+.ligue-timeline__card[open] .ligue-timeline__summary::after {
+  transform: rotate(45deg);
+}
+
+.ligue-timeline__year {
+  font-weight: 900;
+  font-size: 1.15rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--division-accent, var(--color-encre));
+}
+
+.ligue-timeline__champion {
+  color: var(--color-encre-att);
+  font-weight: 400;
+}
+
+.ligue-timeline__body {
+  padding: 0 var(--space-md) var(--space-md);
+  border-block-start: 1px solid var(--color-liseret);
+  padding-block-start: var(--space-md);
+  display: grid;
+  gap: var(--space-md);
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+}
+
+/* --- Desktop : ligne centrale, alternance gauche/droite du placement des
+   cartes (le texte, lui, reste centré des deux côtés). --- */
+@media (width >= 48rem) {
+  .ligue-timeline::before {
+    inset-inline-start: 50%;
+    transform: translateX(-50%);
+  }
+
+  .ligue-timeline__entry {
+    grid-template-columns: 1fr auto 1fr;
+    column-gap: var(--space-lg);
+  }
+
+  .ligue-timeline__marker {
+    grid-column: 2;
+    margin-block-start: 0.35rem;
+  }
+
+  .ligue-timeline__entry:nth-child(odd) .ligue-timeline__card {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .ligue-timeline__entry:nth-child(even) .ligue-timeline__card {
+    grid-column: 3;
+    grid-row: 1;
+  }
+}
+
+.ligue-archives-team__role {
+  margin: 0 0 var(--space-2xs);
+  color: var(--color-encre-att);
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.ligue-archives-team__name {
+  margin: 0 0 var(--space-2xs);
+  font-weight: 700;
+  color: var(--division-accent, var(--color-encre));
+}
+
+.ligue-archives-team__coach {
+  margin: var(--space-2xs) 0 0;
+  color: var(--color-encre-att);
+  font-size: 0.9rem;
+}
+
+.ligue-archives-team__empty {
+  margin: 0;
+  color: var(--color-encre-att);
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.ligue-archives-roster {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  color: var(--color-encre-att);
+  font-size: 0.9rem;
+}
+
+.ligue-archives-roster__role {
+  color: var(--color-encre-att);
+}
+
+.ligue-archives-prix {
+  grid-column: 1 / -1;
+}
+
+.ligue-archives-prix ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+}
+
+.ligue-archives-prix li {
+  color: var(--color-encre-att);
+  font-size: 0.9rem;
+}
+
+.ligue-archives-prix strong {
+  color: var(--division-accent, var(--color-encre));
+}

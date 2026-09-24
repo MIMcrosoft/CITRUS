@@ -1,0 +1,262 @@
+/* ==========================================================================
+   Ligue des Pamplemousses — navbar ("la table de marque")
+   Console sombre fixe, mobile-first. Bascule en barre horizontale avec
+   dropdowns au survol/focus à partir de la breakpoint desktop.
+   ========================================================================== */
+
+.ligue-navbar {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding-inline: var(--space-md);
+  block-size: var(--navbar-height);
+  background: var(--color-ardoise);
+  border-block-end: 1px solid var(--color-liseret);
+}
+
+.ligue-navbar__brand {
+  font-weight: 800;
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  color: var(--color-encre);
+  white-space: nowrap;
+}
+
+/* --- Bouton hamburger (mobile uniquement) --- */
+.ligue-navbar__toggle {
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.3rem;
+  block-size: 2.75rem;
+  inline-size: 2.75rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+.ligue-navbar__toggle span {
+  inline-size: 1.5rem;
+  block-size: 0.15rem;
+  border-radius: 999px;
+  background: var(--color-encre);
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.ligue-navbar__toggle[aria-expanded="true"] span:nth-child(1) {
+  transform: translateY(0.45rem) rotate(45deg);
+}
+
+.ligue-navbar__toggle[aria-expanded="true"] span:nth-child(2) {
+  opacity: 0;
+}
+
+.ligue-navbar__toggle[aria-expanded="true"] span:nth-child(3) {
+  transform: translateY(-0.45rem) rotate(-45deg);
+}
+
+/* --- Menu --- */
+.ligue-navbar__menu {
+  list-style: none;
+  margin: 0;
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: var(--navbar-height);
+  background: var(--color-ardoise);
+  border-block-end: 1px solid var(--color-liseret);
+
+  max-block-size: calc(100dvh - var(--navbar-height));
+  overflow-y: auto;
+}
+
+.ligue-navbar__menu:not(.is-open) {
+  display: none;
+}
+
+.ligue-navbar__item {
+  position: relative;
+}
+
+.ligue-navbar__link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-xs);
+  inline-size: 100%;
+  padding: var(--space-sm) var(--space-xs);
+  border: none;
+  background: transparent;
+  font: inherit;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-align: start;
+  text-decoration: none;
+  color: var(--color-encre-att);
+  cursor: pointer;
+  border-radius: 0.4rem;
+}
+
+.ligue-navbar__item--dropdown.is-active > .ligue-navbar__link {
+  color: var(--division-accent, var(--color-encre));
+}
+
+.ligue-navbar__link:hover,
+.ligue-navbar__link:focus-visible {
+  color: var(--division-accent, var(--color-encre));
+  background: var(--color-ardoise-carte);
+}
+
+.ligue-navbar__link::after {
+  content: "";
+  inline-size: 0.5rem;
+  block-size: 0.5rem;
+  border-inline-end: 0.15rem solid currentColor;
+  border-block-end: 0.15rem solid currentColor;
+  transform: rotate(45deg);
+  transition: transform 0.2s ease;
+}
+
+.ligue-navbar__item:not(.ligue-navbar__item--dropdown) > .ligue-navbar__link::after {
+  content: none;
+}
+
+.ligue-navbar__item.is-open > .ligue-navbar__link::after {
+  transform: rotate(225deg);
+}
+
+/* --- Sous-menu de division --- */
+.ligue-navbar__dropdown {
+  list-style: none;
+  margin: 0;
+  padding-inline-start: var(--space-md);
+}
+
+@media (width < 64rem) {
+  .ligue-navbar__item--dropdown:not(.is-open) > .ligue-navbar__dropdown {
+    display: none;
+  }
+}
+
+.ligue-navbar__dropdown a {
+  display: block;
+  padding: var(--space-xs);
+  text-decoration: none;
+  color: var(--color-encre-att);
+  border-radius: 0.4rem;
+  font-size: 0.9rem;
+}
+
+.ligue-navbar__dropdown a:hover,
+.ligue-navbar__dropdown a:focus-visible {
+  color: var(--division-accent, var(--color-encre));
+  background: var(--color-ardoise-carte);
+}
+
+/* --- Onglet désactivé (Tournoi) --- */
+.ligue-navbar__item--disabled > .ligue-navbar__link {
+  color: var(--color-encre-att);
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* --- Lien Citrus (mise en avant) --- */
+.ligue-navbar__item--cta > .ligue-navbar__link {
+  background: var(--gradient-brand);
+  color: var(--color-ardoise);
+  font-weight: 800;
+  justify-content: center;
+}
+
+.ligue-navbar__item--cta > .ligue-navbar__link:hover,
+.ligue-navbar__item--cta > .ligue-navbar__link:focus-visible {
+  color: var(--color-ardoise);
+  filter: brightness(1.08);
+  background: var(--gradient-brand);
+}
+
+/* ==========================================================================
+   Breakpoint desktop : console horizontale, dropdowns au survol/focus
+   ========================================================================== */
+@media (width >= 64rem) {
+  .ligue-navbar__toggle {
+    display: none;
+  }
+
+  .ligue-navbar__menu,
+  .ligue-navbar__menu:not(.is-open) {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    position: static;
+    inline-size: auto;
+    max-block-size: none;
+    border-block-end: none;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .ligue-navbar__link {
+    inline-size: max-content;
+  }
+
+  .ligue-navbar__item--dropdown > .ligue-navbar__link {
+    border-block-end: 0.2rem solid transparent;
+    border-radius: 0;
+  }
+
+  .ligue-navbar__item--dropdown:hover > .ligue-navbar__link,
+  .ligue-navbar__item--dropdown:focus-within > .ligue-navbar__link,
+  .ligue-navbar__item--dropdown.is-active > .ligue-navbar__link {
+    border-block-end-color: var(--division-accent, var(--color-encre));
+    background: transparent;
+  }
+
+  .ligue-navbar__dropdown {
+    display: block;
+    position: absolute;
+    inset-inline-start: 0;
+    inset-block-start: 100%;
+    inline-size: max-content;
+    min-inline-size: 12rem;
+    padding: var(--space-xs);
+    margin-block-start: 0.6rem;
+    background: var(--color-ardoise-carte);
+    box-shadow: var(--shadow-carte);
+    border-radius: var(--radius-carte);
+    border-block-start: 0.25rem solid var(--division-accent, var(--color-encre));
+
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-0.25rem);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+  }
+
+  .ligue-navbar__item--dropdown:hover > .ligue-navbar__dropdown,
+  .ligue-navbar__item--dropdown:focus-within > .ligue-navbar__dropdown,
+  .ligue-navbar__item--dropdown.is-open > .ligue-navbar__dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ligue-navbar__toggle span,
+  .ligue-navbar__link::after,
+  .ligue-navbar__dropdown {
+    transition: none;
+  }
+}

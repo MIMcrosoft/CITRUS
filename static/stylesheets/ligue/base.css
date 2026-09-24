@@ -1,0 +1,104 @@
+/* ==========================================================================
+   Ligue des Pamplemousses — reset & typographie de base
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body.ligue-body {
+  margin: 0;
+  min-height: 100dvh;
+  font-family: var(--font-body);
+  font-weight: 400;
+  color: var(--color-encre);
+  background: var(--color-ardoise);
+  -webkit-font-smoothing: antialiased;
+}
+
+.ligue-body img {
+  max-width: 100%;
+  display: block;
+}
+
+.ligue-body a {
+  color: inherit;
+}
+
+/* --- Échelle typographique : la hiérarchie vient du poids et de l'échelle,
+   jamais d'une seconde police (voir DESIGN.md, règle du seul caractère) --- */
+.ligue-body h1,
+.ligue-body h2,
+.ligue-body h3 {
+  text-wrap: balance;
+  margin: 0 0 var(--space-sm);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.ligue-display {
+  font-weight: 900;
+  font-size: clamp(2rem, 1.3rem + 3vw, 3.5rem);
+  line-height: 1.05;
+}
+
+.ligue-body h2 {
+  font-size: clamp(1.25rem, 1.05rem + 1vw, 1.65rem);
+}
+
+.ligue-body p {
+  text-wrap: pretty;
+  max-inline-size: 65ch;
+  line-height: 1.6;
+}
+
+.ligue-eyebrow {
+  display: inline-block;
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-encre-att);
+}
+
+/* Focus visible cohérent pour toute l'app publique */
+.ligue-body :focus-visible {
+  outline: 0.15rem solid var(--color-encre);
+  outline-offset: 0.2rem;
+}
+
+.ligue-main {
+  padding-block: var(--space-lg);
+
+  max-inline-size: 100%;
+  margin-inline: auto;
+}
+
+.ligue-page-header {
+  margin-bottom: var(--space-lg);
+}
+
+.ligue-page-header__title {
+  font-size: clamp(1.5rem, 1.1rem + 2vw, 2.25rem);
+}
+
+.ligue-page-header__subtitle {
+  color: var(--color-encre-att);
+}
+
+.ligue-page-header__logo {
+  inline-size: 6rem;
+  block-size: 6rem;
+  object-fit: contain;
+  border-radius: var(--radius-patch);
+  background: var(--color-ardoise-carte);
+  margin-bottom: var(--space-sm);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ligue-body {
+    scroll-behavior: smooth;
+  }
+}

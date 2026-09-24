@@ -1,0 +1,322 @@
+/* ==========================================================================
+   Ligue des Pamplemousses — composants partagés
+   Voir LigueDesPamplemousseApp/DESIGN.md pour la direction et les règles
+   nommées (règle du carton, règle de l'aplat, règle de l'ombre dure).
+   ========================================================================== */
+
+/* --- Hero d'accueil : seul endroit où le quartier d'agrume réapparaît --- */
+.ligue-hero {
+  position: relative;
+  overflow: hidden;
+  padding: var(--space-xl) var(--space-lg);
+  background: var(--color-ardoise-carte);
+}
+
+
+
+.ligue-hero__title,
+.ligue-hero__subtitle {
+  position: relative;
+  max-inline-size: 30rem;
+}
+
+.ligue-hero__title {
+  font-weight: 900;
+  font-size: clamp(2rem, 1.3rem + 3vw, 3.5rem);
+  line-height: 1.05;
+}
+
+.ligue-hero__subtitle {
+  color: var(--color-encre-att);
+}
+
+/* --- Bandeau de division : la couleur occupe une vraie surface, pas un
+   accent (règle de l'aplat). Texte encre foncée pour garder un contraste
+   fiable sur des teintes d'agrumes claires. --- */
+.ligue-division-band {
+  background:
+    repeating-linear-gradient(90deg, rgb(0 0 0 / 6%) 0 2px, transparent 2px 14px),
+    var(--division-accent, var(--color-ardoise-carte));
+  color: var(--color-ardoise);
+  border-radius: var(--radius-carte);
+  padding: var(--space-lg);
+  margin-bottom: var(--space-lg);
+}
+
+.ligue-division-band__title {
+  font-weight: 900;
+  font-size: clamp(1.75rem, 1.3rem + 2vw, 2.75rem);
+  line-height: 1.05;
+  margin: 0;
+}
+
+.ligue-division-band__meta {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* --- Cartes de division (accueil) --- */
+.ligue-division-grid {
+  display: grid;
+  gap: var(--space-md);
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+}
+
+.ligue-division-card {
+  display: block;
+  padding: var(--space-lg);
+  border-radius: var(--radius-carte);
+  background: var(--color-ardoise-carte);
+  box-shadow: var(--shadow-carte);
+  border-block-start: 0.3rem solid var(--division-accent, var(--color-encre));
+  text-decoration: none;
+  color: var(--color-encre);
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.ligue-division-card:hover,
+.ligue-division-card:focus-visible {
+  box-shadow: var(--shadow-carte-survol);
+  transform: translate(-0.15rem, -0.15rem);
+}
+
+.ligue-division-card__name {
+  color: var(--division-accent, var(--color-encre));
+  font-weight: 900;
+  margin-bottom: var(--space-2xs);
+}
+
+.ligue-division-card p {
+  color: var(--color-encre-att);
+  margin: 0;
+}
+
+/* --- Grille d'équipes --- */
+.ligue-team-grid {
+  display: grid;
+  gap: var(--space-md);
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+}
+
+.ligue-team-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-md);
+  text-align: center;
+  text-decoration: none;
+  color: var(--color-encre);
+  background: var(--color-ardoise-carte);
+  border-radius: var(--radius-carte);
+  box-shadow: var(--shadow-carte);
+  border-block-start: 0.3rem solid var(--division-accent, var(--color-encre));
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.ligue-team-card:hover,
+.ligue-team-card:focus-visible {
+  box-shadow: var(--shadow-carte-survol);
+  transform: translate(-0.15rem, -0.15rem);
+}
+
+.ligue-team-card__logo {
+  inline-size: 4.5rem;
+  block-size: 4.5rem;
+  object-fit: contain;
+  border-radius: var(--radius-patch);
+  background: var(--color-ardoise);
+}
+
+/* Écusson numéroté : remplace un logo manquant par le numéro d'équipe,
+   façon écusson de chandail, plutôt que de laisser un espace vide. */
+.ligue-team-card__patch {
+  inline-size: 4.5rem;
+  block-size: 4.5rem;
+  border-radius: var(--radius-patch);
+  background: var(--division-accent, var(--color-encre-att));
+  color: var(--color-ardoise);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 1.35rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.ligue-team-card__name {
+  font-weight: 700;
+}
+
+/* Sur un bandeau de division (même couleur que le remplissage par défaut
+   de l'écusson), on inverse pour que l'écusson reste lisible. */
+.ligue-division-band .ligue-team-card__patch {
+  background: var(--color-ardoise);
+  color: var(--division-accent, var(--color-encre));
+  margin-bottom: var(--space-sm);
+}
+
+.ligue-division-band .ligue-page-header__logo {
+  margin-bottom: var(--space-sm);
+}
+
+/* --- Tableaux (calendrier / classement) --- */
+.ligue-table-wrap {
+  overflow-x: auto;
+  border-radius: var(--radius-carte);
+  box-shadow: var(--shadow-carte);
+  background: var(--color-ardoise-carte);
+}
+
+.ligue-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.ligue-table caption {
+  text-align: start;
+  padding: var(--space-sm) var(--space-md);
+  font-weight: 800;
+}
+
+.ligue-table th,
+.ligue-table td {
+  padding: var(--space-sm) var(--space-md);
+  text-align: start;
+  border-block-end: 1px solid var(--color-liseret);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.ligue-table th {
+  color: var(--color-encre-att);
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.ligue-table td.ligue-table__points {
+  font-weight: 900;
+}
+
+.ligue-table tbody tr:last-child td {
+  border-block-end: none;
+}
+
+.ligue-table tbody tr:hover {
+  background: var(--color-ardoise);
+}
+
+/* --- Statut de match : langage de carton, jamais de vert/rouge générique --- */
+.ligue-chip {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-patch);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.ligue-chip--a-venir {
+  background: var(--color-carton-jaune);
+  color: var(--color-ardoise);
+}
+
+.ligue-chip--joue {
+  color: var(--color-encre-att);
+  padding-inline-start: 0;
+}
+
+/* --- État vide (ex: aucune saison, aucun document, API indisponible) --- */
+.ligue-empty-state {
+  padding: var(--space-lg);
+  border-radius: var(--radius-carte);
+  background: var(--color-ardoise-carte);
+  border: 1px dashed var(--color-liseret);
+  color: var(--color-encre-att);
+  text-align: center;
+  max-width: 28rem;
+  margin-inline: auto;
+}
+
+/* --- Séparateur signature : le cordon de sifflet. Au plus une fois
+   par page, sinon il perd son statut de signature. --- */
+.ligue-divider--sifflet {
+  border: none;
+  block-size: 0.4rem;
+  margin-block: var(--space-xl);
+  background-image: radial-gradient(circle, var(--color-liseret) 0.11rem, transparent 0.12rem);
+  background-size: 1rem 100%;
+  background-repeat: repeat-x;
+  background-position: center;
+}
+
+/* --- Liste de documents (Liens) --- */
+.ligue-document-list {
+  list-style: none;
+  margin: 0 0 var(--space-lg);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+}
+
+.ligue-document-list li {
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-ardoise-carte);
+  border-radius: 0.5rem;
+  box-shadow: var(--shadow-carte);
+}
+
+.ligue-document-list a {
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.ligue-document-list a:hover,
+.ligue-document-list a:focus-visible {
+  text-decoration: underline;
+}
+
+.ligue-document-list__date {
+  color: var(--color-encre-att);
+}
+
+/* --- Filtres (calendrier) --- */
+.ligue-filter-bar {
+    margin: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-xs);
+    margin-bottom: var(--space-md);
+}
+
+.ligue-filter-bar label {
+  color: var(--color-encre-att);
+  font-size: 0.9rem;
+}
+
+.ligue-filter-bar input,
+.ligue-filter-bar select,
+.ligue-filter-bar a,
+.ligue-filter-bar button {
+  font: inherit;
+  padding: 0.4rem 0.9rem;
+  border-radius: var(--radius-patch);
+  border: 1px solid var(--color-liseret);
+  background: var(--color-ardoise-carte);
+  color: var(--color-encre);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.ligue-filter-bar button {
+  font-weight: 700;
+  border-color: transparent;
+  background: var(--division-accent, var(--color-encre));
+  color: var(--color-ardoise);
+}

@@ -1,0 +1,54 @@
+/* ==========================================================================
+   Ligue des Pamplemousses — variables globales
+   Direction : "La table de marque" — voir LigueDesPamplemousseApp/DESIGN.md
+   ========================================================================== */
+
+:root {
+  color-scheme: dark;
+
+  /* --- Couleurs de division (aplats pleins, jamais de simples accents) --- */
+  --color-pamplemousse: #F05D5F;
+  --color-tangerine: #F48E42;
+  --color-clementine: #F7B12F;
+
+  /* --- Statut de match : réservé exclusivement au badge "à venir" --- */
+  --color-carton-jaune: #FFC94A;
+
+  /* --- Structure : ardoise chaude, jamais noir pur --- */
+  --color-ardoise: #15181C;
+  --color-ardoise-carte: #1E2227;
+  --color-encre: #F4F2ED;
+  --color-encre-att: #9AA1AA;
+  --color-liseret: rgb(244 242 237 / 10%);
+
+  --gradient-brand: linear-gradient(135deg, var(--color-pamplemousse) 0%, var(--color-tangerine) 55%, var(--color-clementine) 100%);
+
+  /* --- Profondeur : ombre dure et décalée, jamais de flou --- */
+  --shadow-carte: 0.25rem 0.25rem 0 rgb(0 0 0 / 35%);
+  --shadow-carte-survol: 0.4rem 0.4rem 0 rgb(0 0 0 / 40%);
+
+  /* --- Formes --- */
+  --radius-carte: 0.85rem;
+  --radius-patch: 999px;
+
+  /* --- Typographie --- */
+  --font-body: "Maven Pro", sans-serif;
+
+  /* --- Espacements --- */
+  --space-2xs: 0.375rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1.25rem;
+  --space-lg: 2rem;
+  --space-xl: 3.5rem;
+
+  /* --- Navbar --- */
+  --navbar-height: 4.5rem;
+}
+
+/* Accent de division : appliqué via l'attribut data-division sur un ancêtre.
+   Règle de l'aplat : cet accent doit toujours colorer une vraie surface
+   (bandeau, fond de carte, hero) — jamais seulement un filet de 2px. */
+[data-division="pamplemousse"] { --division-accent: var(--color-pamplemousse); }
+[data-division="tangerine"]    { --division-accent: var(--color-tangerine); }
+[data-division="clementine"]   { --division-accent: var(--color-clementine); }
