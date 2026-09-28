@@ -967,7 +967,6 @@ class Coach(AbstractUser):
     def est_coach_cette_saison(self, saison_id):
         return self.alignements.filter(saison_id=saison_id).exists()
 
-
 class Punition(models.Model):
     punition_id = models.AutoField(primary_key=True)
     nom_punition = models.CharField(max_length=50)
@@ -1043,7 +1042,7 @@ class Match(models.Model):
         code = str(self.equipe1.nom_equipe) + str(self.equipe2.nom_equipe) + str(self.match_id)
         if settings.DEBUG:
             return "http://localhost:8000/Citrus/Match-" + hash_code(code)
-        return "https://citrus.liguedespamplemousses.com/Citrus/Match-" + hash_code(code)
+        return "https://liguedespamplemousses.com/Citrus/Match-" + hash_code(code)
     def get_QrCode(self):
         qr = segno.make(self.get_urlMatch)
 

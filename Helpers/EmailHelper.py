@@ -32,7 +32,7 @@ class EmailHelper:
         self.smtpPort = 465
         self.senderEmail = 'citrus@liguedespamplemousses.com'
         self.password = EMAIL_PSWD
-        self.domaine = "http://localhost:8000" if settings.DEBUG else "https://citrus.liguedespamplemousses.com"
+        self.domaine = "http://localhost:8000" if settings.DEBUG else "https://liguedespamplemousses.com"
         self.baseDirectory = Path(__file__).parent
         self.templateFolder = self.baseDirectory.parent / "CitrusApp" / "templates" / "templatesCourriel"
 

@@ -174,3 +174,20 @@ CORS_ORIGIN_WHITELIST = [
     "https://liguedespamplemousses.com",
     "https://www.liguedespamplemousses.com",
 ]
+
+if not DEBUG:
+    # Passenger / reverse proxy : Django doit savoir que la requête d'origine était en HTTPS
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+
+    # HSTS : commencez petit (1 h), augmentez après vérification
+    SECURE_HSTS_SECONDS = 3600
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+    SECURE_HSTS_PRELOAD = False
+
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_REFERRER_POLICY = 'same-origin'
+    X_FRAME_OPTIONS = 'DENY'
