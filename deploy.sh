@@ -4,7 +4,7 @@ set -euo pipefail
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
 case "$BRANCH" in
-  dev)
+  Dev)
     APP=dev
     ;;
   citrus|main)
