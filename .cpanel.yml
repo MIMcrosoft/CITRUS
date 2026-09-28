@@ -1,5 +1,4 @@
 ---
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/liguxmtn/citrus/
-    - /bin/cp * $DEPLOYPATH
+    - /bin/bash deploy.sh
