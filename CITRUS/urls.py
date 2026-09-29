@@ -16,11 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include
-from django.conf.urls import handler404
-from CitrusApp.views import page_404
 
-
-#handler404 = page_404
+handler400 = 'CITRUS.error_handlers.bad_request'
+handler403 = 'CITRUS.error_handlers.permission_denied'
+handler404 = 'CITRUS.error_handlers.page_not_found'
+handler500 = 'CITRUS.error_handlers.server_error'
 
 urlpatterns = [
     path('admin/', admin.site.urls),

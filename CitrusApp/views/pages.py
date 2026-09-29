@@ -12,11 +12,6 @@ def composants_html(request):
 def test(request):
     return render(request, 'templatesCourriel/email_report_match_accepte.html')
 
-def page_404(request,exception):
-    return render(request, 'fenetre_erreur.html', {
-        'errorMsg': "Oups Cette page n'existe pas !"
-    })
-
 def accueil(request):
     premiere_connexion = False
     current_user = request.user

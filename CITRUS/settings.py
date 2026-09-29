@@ -179,9 +179,9 @@ if not DEBUG:
     # Passenger / reverse proxy : Django doit savoir que la requête d'origine était en HTTPS
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-    SECURE_SSL_REDIRECT = True
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
+    SECURE_SSL_REDIRECT = os.environ.get('DJANGO_SSL_REDIRECT', '1') == '1'
+    SESSION_COOKIE_SECURE = SECURE_SSL_REDIRECT
+    CSRF_COOKIE_SECURE = SECURE_SSL_REDIRECT
 
     # HSTS : commencez petit (1 h), augmentez après vérification
     SECURE_HSTS_SECONDS = 3600
