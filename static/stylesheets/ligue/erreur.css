@@ -1,0 +1,58 @@
+/* ==========================================================================
+   Ligue des Pamplemousses — pages d'erreur
+   Le carton : une carte posée sur la table de marque.
+   ========================================================================== */
+
+.ligue-erreur {
+  max-inline-size: 32rem;
+  margin: var(--space-xl) auto;
+  padding: var(--space-lg) var(--space-md);
+  text-align: center;
+  background: var(--color-ardoise-carte);
+  border: 1px solid var(--color-liseret);
+  border-top: 0.5rem solid var(--color-carton-jaune);
+  border-radius: var(--radius-carte);
+  box-shadow: var(--shadow-carte);
+}
+
+.ligue-erreur__code {
+  margin: 0;
+  font-size: clamp(3.5rem, 2.5rem + 6vw, 5.5rem);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  color: var(--color-carton-jaune);
+}
+
+.ligue-erreur__titre {
+  margin-block: var(--space-sm);
+}
+
+.ligue-erreur__message {
+  margin: 0 0 var(--space-lg);
+  color: var(--color-encre-att);
+}
+
+.ligue-erreur__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-sm);
+}
+
+.ligue-erreur__bouton {
+  display: inline-block;
+  padding: var(--space-xs) var(--space-lg);
+  border-radius: var(--radius-patch);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  color: var(--color-ardoise);
+  background: var(--gradient-brand);
+}
+
+.ligue-erreur__bouton--secondaire {
+  color: var(--color-encre);
+  background: transparent;
+  border: 1px solid var(--color-liseret);
+}

@@ -1,0 +1,73 @@
+{% extends base_template %}
+{% block content %}
+
+<div class="errorState">
+  <i class="fa-solid {{ icone }} errorState__icon" aria-hidden="true"></i>
+  <p class="errorState__code">ERREUR {{ code }}</p>
+  <h1 class="errorState__title">{{ titre }}</h1>
+  <p class="errorState__text">{{ message }}</p>
+
+  <div class="errorState__actions">
+    {% if request.user.is_authenticated and code != 500 %}
+      <a href="/Citrus/"><button type="button" class="btnPrimary"><span>Retour à l'accueil</span></button></a>
+    {% else %}
+      <a href="/Citrus/Connexion/"><button type="button" class="btnPrimary"><span>{% if code == 500 %}Retour à CITRUS{% else %}Se connecter{% endif %}</span></button></a>
+    {% endif %}
+    {% if code != 500 %}
+      <button type="button" class="btnSecondary" onclick="history.back()"><span>Page précédente</span></button>
+    {% endif %}
+  </div>
+</div>
+
+<style>
+  .errorState {
+    max-width: 30rem;
+    margin: 4rem auto;
+    padding: 2.5rem 2rem;
+    text-align: center;
+    border-radius: 1rem;
+    background: var(--white);
+    box-shadow: var(--smallerShadow);
+  }
+
+  .errorState__icon {
+    font-size: 3rem;
+    color: var(--mainPamps);
+  }
+
+  .errorState__code {
+    margin: 1rem 0 0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    color: var(--textBlack);
+    opacity: 0.6;
+  }
+
+  .errorState__title {
+    margin: 0.5rem 0 1rem;
+  }
+
+  .errorState__text {
+    margin: 0 0 1.5rem;
+  }
+
+  .errorState__actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .errorState__actions button {
+    margin-bottom: 0;
+  }
+</style>
+
+{# base.html cache le contenu tant que nav.js n'a pas fini son animation, et nav.js plante sans onglet actif : on révèle la page nous-mêmes. #}
+<script>
+  document.querySelector(".pageContent")?.classList.remove("hidden");
+  document.getElementById("pageCover")?.remove();
+</script>
+
+{% endblock %}

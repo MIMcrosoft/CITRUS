@@ -1,0 +1,18 @@
+{% extends "LigueDesPamplemousseApp/base_public.html" %}
+{% load static %}
+
+{% block title %}Erreur {{ code }} — Ligue des Pamplemousses{% endblock %}
+
+{% block extra_css %}<link rel="stylesheet" href="{% static 'stylesheets/ligue/erreur.css' %}">{% endblock %}
+
+{% block content %}
+<section class="ligue-erreur">
+    <p class="ligue-erreur__code">{{ code }}</p>
+    <h1 class="ligue-erreur__titre">{{ titre }}</h1>
+    <p class="ligue-erreur__message">{{ message }}</p>
+    <div class="ligue-erreur__actions">
+        <a class="ligue-erreur__bouton" href="{% url 'ligue:accueil' %}">Retour à l'accueil</a>
+        <a class="ligue-erreur__bouton ligue-erreur__bouton--secondaire" href="{% url 'ligue:contact' %}">Nous contacter</a>
+    </div>
+</section>
+{% endblock %}
