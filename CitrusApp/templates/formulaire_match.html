@@ -453,8 +453,15 @@
             <div class="card scoreCard">
                 <div class="scoreBoard">
                     <div class="logos">
-                        <img src="{% if match.equipe2.logo %}{{ match.equipe2.logo.url }}{% else %}{% static 'icons/CitrusLogo.png' %}{% endif %}" alt="" class="logo">
-                        <img src="{% if match.equipe1.logo %}{{ match.equipe1.logo.url }}{% else %}{% static 'icons/CitrusLogo.png' %}{% endif %}" alt="" class="logo">
+                        <div>
+                            <img src="{% if match.equipe2.logo %}{{ match.equipe2.getUrlPhoto}}{% else %}{% static 'icons/CitrusLogo.png' %}{% endif %}" alt="" class="logo">
+                            <h3 class="teamName">{{ match.equipe2.nom_equipe }}</h3>
+                        </div>
+                        <div>
+                            <img src="{% if match.equipe1.logo %}{{ match.equipe1.getUrlPhoto}}{% else %}{% static 'icons/CitrusLogo.png' %}{% endif %}" alt="" class="logo">
+                            <h3 class="teamName">{{ match.equipe1.nom_equipe }}</h3>
+                        </div>
+
                     </div>
                     <div class="results">
                         <span id="subTotalTeam2">{% if matchData %}{{ matchData.scores.soustotal.equipe2 }}{% else %}0{% endif %}</span>
