@@ -3,15 +3,17 @@ from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from enum import Enum
-from CitrusApp.NOTPUBLIC import EMAIL_PSWD, TEMP_PSWD
+from dotenv import load_dotenv
 from pathlib import Path
 from django.conf import settings
 from premailer import transform
 import smtplib
+import os
 
 from CitrusApp.models import Coach, hash_code, RequeteReportMatch
 
-
+BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / '.env')
 
 class EmailTemplate(Enum):
     INVITATION = "email_invitation_coach.html"
@@ -31,7 +33,7 @@ class EmailHelper:
         self.smtpServer = 'node38-ca.n0c.com'
         self.smtpPort = 465
         self.senderEmail = 'citrus@liguedespamplemousses.com'
-        self.password = EMAIL_PSWD
+        self.password = os.getenv('EMAIL_PSWD')
         self.domaine = "http://localhost:8000" if settings.DEBUG else "https://liguedespamplemousses.com"
         self.baseDirectory = Path(__file__).parent
         self.templateFolder = self.baseDirectory.parent / "CitrusApp" / "templates" / "templatesCourriel"
@@ -83,7 +85,7 @@ class EmailHelper:
         receveurs = []
         receveurs.append(courrielCoach)
 
-        coachTemp = Coach.createCoach("tempCoach","tempCoach",courrielCoach,TEMP_PSWD)
+        coachTemp = Coach.createCoach("tempCoach","tempCoach",courrielCoach,os.getenv("TEMP_PSWD"))
         urlSignIn = f"{self.domaine}/Citrus/Inscription"
 
         template_path = self.templateFolder / EmailTemplate.VALIDATION.value
