@@ -120,7 +120,7 @@ def connexion_utilisateur(request):
             if coachToReset:
                 code = str(coachToReset.prenom_coach) + str(coachToReset.nom_coach) + str(coachToReset.coach_id)
                 emailHelper.courrielResetPwd(coachToReset.courriel,code)
-                print("COURRIEL ENVOYÉ")
+                #print("COURRIEL ENVOYÉ")
 
             return redirect('ConnexionUtilisateur')
 

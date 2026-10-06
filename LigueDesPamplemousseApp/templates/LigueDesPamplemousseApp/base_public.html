@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="{% static 'stylesheets/ligue/variables.css' %}">
     <link rel="stylesheet" href="{% static 'stylesheets/ligue/base.css' %}">
     <link rel="stylesheet" href="{% static 'stylesheets/ligue/navbar.css' %}">
+    <link rel="stylesheet" href="{% static 'stylesheets/ligue/footer.css' %}">
     <link rel="stylesheet" href="{% static 'stylesheets/ligue/divisions.css' %}">
     {% block extra_css %}{% endblock %}
 </head>
@@ -64,6 +65,11 @@
     <main class="ligue-main">
         {% block content %}{% endblock %}
     </main>
+    <footer class="ligue-footer">
+        <div class="ligue-footer__dots" aria-hidden="true"><span></span><span></span><span></span></div>
+        <p class="ligue-footer__name">Ligue des Pamplemousses de Montréal</p>
+        <p>&copy; {% now "Y" %} Tous droits réservés.</p>
+    </footer>
 
     <script src="{% static 'javascript/ligue/navbar.js' %}"></script>
     {% block extra_js %}{% endblock %}

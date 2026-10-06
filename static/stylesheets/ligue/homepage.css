@@ -392,3 +392,87 @@
 .ligue-archives-prix strong {
   color: var(--division-accent, var(--color-encre));
 }
+
+/* --- Bloc "informations manquantes ou erronées" : carte tenue, bandeau brand --- */
+.ligue-feedback {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md) var(--space-lg);
+  margin-block-start: var(--space-xl);
+  padding: var(--space-lg);
+  padding-block-start: calc(var(--space-lg) + 0.35rem);
+  overflow: hidden;
+  border-radius: var(--radius-carte);
+  border: 1px solid var(--color-liseret);
+  background: var(--color-ardoise-carte);
+  box-shadow: var(--shadow-carte);
+}
+
+.ligue-feedback::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  block-size: 0.35rem;
+  background: var(--gradient-brand);
+}
+
+.ligue-feedback__content {
+  flex: 1 1 22rem;
+}
+
+.ligue-feedback__eyebrow {
+  display: inline-block;
+  margin-block-end: var(--space-2xs);
+  padding: 0.15rem var(--space-sm);
+  border-radius: var(--radius-patch);
+  background: var(--color-tangerine);
+  color: var(--color-ardoise);
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ligue-feedback__title {
+  margin: 0 0 var(--space-2xs);
+  font-weight: 900;
+  color: var(--color-encre);
+  text-wrap: balance;
+}
+
+.ligue-feedback__text {
+  margin: 0;
+  max-inline-size: 60ch;
+  color: var(--color-encre-att);
+  text-wrap: pretty;
+}
+
+.ligue-feedback__text strong {
+  color: var(--color-encre);
+}
+
+.ligue-feedback__cta {
+  flex: 0 0 auto;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-patch);
+  background: var(--color-tangerine);
+  color: var(--color-ardoise);
+  font-weight: 900;
+  text-decoration: none;
+  box-shadow: var(--shadow-carte);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ligue-feedback__cta:hover,
+.ligue-feedback__cta:focus-visible {
+  transform: translate(-0.1rem, -0.1rem);
+  box-shadow: var(--shadow-carte-survol);
+}
+
+.ligue-feedback__cta:focus-visible {
+  outline: 2px solid var(--color-encre);
+  outline-offset: 3px;
+}

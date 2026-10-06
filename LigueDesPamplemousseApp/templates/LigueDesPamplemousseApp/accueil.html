@@ -46,7 +46,7 @@
 <section class="ligue-intro-grid" aria-label="À propos de la ligue">
     <article class="ligue-intro-card ligue-reveal" style="--card-accent: var(--color-pamplemousse)">
         <h3>Mission</h3>
-        <p>Faire vivre l'improvisation comme un vrai sport d'équipe : des matchs joués, des scores qui comptent, une ligue organisée par et pour ses joueurs.</p>
+        <p>Faire vivre l'improvisation comme un vrai sport d'équipe : des matchs joués, des scores qui comptent, une ligue organisée par et pour ses interprètes.</p>
     </article>
     <article class="ligue-intro-card ligue-reveal" style="--card-accent: var(--color-tangerine)">
         <h3>Valeurs</h3>
@@ -147,6 +147,15 @@
         {% endif %}
     </div>
     {% endfor %}
+
+    <aside class="ligue-feedback ligue-reveal" aria-labelledby="feedback-title">
+        <div class="ligue-feedback__content">
+            <span class="ligue-feedback__eyebrow">Archives</span>
+            <h3 id="feedback-title" class="ligue-feedback__title">Des informations manquantes ou erronées&nbsp;?</h3>
+            <p class="ligue-feedback__text">Vous possédez des informations ou des archives sur la Ligue des Pamplemousses, ou vous aimeriez modifier, ajouter ou supprimer des éléments des archives&nbsp;? Contactez <strong>Félix Robillard</strong>.</p>
+        </div>
+        <a class="ligue-feedback__cta" href="{% url 'ligue:contact' %}">Nous écrire</a>
+    </aside>
 </section>
 {% endblock %}
 

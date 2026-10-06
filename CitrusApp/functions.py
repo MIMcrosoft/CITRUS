@@ -302,10 +302,12 @@ def ajoutSemaines():
         row+=1
 
 if __name__ == "__main__":
+    emailHelper = EmailHelper()
+    coachToReset = Coach.objects.filter(courriel="felixrobillardwork@gmail.com").first()
+    code = str(coachToReset.prenom_coach) + str(coachToReset.nom_coach) + str(coachToReset.coach_id)
+    emailHelper.courrielResetPwd(coachToReset.courriel, code)
 
-    Calendrier.createCalendrier("2026","2026-09-30","2027-01-20","1",10,10)
     quit()
-
     for match in Match.objects.filter(completed_flag=False):
         if match.date_match < datetime.now(timezone.utc):
             print(match)
