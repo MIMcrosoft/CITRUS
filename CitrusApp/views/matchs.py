@@ -141,7 +141,7 @@ def formulaire_match(request, hashedCode):
     if settings.DEBUG:
         domain = "http://localhost:8000"
     else:
-        domain = "https://citrus.liguedespamplemousses.com"
+        domain = "https://liguedespamplemousses.com"
 
     for match in Match.objects.all():
         code = str(match.equipe1) + str(match.equipe2) + str(match.match_id)
