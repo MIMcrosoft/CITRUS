@@ -99,8 +99,8 @@ def getCoachUrlChangeMDP(coachEmail):
     if coachToReset:
         code = str(coachToReset.prenom_coach) + str(coachToReset.nom_coach) + str(coachToReset.coach_id)
         coachCodeHash = hash_code(code)
-        domain = "http://localhost:8000" if settings.DEBUG else "https://citrus.liguedespamplemousses.com"
-        urlResetPassword = f"https://citrus.liguedespamplemousses.com/Citrus/ResetPassword-{coachCodeHash}"
+        domain = "http://localhost:8000" if settings.DEBUG else "https://liguedespamplemousses.com"
+        urlResetPassword = f"https://liguedespamplemousses.com/Citrus/ResetPassword-{coachCodeHash}"
         print(urlResetPassword)
 
 def getMissingMatch():

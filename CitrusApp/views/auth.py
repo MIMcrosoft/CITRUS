@@ -17,7 +17,7 @@ def gestion_utilisateurs(request):
     if settings.DEBUG:
         domain = "http://localhost:8000"
     else:
-        domain = "https://citrus.liguedespamplemousses.com"
+        domain = "https://liguedespamplemousses.com"
 
     if current_user.admin_flag == True:
 
@@ -29,14 +29,14 @@ def gestion_utilisateurs(request):
         })
 
     else:
-        return redirect("UserPage",current_user.coach_id)
+        return redirect("ProfilUtilisateur",current_user.coach_id)
 
 @login_required
-def profile_utilisateur(request, userID):
+def profil_utilisateur(request, userID):
     if settings.DEBUG:
         domain = "http://localhost:8000"
     else:
-        domain = "https://citrus.liguedespamplemousses.com"
+        domain = "https://liguedespamplemousses.com"
     if request.method == 'POST':
         pass
 

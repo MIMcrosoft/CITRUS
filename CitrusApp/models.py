@@ -852,7 +852,7 @@ class Equipe(models.Model):
         if settings.DEBUG:
             domain = "http://localhost:8000/Citrus"
         else:
-            domain = "https://citrus.liguedespamplemousses.com"
+            domain = "https://liguedespamplemousses.com"
 
         if self.logo and self.logo.url :
             return domain + self.logo.url

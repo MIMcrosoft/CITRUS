@@ -11,7 +11,7 @@ class ClassementIndisponible(Exception):
 def _api_base_url():
     if settings.DEBUG:
         return "http://localhost:8000"
-    return "https://citrus.liguedespamplemousses.com"
+    return "https://liguedespamplemousses.com"
 
 
 def get_classement(division, saison_id=None):
