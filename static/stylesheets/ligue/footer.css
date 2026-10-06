@@ -1,0 +1,65 @@
+/* Footer commun à toutes les pages de la Ligue (chargé par base_public.html). */
+
+.ligue-footer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-block-start: var(--space-xl);
+  padding: var(--space-lg) var(--space-md);
+  background: var(--color-ardoise-carte);
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--color-encre-att);
+}
+
+.ligue-footer::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  block-size: 0.3rem;
+  background: var(--gradient-brand);
+}
+
+.ligue-footer__dots {
+  display: flex;
+  gap: var(--space-xs);
+}
+
+.ligue-footer__dots span {
+  inline-size: 0.6rem;
+  block-size: 0.6rem;
+  border-radius: 50%;
+}
+
+.ligue-footer__dots span:nth-child(1) { background: var(--color-pamplemousse); }
+.ligue-footer__dots span:nth-child(2) { background: var(--color-tangerine); }
+.ligue-footer__dots span:nth-child(3) { background: var(--color-clementine); }
+
+.ligue-footer__name {
+  margin: 0;
+  color: var(--color-encre);
+  font-weight: 900;
+}
+
+.ligue-footer p {
+  margin: 0;
+}
+
+/* Footer collé en bas de la fenêtre sur les pages courtes.
+   inline-size: 100% empêche le main (margin-inline: auto) de se rétrécir en flex. */
+body.ligue-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.ligue-body > .ligue-main {
+  flex: 1 0 auto;
+  inline-size: 100%;
+}
+
+.ligue-body > .ligue-footer {
+  flex-shrink: 0;
+  inline-size: 100%;
+}
