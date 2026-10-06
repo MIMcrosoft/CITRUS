@@ -24,19 +24,11 @@ def accueil(request):
     if not current_user.est_coach_cette_saison(saison.saison_id):
         premiere_connexion = True
 
-    if current_user.is_superuser == True:
-        matchs = Match.objects.all()
-    else:
-        alignement = Alignement.objects.filter(Q(saison=saison) & Q(coachs=current_user)).first()
-        equipe = alignement.equipe
-        matchs = Match.objects.filter((Q(equipe1=equipe) | Q(equipe2=equipe)) & Q(saison=saison)).all()
-
     if request.method == 'POST':
         pass
 
     return render(request, 'accueil.html', {
         "user": current_user,
-        'matchs': matchs,
         'activeTab' : "ACCUEIL",
         'equipes' : equipes,
         'premiere_connexion' : premiere_connexion
