@@ -52,7 +52,7 @@
                 <tbody>
                     {% for match in matchs_a_venir %}
                     <tr>
-                        <td>{{ match.date_match|date:"d M Y, H:i"|default:"À déterminer" }}</td>
+                        <td>{{ match.date_match|date:"d M Y"|default:"À déterminer" }}</td>
                         <td>{{ match.equipe1.college }}</td>
                         <td>{{ match.equipe1.nom_equipe }}</td>
                         <td>{{ match.equipe2.nom_equipe }}</td>

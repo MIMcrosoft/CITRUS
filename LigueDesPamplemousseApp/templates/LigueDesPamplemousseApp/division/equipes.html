@@ -15,7 +15,7 @@
             {% if equipe.getUrlPhoto %}
             <img class="ligue-team-card__logo" src="{{ equipe.getUrlPhoto }}" alt="Logo — {{ equipe.nom_equipe }}" loading="lazy">
             {% else %}
-            <span class="ligue-team-card__patch" aria-hidden="true">{{ equipe.id_equipe }}</span>
+            <span class="ligue-team-card__patch" aria-hidden="true"></span>
             {% endif %}
             <span class="ligue-team-card__name">{{ equipe.nom_equipe }}</span>
         </a>
