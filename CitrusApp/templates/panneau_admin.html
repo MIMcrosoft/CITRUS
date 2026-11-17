@@ -185,6 +185,43 @@
     </table>
 </section>
 
+<section class="adminSection">
+    <h2>Courriels de notification</h2>
+    <p>Ces adresses reçoivent les courriels liés aux demandes de report de match.</p>
+
+    <div class="repartitionGrid">
+        <div class="repartitionCard">
+            <h3>Administrateurs</h3>
+            <ul class="courrielList">
+                {% for c in courrielsAdmin %}
+                    <li><span>{{ c.courriel }}</span><i class="fa-solid fa-trash" onclick="supprimerCourriel({{ c.id }})" title="Supprimer"></i></li>
+                {% empty %}
+                    <li class="courrielVide">Aucun courriel.</li>
+                {% endfor %}
+            </ul>
+            <div class="buttonsContainer">
+                <input type="email" id="nouveauCourrielADMIN" placeholder="Nouveau courriel" class="adminTextInput">
+                <button class="btnPrimary" onclick="ajouterCourriel('ADMIN')"><span>Ajouter</span></button>
+            </div>
+        </div>
+
+        <div class="repartitionCard">
+            <h3>Responsables des communications</h3>
+            <ul class="courrielList">
+                {% for c in courrielsRespoCom %}
+                    <li><span>{{ c.courriel }}</span><i class="fa-solid fa-trash" onclick="supprimerCourriel({{ c.id }})" title="Supprimer"></i></li>
+                {% empty %}
+                    <li class="courrielVide">Aucun courriel.</li>
+                {% endfor %}
+            </ul>
+            <div class="buttonsContainer">
+                <input type="email" id="nouveauCourrielRESPO_COM" placeholder="Nouveau courriel" class="adminTextInput">
+                <button class="btnPrimary" onclick="ajouterCourriel('RESPO_COM')"><span>Ajouter</span></button>
+            </div>
+        </div>
+    </div>
+</section>
+
 <script>
     function getAdminCsrfToken() {
         return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
@@ -262,6 +299,59 @@
                 location.reload();
             } else {
                 alert("Une erreur s'est produite !");
+            }
+        } catch (error) {
+            alert("Une erreur s'est produite !");
+            console.error(error);
+        }
+    }
+
+    async function ajouterCourriel(type) {
+        const input = document.getElementById('nouveauCourriel' + type);
+        const courriel = input.value.trim();
+        if (!courriel) {
+            alert("Veuillez entrer un courriel.");
+            return;
+        }
+
+        try {
+            const response = await fetch('/Citrus/AjoutCourrielNotification/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getAdminCsrfToken()
+                },
+                body: JSON.stringify({ type: type, courriel: courriel })
+            });
+
+            if (response.ok) {
+                location.reload();
+            } else {
+                const data = await response.json();
+                alert("Erreur : " + data.message);
+            }
+        } catch (error) {
+            alert("Une erreur s'est produite !");
+            console.error(error);
+        }
+    }
+
+    async function supprimerCourriel(id) {
+        if (!confirm("Supprimer ce courriel de la liste ?")) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/Citrus/SuppressionCourrielNotification-${id}/`, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': getAdminCsrfToken() }
+            });
+
+            if (response.ok) {
+                location.reload();
+            } else {
+                const data = await response.json();
+                alert("Erreur : " + data.message);
             }
         } catch (error) {
             alert("Une erreur s'est produite !");
@@ -381,6 +471,32 @@
 
     .barFillClementine {
         background: #F8B22E;
+    }
+
+    .courrielList {
+        list-style: none;
+        margin: 0 0 1rem;
+        padding: 0;
+    }
+
+    .courrielList li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        color: var(--textBlack);
+        overflow-wrap: anywhere;
+    }
+
+    .courrielList i {
+        color: var(--mainPamps);
+        cursor: pointer;
+        padding: 0.5rem;
+    }
+
+    .courrielVide {
+        opacity: 0.6;
     }
 
     .badgeActive, .badgeInactive {

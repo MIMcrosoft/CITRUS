@@ -331,5 +331,20 @@
         td button{
             margin: 0.5rem 0 0.5rem 0;
         }
+    
+        /* MOBILE */
+        @media (max-width: 768px) {
+            .modal {
+                width: calc(100vw - 1.5rem);
+                max-height: calc(100dvh - 1.5rem);
+                overflow-y: auto;
+                border-radius: 1.25rem;
+            }
+            .modal-content { padding: 1.25rem; }
+            .modal-actions { flex-wrap: wrap; padding: 0.5rem; justify-content: center; }
+            .modal-actions button { margin: 0.5rem; }
+            .buttonsContainer { margin: 1rem 0; flex-wrap: wrap; gap: 0.5rem; }
+            .buttonsContainer button { margin-right: 0; }
+        }
     </style>
 {% endblock %}

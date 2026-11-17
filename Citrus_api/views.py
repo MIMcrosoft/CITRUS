@@ -3,6 +3,7 @@ from django.db.models import Q
 from CitrusApp.models import Coach, Equipe, Match, Punition, Interprete, Alignement, DetailsInterprete, Saison, RequeteReportMatch
 from Helpers.EmailHelper import EmailHelper
 from datetime import datetime
+from django.utils import timezone
 from django.http import JsonResponse
 import os
 from django.db import connection
@@ -220,6 +221,34 @@ def modifier_interprete(request):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
+def envoyer_rappel_signature(request):
+    if not getattr(request.user, "admin_flag", False):
+        return Response({"error": "Accès refusé"}, status=403)
+
+    match = Match.objects.filter(match_id=request.data.get('match_id')).first()
+    if not match:
+        return Response({"error": "Match introuvable"}, status=404)
+
+    if match.completed_flag or match.date_match is None or match.date_match > timezone.now():
+        return Response({"error": "Ce match n'est pas en retard de complétion"}, status=400)
+
+    alignementEq1 = Alignement.objects.filter(equipe=match.equipe1, saison=match.saison).first()
+    alignementEq2 = Alignement.objects.filter(equipe=match.equipe2, saison=match.saison).first()
+    coachEq1 = alignementEq1.coachs.first() if alignementEq1 else None
+    coachEq2 = alignementEq2.coachs.first() if alignementEq2 else None
+
+    envoye = EmailHelper().courrielRappelSignature(
+        coachEq1.courriel if coachEq1 else None,
+        coachEq2.courriel if coachEq2 else None,
+        match)
+    if not envoye:
+        return Response({"error": "Aucun coach avec un courriel pour ce match"}, status=400)
+
+    return Response({"success": True})
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def creer_requete_report_match(request):
     current_user = request.user
     match_id = request.data.get('match_id')
@@ -266,7 +295,7 @@ def creer_requete_report_match(request):
     emailHelper.courrielCreationReportMatch(
         coachEq1.courriel if coachEq1 else None,
         coachEq2.courriel if coachEq2 else None,
-        EmailHelper.COURRIEL_ADMIN,
+        EmailHelper.getCourrielsAdmin(),
         rr)
 
     return Response({

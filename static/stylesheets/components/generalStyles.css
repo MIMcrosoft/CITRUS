@@ -1071,7 +1071,8 @@ tr.clems * {
   }
 
   .primaryNav.open {
-    height: 100%;
+    height: 100dvh;
+    overflow-y: auto;
   }
 
   .navLists {
@@ -1115,6 +1116,7 @@ tr.clems * {
 
   .selector {
     position: absolute;
+    left: 0;
     width: 65%;
     height: 3.1rem;
     margin-left: 17.5%;
@@ -1128,6 +1130,85 @@ tr.clems * {
 }
 
 
+
+/*==============================================
+=        Mobile layout (content & components)  =
+==============================================*/
+
+@media only screen and (max-width:768px) {
+  body {
+    height: 100dvh;
+    font-size: 1rem;
+  }
+
+  /* La barre de nav est en haut (4rem, position: fixed) : plus de marge à gauche */
+  main {
+    margin-left: 0;
+    padding: 5rem 1rem 1rem;
+    min-width: 0;
+  }
+
+  .pageContent {
+    overflow-x: hidden;
+  }
+
+  h1 { font-size: 1.35rem; }
+
+  /* Champs et boutons : pas de largeur fixe plus large que l'écran */
+  input[type="text"], input[type="password"], input[type="email"],
+  input[type="number"], input[type="tel"], input[type="date"], textarea {
+    max-width: 100%;
+  }
+
+  input[type="text"], input[type="password"] {
+    width: 100%;
+  }
+
+  button, .btn {
+    padding-inline: 1.25rem;
+    min-height: 2.75rem;
+  }
+
+  label {
+    margin-right: 0.5rem;
+  }
+
+  .select {
+    max-width: 100%;
+  }
+
+  /* Tableaux : défilement horizontal au lieu de déborder de la page */
+  table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  th, td {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.9rem;
+  }
+
+  /* Fenêtres modales : jamais plus grandes que l'écran */
+  .modal {
+    max-width: calc(100vw - 1.5rem);
+    max-height: calc(100dvh - 1.5rem);
+    overflow-y: auto;
+  }
+
+  .modalContent {
+    width: calc(100% - 1.5rem);
+  }
+
+  .modalHeader { padding: 1rem 1.25rem 0; }
+  .modalBody { padding: 0 1.25rem; }
+  .modalFooter { padding: 1rem 1.25rem 0.5rem; }
+
+  .air-datepicker {
+    max-width: calc(100vw - 1rem);
+  }
+}
 
 /*==============================================
 =            Page load-in animation            =

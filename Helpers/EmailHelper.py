@@ -10,7 +10,7 @@ from premailer import transform
 import smtplib
 import os
 
-from CitrusApp.models import Coach, hash_code, RequeteReportMatch
+from CitrusApp.models import Coach, hash_code, RequeteReportMatch, CourrielNotification
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / '.env')
@@ -24,11 +24,18 @@ class EmailTemplate(Enum):
     RESUME = "email_resume_match.html"
     REPORT_MATCH_UPDATE = "email_report_match_update.html"
     REPORT_MATCH_ACCEPTEE = "email_report_match_accepte.html"
+    GENERIQUE = "email_template.html"
 
 
 class EmailHelper:
-    COURRIEL_ADMIN = "felixrobillard@gmail.com"
-    COURRIEL_RESPO_COM = "edouardp2005@gmail.com"
+    @staticmethod
+    def getCourrielsAdmin():
+        return list(CourrielNotification.objects.filter(type_courriel=CourrielNotification.ADMIN).values_list("courriel", flat=True))
+
+    @staticmethod
+    def getCourrielsRespoCom():
+        return list(CourrielNotification.objects.filter(type_courriel=CourrielNotification.RESPO_COM).values_list("courriel", flat=True))
+
     def __init__(self):
         self.smtpServer = 'node38-ca.n0c.com'
         self.smtpPort = 465
@@ -136,7 +143,7 @@ class EmailHelper:
         receveurs = []
         receveurs.append(courrielCoachEq1)
         receveurs.append(courrielCoachEq2)
-        receveurs.append(courrielAdmin)
+        receveurs.extend(courrielAdmin)
 
         coach1 = Coach.objects.get(courriel=courrielCoachEq1) if courrielCoachEq1 else None
         coach2 = Coach.objects.get(courriel=courrielCoachEq2) if courrielCoachEq2 else None
@@ -167,7 +174,7 @@ class EmailHelper:
         htmlBodyParam = htmlBodyParam.replace("{coachEq2Statut}", coach2Statut)
 
         htmlBodyParam = htmlBodyParam.replace("{admin}", "Statisticien")
-        htmlBodyParam = htmlBodyParam.replace("{adminCourriel}", courrielAdmin)
+        htmlBodyParam = htmlBodyParam.replace("{adminCourriel}", ", ".join(courrielAdmin))
         htmlBodyParam = htmlBodyParam.replace("{adminCourrielStatut}", adminStatut)
 
         htmlBodyParamStyle = transform(htmlBodyParam)
@@ -179,7 +186,7 @@ class EmailHelper:
         receveurs = []
         receveurs.append(courrielCoachEq1)
         receveurs.append(courrielCoachEq2)
-        receveurs.append(courrielAdmin)
+        receveurs.extend(courrielAdmin)
 
         coach1Statut = "ACCEPTÉE" if rr.coach1_validation else "EN ATTENTE"
         coach2Statut = "ACCEPTÉE" if rr.coach2_validation else "EN ATTENTE"
@@ -207,7 +214,7 @@ class EmailHelper:
         htmlBodyParam = htmlBodyParam.replace("{coachEq2Statut}", coach2Statut)
 
         htmlBodyParam = htmlBodyParam.replace("{admin}", "Statisticien")
-        htmlBodyParam = htmlBodyParam.replace("{adminCourriel}", courrielAdmin)
+        htmlBodyParam = htmlBodyParam.replace("{adminCourriel}", ", ".join(courrielAdmin))
         htmlBodyParam = htmlBodyParam.replace("{adminCourrielStatut}", adminStatut)
 
 
@@ -220,8 +227,8 @@ class EmailHelper:
         receveurs = []
         receveurs.append(courrielCoachEq1)
         receveurs.append(courrielCoachEq2)
-        receveurs.append(courrielAdmin)
-        receveurs.append(courrielRespoCom)
+        receveurs.extend(courrielAdmin)
+        receveurs.extend(courrielRespoCom)
 
         template_path = self.templateFolder / EmailTemplate.REPORT_MATCH_ACCEPTEE.value
         with open(template_path, 'r', encoding="utf-8") as file:
@@ -239,8 +246,33 @@ class EmailHelper:
         sujet = "Votre demande de report de match à été acceptée"
         self.envoieCourriel(receveurs, sujet, htmlBodyParamStyle)
 
-    def courrielRappelSignature(self, courrielCoach):
-        pass
+    def courrielRappelSignature(self, courrielCoachEq1, courrielCoachEq2, match):
+        receveurs = [c for c in (courrielCoachEq1, courrielCoachEq2) if c]
+        if not receveurs:
+            return False
+
+        template_path = self.templateFolder / EmailTemplate.GENERIQUE.value
+        with open(template_path, 'r', encoding="utf-8") as file:
+            htmlBody = file.read()
+
+        titre = "Rappel : signature de la fiche de match"
+        message = (
+            "Bonjour,<br><br>"
+            f"Ce message est un rappel cordial : la fiche du match opposant "
+            f"<strong>{match.equipe1.nom_equipe}</strong> et <strong>{match.equipe2.nom_equipe}</strong>, "
+            f"joué le {match.get_dateFormattedWithYear()}, n'a pas encore été complétée. "
+            "Merci de la signer dès que possible afin que le match soit comptabilisé au classement.<br><br>"
+            f"Lien de la fiche : <a class=\"link\" href=\"{match.get_urlMatch()}\" target=\"_blank\" rel=\"noopener\">Ouvrir la fiche de match</a>"
+        )
+
+        htmlBodyParam = htmlBody.replace("{title}", titre)
+        htmlBodyParam = htmlBodyParam.replace("{message}", message)
+        htmlBodyParam = htmlBodyParam.replace("{signature}", "L'équipe CITRUS")
+        htmlBodyParam = htmlBodyParam.replace("{currentYear}", datetime.today().strftime("%Y"))
+        htmlBodyParamStyle = transform(htmlBodyParam)
+
+        self.envoieCourriel(receveurs, titre, htmlBodyParamStyle)
+        return True
 
     def courrielResumeMatch(self, courrielCoachEq1, courrielCoachEq2, match):
         receveurs = []

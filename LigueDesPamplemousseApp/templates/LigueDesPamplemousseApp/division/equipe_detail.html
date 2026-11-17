@@ -3,7 +3,7 @@
 {% block title %}{{ equipe.nom_equipe }}{% endblock %}
 
 {% block content %}
-<div data-division="{{ current_division_slug }}">
+<div data-division="{{ current_division_slug }}" class="ligue-team-page">
     <header class="ligue-division-band">
         {% if equipe.getUrlPhoto %}
         <img class="ligue-page-header__logo" src="{{ equipe.getUrlPhoto }}" alt="Logo — {{ equipe.nom_equipe }}">
@@ -11,9 +11,112 @@
         <span class="ligue-team-card__patch" aria-hidden="true">{{ equipe.id_equipe }}</span>
         {% endif %}
         <h1 class="ligue-division-band__title">{{ equipe.nom_equipe }}</h1>
-        <p class="ligue-division-band__meta">Division {{ division_nom }}</p>
+        <p class="ligue-division-band__meta">Division {{ division_nom }}{% if equipe.college %} · {{ equipe.college.nom_college }}{% endif %} · {{ saison.nom_saison }}</p>
     </header>
 
-    <p class="ligue-empty-state">Détails de l'équipe (alignement, historique) à venir.</p>
+    <div class="ligue-team-layout">
+        <section class="ligue-team-block" aria-labelledby="alignement-titre">
+            <h2 id="alignement-titre">Alignement {{ saison.nom_saison }}</h2>
+            {% if alignement %}
+            <ul class="ligue-roster">
+                {% for d in alignement %}
+                <li class="ligue-roster__item">
+                    <span class="ligue-roster__number">{{ d.numero_interprete|default:"–" }}</span>
+                    <span class="ligue-roster__name">{{ d.interprete.nom_interprete }}</span>
+                    {% if d.role_interprete == "C" %}<span class="ligue-roster__role" title="Capitaine">C</span>
+                    {% elif d.role_interprete == "A" %}<span class="ligue-roster__role" title="Assistant-capitaine">A</span>{% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="ligue-empty-state">L'alignement n'a pas encore été publié.</p>
+            {% endif %}
+        </section>
+
+        <section class="ligue-team-block" aria-labelledby="resultats-titre">
+            <h2 id="resultats-titre">Matchs joués</h2>
+            {% if matchs_joues %}
+            <p class="ligue-record" aria-label="Bilan de la saison">
+                <span><strong>{{ bilan.victoires }}</strong> V</span>
+                <span><strong>{{ bilan.defaites }}</strong> D</span>
+                <span><strong>{{ bilan.nuls }}</strong> N</span>
+            </p>
+            <ul class="ligue-results">
+                {% for r in matchs_joues %}
+                <li class="ligue-result ligue-result--{{ r.issue }}">
+                    <span class="ligue-result__issue" aria-label="{% if r.issue == 'V' %}Victoire{% elif r.issue == 'D' %}Défaite{% else %}Nul{% endif %}">{{ r.issue }}</span>
+                    <span class="ligue-result__body">
+                        <span class="ligue-result__opponent">
+                            {% if r.a_domicile %}vs{% else %}@{% endif %}
+                            <a href="{% url 'ligue:equipe_detail' equipe_id=r.adversaire.id_equipe %}">{{ r.adversaire.nom_equipe }}</a>
+                        </span>
+                        <span class="ligue-result__meta">{{ r.match.date_match|date:"d M Y" }}{% if r.match.equipe1.college %} · {{ r.match.equipe1.college.nom_college }}{% endif %}</span>
+                    </span>
+                    <span class="ligue-result__score">{{ r.pour }} — {{ r.contre }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="ligue-empty-state">Aucun match joué pour le moment cette saison.</p>
+            {% endif %}
+        </section>
+    </div>
+
+    <hr class="ligue-divider--sifflet" aria-hidden="true">
+
+    <section class="ligue-team-block" aria-labelledby="historique-titre">
+        <h2 id="historique-titre">Historique : titres et prix individuels</h2>
+        {% if historique %}
+        <p class="ligue-record">
+            {% if historique.totaux.champion_plaza %}<span><strong>{{ historique.totaux.champion_plaza }}</strong> titre{{ historique.totaux.champion_plaza|pluralize }} Plaza</span>{% endif %}
+            {% if historique.totaux.finales_plaza %}<span><strong>{{ historique.totaux.finales_plaza }}</strong> finale{{ historique.totaux.finales_plaza|pluralize }} Plaza</span>{% endif %}
+            {% if historique.totaux.champion_saison %}<span><strong>{{ historique.totaux.champion_saison }}</strong> titre{{ historique.totaux.champion_saison|pluralize }} de saison</span>{% endif %}
+            {% if historique.totaux.prix %}<span><strong>{{ historique.totaux.prix }}</strong> prix individuel{% if historique.totaux.prix > 1 %}s{% endif %}</span>{% endif %}
+        </p>
+
+        <div class="ligue-history">
+            {% for s in historique.saisons %}
+            <details class="ligue-history__season">
+                <summary>
+                    <span class="ligue-history__year">{{ s.annee.saison_label }}</span>
+                    <span class="ligue-history__titles">
+                        {% for t in s.titres %}<span class="ligue-badge ligue-badge--{{ t.role }}">{{ t.get_role_display }}</span>{% endfor %}
+                        {% if s.prix %}<span class="ligue-badge">{{ s.prix|length }} prix individuel{% if s.prix|length > 1 %}s{% endif %}</span>{% endif %}
+                    </span>
+                </summary>
+                <div class="ligue-history__detail">
+                    <p class="ligue-history__division">Division {{ s.annee.division }}</p>
+                    {% for t in s.titres %}
+                    <div class="ligue-history__team">
+                        <h3>{{ t.get_role_display }}{% if t.cegep %} <span>— {{ t.cegep }}</span>{% endif %}</h3>
+                        {% if t.coach %}<p>Coach : {{ t.coach }}</p>{% endif %}
+                        {% if t.interpretes.all %}
+                        <ul class="ligue-archives-roster">
+                            {% for i in t.interpretes.all %}
+                            <li>{{ i.nom }}{% if i.role %} <span class="ligue-archives-roster__role">({{ i.role }})</span>{% endif %}</li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    {% if s.prix %}
+                    <div class="ligue-history__team">
+                        <h3>Prix</h3>
+                        <ul class="ligue-history__prizes">
+                            {% for p in s.prix %}
+                            <li><strong>{{ p.label }}</strong>{% if p.gagnant_nom %} — {{ p.gagnant_nom }}{% endif %}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+            </details>
+            {% endfor %}
+        </div>
+        <p class="ligue-history__note">Si vous constatez des erreurs dans l’historique, contactez un administrateur. Les données peuvent être incomplètes.</p>
+        {% else %}
+        <p class="ligue-empty-state">Aucun titre ni prix dans les archives pour cette équipe.</p>
+        {% endif %}
+    </section>
 </div>
 {% endblock %}

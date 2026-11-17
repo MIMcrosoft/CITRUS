@@ -119,6 +119,7 @@
                     <menu-deroulant>
                         <select name="" id="improPts1" class="point" onchange="saveToDB(); updatePoint()">
                             <option value="" {% if not matchData.improvisations.0.points %}selected{% endif %}>Point</option>
+                            <option value="">&mdash;</option>
                             <option value="team1" {% if matchData.improvisations.0.points == "team1" %}selected{% endif %}>{{ match.equipe1.nom_equipe }}</option>
                             <option value="team2" {% if matchData.improvisations.0.points == "team2" %}selected{% endif %}>{{ match.equipe2.nom_equipe }}</option>
                             <option value="both" {% if matchData.improvisations.0.points == "both" %}selected{% endif %}>Les deux</option>
@@ -131,6 +132,7 @@
                     <menu-deroulant>
                         <select name="" id="improPts2" class="point" onchange="saveToDB(); updatePoint()">
                             <option value="" {% if not matchData.improvisations.1.points %}selected{% endif %}>Point</option>
+                            <option value="">&mdash;</option>
                             <option value="team1" {% if matchData.improvisations.1.points == "team1" %}selected{% endif %}>{{ match.equipe1.nom_equipe }}</option>
                             <option value="team2" {% if matchData.improvisations.1.points == "team2" %}selected{% endif %}>{{ match.equipe2.nom_equipe }}</option>
                             <option value="both" {% if matchData.improvisations.1.points == "both" %}selected{% endif %}>Les deux</option>
@@ -143,6 +145,7 @@
                     <menu-deroulant>
                         <select name="" id="improPts3" class="point" onchange="saveToDB(); updatePoint()">
                             <option value="" {% if not matchData.improvisations.2.points %}selected{% endif %}>Point</option>
+                            <option value="">&mdash;</option>
                             <option value="team1" {% if matchData.improvisations.2.points == "team1" %}selected{% endif %}>{{ match.equipe1.nom_equipe }}</option>
                             <option value="team2" {% if matchData.improvisations.2.points == "team2" %}selected{% endif %}>{{ match.equipe2.nom_equipe }}</option>
                             <option value="both" {% if matchData.improvisations.2.points == "both" %}selected{% endif %}>Les deux</option>
@@ -155,6 +158,7 @@
                     <menu-deroulant>
                         <select name="" id="improPts4" class="point" onchange="saveToDB(); updatePoint()">
                             <option value="" {% if not matchData.improvisations.3.points %}selected{% endif %}>Point</option>
+                            <option value="">&mdash;</option>
                             <option value="team1" {% if matchData.improvisations.3.points == "team1" %}selected{% endif %}>{{ match.equipe1.nom_equipe }}</option>
                             <option value="team2" {% if matchData.improvisations.3.points == "team2" %}selected{% endif %}>{{ match.equipe2.nom_equipe }}</option>
                             <option value="both" {% if matchData.improvisations.3.points == "both" %}selected{% endif %}>Les deux</option>
@@ -167,6 +171,7 @@
                     <menu-deroulant>
                         <select name="" id="improPts5" class="point" onchange="saveToDB(); updatePoint()">
                             <option value="" {% if not matchData.improvisations.4.points %}selected{% endif %}>Point</option>
+                            <option value="">&mdash;</option>
                             <option value="team1" {% if matchData.improvisations.4.points == "team1" %}selected{% endif %}>{{ match.equipe1.nom_equipe }}</option>
                             <option value="team2" {% if matchData.improvisations.4.points == "team2" %}selected{% endif %}>{{ match.equipe2.nom_equipe }}</option>
                             <option value="both" {% if matchData.improvisations.4.points == "both" %}selected{% endif %}>Les deux</option>
@@ -179,6 +184,7 @@
                     <menu-deroulant>
                         <select name="" id="improPts6" class="point" onchange="saveToDB(); updatePoint()">
                             <option value="" {% if not matchData.improvisations.5.points %}selected{% endif %}>Point</option>
+                            <option value="">&mdash;</option>
                             <option value="team1" {% if matchData.improvisations.5.points == "team1" %}selected{% endif %}>{{ match.equipe1.nom_equipe }}</option>
                             <option value="team2" {% if matchData.improvisations.5.points == "team2" %}selected{% endif %}>{{ match.equipe2.nom_equipe }}</option>
                             <option value="both" {% if matchData.improvisations.5.points == "both" %}selected{% endif %}>Les deux</option>
@@ -191,6 +197,7 @@
                     <menu-deroulant>
                         <select name="" id="improPts7" class="point" onchange="saveToDB(); updatePoint()">
                             <option value="" {% if not matchData.improvisations.6.points %}selected{% endif %}>Point</option>
+                            <option value="">&mdash;</option>
                             <option value="team1" {% if matchData.improvisations.6.points == "team1" %}selected{% endif %}>{{ match.equipe1.nom_equipe }}</option>
                             <option value="team2" {% if matchData.improvisations.6.points == "team2" %}selected{% endif %}>{{ match.equipe2.nom_equipe }}</option>
                             <option value="both" {% if matchData.improvisations.6.points == "both" %}selected{% endif %}>Les deux</option>
@@ -203,6 +210,7 @@
                     <menu-deroulant>
                         <select name="" id="improPts8" class="point" onchange="saveToDB(); updatePoint()">
                             <option value="" {% if not matchData.improvisations.7.points %}selected{% endif %}>Point</option>
+                            <option value="">&mdash;</option>
                             <option value="team1" {% if matchData.improvisations.7.points == "team1" %}selected{% endif %}>{{ match.equipe1.nom_equipe }}</option>
                             <option value="team2" {% if matchData.improvisations.7.points == "team2" %}selected{% endif %}>{{ match.equipe2.nom_equipe }}</option>
                             <option value="both" {% if matchData.improvisations.7.points == "both" %}selected{% endif %}>Les deux</option>
@@ -215,6 +223,7 @@
                     <menu-deroulant>
                         <select name="" id="improPts9" class="point" onchange="saveToDB(); updatePoint()">
                             <option value="" {% if not matchData.improvisations.8.points %}selected{% endif %}>Point</option>
+                            <option value="">&mdash;</option>
                             <option value="team1" {% if matchData.improvisations.8.points == "team1" %}selected{% endif %}>{{ match.equipe1.nom_equipe }}</option>
                             <option value="team2" {% if matchData.improvisations.8.points == "team2" %}selected{% endif %}>{{ match.equipe2.nom_equipe }}</option>
                             <option value="both" {% if matchData.improvisations.8.points == "both" %}selected{% endif %}>Les deux</option>
@@ -227,6 +236,7 @@
                     <menu-deroulant>
                         <select name="" id="improPts10" class="point" onchange="saveToDB(); updatePoint()">
                             <option value="" {% if not matchData.improvisations.9.points %}selected{% endif %}>Point</option>
+                            <option value="">&mdash;</option>
                             <option value="team1" {% if matchData.improvisations.9.points == "team1" %}selected{% endif %}>{{ match.equipe1.nom_equipe }}</option>
                             <option value="team2" {% if matchData.improvisations.9.points == "team2" %}selected{% endif %}>{{ match.equipe2.nom_equipe }}</option>
                             <option value="both" {% if matchData.improvisations.9.points == "both" %}selected{% endif %}>Les deux</option>
@@ -239,6 +249,7 @@
                     <menu-deroulant>
                         <select name="" id="improPts11" class="point" onchange="saveToDB(); updatePoint()">
                             <option value="" {% if not matchData.improvisations.10.points %}selected{% endif %}>Point</option>
+                            <option value="">&mdash;</option>
                             <option value="team1" {% if matchData.improvisations.10.points == "team1" %}selected{% endif %}>{{ match.equipe1.nom_equipe }}</option>
                             <option value="team2" {% if matchData.improvisations.10.points == "team2" %}selected{% endif %}>{{ match.equipe2.nom_equipe }}</option>
                             <option value="both" {% if matchData.improvisations.10.points == "both" %}selected{% endif %}>Les deux</option>
@@ -251,6 +262,7 @@
                     <menu-deroulant>
                         <select name="" id="improPts12" class="point" onchange="saveToDB(); updatePoint()">
                             <option value="" {% if not matchData.improvisations.11.points %}selected{% endif %}>Point</option>
+                            <option value="">&mdash;</option>
                             <option value="team1" {% if matchData.improvisations.11.points == "team1" %}selected{% endif %}>{{ match.equipe1.nom_equipe }}</option>
                             <option value="team2" {% if matchData.improvisations.11.points == "team2" %}selected{% endif %}>{{ match.equipe2.nom_equipe }}</option>
                             <option value="both" {% if matchData.improvisations.11.points == "both" %}selected{% endif %}>Les deux</option>
@@ -263,6 +275,7 @@
                     <menu-deroulant>
                         <select name="" id="improPts13" class="prolongationPoint" onchange="saveToDB(); updateProlongation()">
                             <option value="" {% if not matchData.improvisations.12.points %}selected{% endif %}>Point</option>
+                            <option value="">&mdash;</option>
                             <option value="team1" {% if matchData.improvisations.12.points == "team1" %}selected{% endif %}>{{ match.equipe1.nom_equipe }}</option>
                             <option value="team2" {% if matchData.improvisations.12.points == "team2" %}selected{% endif %}>{{ match.equipe2.nom_equipe }}</option>
                         </select>
@@ -280,6 +293,7 @@
                     <menu-deroulant>
                         <select name="" id="improPts1" class="point" onchange="saveToDB(); updatePoint()">
                             <option value="">Point</option>
+                            <option value="">&mdash;</option>
                             <option value="team1">{{ match.equipe1.nom_equipe }}</option>
                             <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                             <option value="both">Les deux</option>
@@ -292,6 +306,7 @@
                     <menu-deroulant>
                         <select name="" id="improPts2" class="point" onchange="saveToDB(); updatePoint()">
                             <option value="">Point</option>
+                            <option value="">&mdash;</option>
                             <option value="team1">{{ match.equipe1.nom_equipe }}</option>
                             <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                             <option value="both">Les deux</option>
@@ -304,6 +319,7 @@
                     <menu-deroulant>
                         <select name="" id="improPts3" class="point" onchange="saveToDB(); updatePoint()">
                             <option value="">Point</option>
+                            <option value="">&mdash;</option>
                             <option value="team1">{{ match.equipe1.nom_equipe }}</option>
                             <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                             <option value="both">Les deux</option>
@@ -316,6 +332,7 @@
                     <menu-deroulant>
                         <select name="" id="improPts4" class="point" onchange="saveToDB(); updatePoint()">
                             <option value="">Point</option>
+                            <option value="">&mdash;</option>
                             <option value="team1">{{ match.equipe1.nom_equipe }}</option>
                             <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                             <option value="both">Les deux</option>
@@ -328,6 +345,7 @@
                     <menu-deroulant>
                         <select name="" id="improPts5" class="point" onchange="saveToDB(); updatePoint()">
                             <option value="">Point</option>
+                            <option value="">&mdash;</option>
                             <option value="team1">{{ match.equipe1.nom_equipe }}</option>
                             <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                             <option value="both">Les deux</option>
@@ -340,6 +358,7 @@
                     <menu-deroulant>
                         <select name="" id="improPts6" class="point" onchange="saveToDB(); updatePoint()">
                             <option value="">Point</option>
+                            <option value="">&mdash;</option>
                             <option value="team1">{{ match.equipe1.nom_equipe }}</option>
                             <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                             <option value="both">Les deux</option>
@@ -352,6 +371,7 @@
                     <menu-deroulant>
                         <select name="" id="improPts7" class="point" onchange="saveToDB(); updatePoint()">
                             <option value="">Point</option>
+                            <option value="">&mdash;</option>
                             <option value="team1">{{ match.equipe1.nom_equipe }}</option>
                             <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                             <option value="both">Les deux</option>
@@ -364,6 +384,7 @@
                     <menu-deroulant>
                         <select name="" id="improPts8" class="point" onchange="saveToDB(); updatePoint()">
                             <option value="">Point</option>
+                            <option value="">&mdash;</option>
                             <option value="team1">{{ match.equipe1.nom_equipe }}</option>
                             <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                             <option value="both">Les deux</option>
@@ -376,6 +397,7 @@
                     <menu-deroulant>
                         <select name="" id="improPts9" class="point" onchange="saveToDB(); updatePoint()">
                             <option value="">Point</option>
+                            <option value="">&mdash;</option>
                             <option value="team1">{{ match.equipe1.nom_equipe }}</option>
                             <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                             <option value="both">Les deux</option>
@@ -388,6 +410,7 @@
                     <menu-deroulant>
                         <select name="" id="improPts10" class="point" onchange="saveToDB(); updatePoint()">
                             <option value="">Point</option>
+                            <option value="">&mdash;</option>
                             <option value="team1">{{ match.equipe1.nom_equipe }}</option>
                             <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                             <option value="both">Les deux</option>
@@ -400,6 +423,7 @@
                     <menu-deroulant>
                         <select name="" id="improPts11" class="point" onchange="saveToDB(); updatePoint()">
                             <option value="">Point</option>
+                            <option value="">&mdash;</option>
                             <option value="team1">{{ match.equipe1.nom_equipe }}</option>
                             <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                             <option value="both">Les deux</option>
@@ -412,6 +436,7 @@
                     <menu-deroulant>
                         <select name="" id="improPts12" class="point" onchange="saveToDB(); updatePoint()">
                             <option value="">Point</option>
+                            <option value="">&mdash;</option>
                             <option value="team1">{{ match.equipe1.nom_equipe }}</option>
                             <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                             <option value="both">Les deux</option>
@@ -424,6 +449,7 @@
                     <menu-deroulant>
                         <select name="" id="improPts13" class="prolongationPoint" onchange="saveToDB(); updateProlongation()">
                             <option value="">Point</option>
+                            <option value="">&mdash;</option>
                             <option value="team1">{{ match.equipe1.nom_equipe }}</option>
                             <option value="team2">{{ match.equipe2.nom_equipe }}</option>
                         </select>
@@ -490,7 +516,7 @@
                         <button type="button" id="signatureCoachBtn1" class="btnPrimary signBtn btnStretch" onclick="openModal('signatureCoachModal1')">Signer</button>
                         <label for="coach2" class="label onTop">Signature coach {{ match.equipe2.nom_equipe }}</label>
                         <button type="button" class="btnPrimary signBtn btnStretch" id="signatureCoachBtn2" onclick="openModal('signatureCoachModal2')">Signer</button>
-                        <button type="submit" id="finalizeMatchBtn" class="btnPrimary btnStretch disabled-btn"><span>Confirmer l'envoi</span></button>
+                        <button type="submit" id="finalizeMatchBtn" class="btnPrimary btnStretch{% if not current_user.admin_flag %} disabled-btn{% endif %}"><span>Confirmer l'envoi</span></button>
                     </div>
                 </form>
             </div>

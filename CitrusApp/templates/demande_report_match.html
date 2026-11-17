@@ -4,6 +4,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Demande de report</title>
     <style>
         body {
@@ -70,6 +71,11 @@
 
         .btn-decline:hover {
             background: #b52b38;
+        }
+    
+        @media (max-width: 480px) {
+            body { height: auto; min-height: 100dvh; padding: 1rem; box-sizing: border-box; }
+            .card { width: 100%; padding: 1.25rem; box-sizing: border-box; }
         }
     </style>
     <link rel="stylesheet" href="{% static 'stylesheets/components/generalStyles.css' %}">

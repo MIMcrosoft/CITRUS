@@ -3,394 +3,1638 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Components</title>
-    <link href="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.3/air-datepicker.min.css" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../../static/stylesheets/components/generalStyles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>Formulaire de match</title>
     <link rel="stylesheet" href="{% static 'stylesheets/components/generalStyles.css' %}">
-
 </head>
+
 <body>
-    <h1>Title</h1>
 
-    <h2>Secondary Title</h2>
+    <div class="pageShell">
 
-    <p>Text body</p>
+        <header class="matchHeader">
+            <div class="logoBoard">
+                <img src="{% if match.equipe2.logo %}{{ match.equipe2.getUrlPhoto }}{% else %}{% static 'icons/CitrusLogo.png' %}{% endif %}" alt="Logo {{ match.equipe2.nom_equipe }}" class="logo">
+                <span class="logoX">Vs</span>
+                <img src="{% if match.equipe1.logo %}{{ match.equipe1.getUrlPhoto }}{% else %}{% static 'icons/CitrusLogo.png' %}{% endif %}" alt="Logo {{ match.equipe1.nom_equipe }}" class="logo">
+            </div>
+            <div class="teamBoard">
+                <p>{{ match.equipe2.nom_equipe }} Vs. {{ match.equipe1.nom_equipe }}</p>
+                <p class="matchDate">{{ match.get_dateFormatted }}</p>
+            </div>
+        </header>
 
-    <p>Clickable <a href="">link</a> in text</p>
+        <nav class="formTabs" aria-label="Sections du formulaire" role="tablist">
+            <div class="tabBtn active" role="tab" aria-selected="true" tabindex="0" onclick="showSection('Alignement', this)">Alignement</div>
+            <div class="tabBtn" role="tab" aria-selected="false" tabindex="0" onclick="showSection('Match', this)">Match</div>
+            <div class="tabBtn" role="tab" aria-selected="false" tabindex="0" onclick="showSection('Pénalités', this)">Pénalités</div>
+            <div class="tabBtn" role="tab" aria-selected="false" tabindex="0" onclick="showSection('Score', this)">Score et signatures</div>
+        </nav>
 
-    <!-- Tooltip Code -->
-    <p>Tooltip text<i class="tooltip fa-solid fa-circle-info" data-tippy-content="Tooltip content"></i></p>
-    <script src="https://kit.fontawesome.com/b6c9a53dc1.js" crossorigin="anonymous"></script>
+        <section id="Alignement">
+            <div class="teamsGrid">
+                <div class="team card" id="alignement1">
+                    <h3 class="teamName">{{ match.equipe2.nom_equipe }}</h3>
+                    <p class="teamCollege">{{ match.equipe2.college.nom_college }}</p>
 
-    <script src="https://unpkg.com/@popperjs/core@2"></script>
-    <script src="https://unpkg.com/tippy.js@6"></script>
-    <script>
-        tippy('.tooltip', {
-            allowHTML: true,
-            theme: 'citrus',
-            hideOnClick: false,
-            interactive: true,
-            interactiveDebounce: 25,
-            maxWidth: 350,
-        });
-    </script>
-    <!-- End of Tooltip Code -->
+                    <div class="playerHeader" aria-hidden="true">
+                        <span>Rôle</span><span>No</span><span>Pronom</span><span>Nom</span>
+                    </div>
 
-
-    <button class="btnPrimary"><span>Primary</span></button>
-
-    <button class="btnSecondary"><span>Secondary</span></button>
-
-    <button class="btnPrimary btnInline"><span>Primary inline</span></button>
-    <button class="btnSecondary btnInline"><span>Secondary inline</span></button>
-
-    <button class="btnPrimary btnStretch"><span>Primary stretch</span></button>
-
-    <button class="btnSecondary btnStretch"><span>Secondary stretch</span></button>
-
-    <label for="text" class="label onTop">Label for field</label>
-    <input type="text" id="text" value="Text input">
-
-    <label for="text" class="label">Label for field</label>
-    <!-- Dropdown Code-->
-    <div class="select" style="width:200px;">
-        <select name="" id="">
-            <option value="">Dropdown menu</option>
-            <option value="">Option active</option>
-            <option value="">Option hover</option>
-            <option value="">Option</option>
-            <option value="">Option</option>
-            <option value="">Option</option>
-            <option value="">Option</option>
-            <option value="">Option</option>
-            <option value="">Option</option>
-        </select>
-    </div>
-    <!-- End of Dropdown Code-->
-
-    <deroulant-recherche style="width:300px;">
-      <select onchange="alert('Valeur choisie : ' + this.value)">
-        <option value="">Choisir une option...</option>
-        <option value="1">Option 1</option>
-        <option value="2">Option 2</option>
-        <option value="3">Option 3</option>
-        <option value="4">Option 4</option>
-      </select>
-    </deroulant-recherche>
+                    {% if matchData and matchData.alignementEquipe1|length >= equipe2Alignement|length %}
+                        {% for interprete in matchData.alignementEquipe1 %}
+                            <div class="player player{{ loop.index}}">
+                                <p>{{ interprete.0 }}</p>
+                                <p>{{ interprete.1 }}</p>
+                                <p>{{ interprete.2 }}</p>
+                                <p>{{ interprete.3 }}</p>
+                            </div>
+                        {% endfor %}
+                    {% elif equipe2Alignement %}
+                        {% for details in equipe2Alignement %}
+                            <div class="player player{{ loop.index}}">
+                                <p>{{ details.role_interprete }}</p>
+                                <p>{{ details.numero_interprete }}</p>
+                                <p>{{ details.interprete.pronom_interprete }}</p>
+                                <p>{{ details.interprete.nom_interprete }}</p>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
 
 
-    <div class="select select-search" style="width:400px;">
-        <select name="" id="">
-            <option value="1">Dropdown menu with search</option>
-            <option value="2">Option active</option>
-            <option value="3">Option hover</option>
-            <option value="4">Option similar</option>
-            <option value="5">Similar option</option>
-            <option value="6">Option 5</option>
-            <option value="7">Option 6</option>
-            <option value="8">Option 7</option>
-            <option value="9">Option 8</option>
-        </select>
-    </div>
+                    <div class="coach">
+                        <p class="coachLabel">Coach</p>
+                        <p>{{ coach.pronom_coach }}</p>
+                        <p>{{ coach.prenom_coach }} {{ coach.nom_coach }}</p>
+                    </div>
 
-    <label class="checkboxContainer">Checkbox checked
-        <input type="checkbox" checked>
-        <span class="checkmark"></span>
-    </label>
+                    <button class="btnPrimary btnStretch" onclick="openModal('addPlayerModal');document.getElementById('team').value = 1"><span>Ajouter un remplaçant</span></button>
+                </div>
+                <div class="team card" id="alignement2">
+                    <h3 class="teamName">{{ match.equipe1.nom_equipe }}</h3>
+                    <p class="teamCollege">{{ match.equipe1.college.nom_college }}</p>
 
-    <label class="checkboxContainer">Checkbox
-        <input type="checkbox" >
-        <span class="checkmark"></span>
-    </label>
+                    <div class="playerHeader" aria-hidden="true">
+                        <span>Rôle</span><span>No</span><span>Pronom</span><span>Nom</span>
+                    </div>
 
-    <label class="radioContainer">Radio checked
-        <input type="radio" name="radio" checked>
-        <span class="checkmark"></span>
-    </label>
+                    {% if matchData and matchData.alignementEquipe2|length >= equipe1Alignement|length %}
+                        {% for interprete in matchData.alignementEquipe2 %}
+                            <div class="player player{{ loop.index}}">
+                                <p>{{ interprete.0 }}</p>
+                                <p>{{ interprete.1 }}</p>
+                                <p>{{ interprete.2 }}</p>
+                                <p>{{ interprete.3 }}</p>
+                            </div>
+                        {% endfor %}
+                    {% elif equipe1Alignement %}
+                        {% for details in equipe1Alignement %}
+                            <div class="player player{{ loop.index}}">
+                                <p>{{ details.role_interprete }}</p>
+                                <p>{{ details.numero_interprete }}</p>
+                                <p>{{ details.interprete.pronom_interprete }}</p>
+                                <p>{{ details.interprete.nom_interprete }}</p>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
 
-    <label class="radioContainer">Radio
-        <input type="radio" name="radio">
-        <span class="checkmark"></span>
-    </label>
+                    <div class="coach">
+                        <p class="coachLabel">Coach</p>
+                        <p>{{ coach.pronom_coach }}</p>
+                        <p>{{ coach.prenom_coach }} {{ coach.nom_coach }}</p>
+                    </div>
 
-    <input type="text" id="exampleCalendar" class="calendar" autocomplete="off">
+                    <button class="btnPrimary btnStretch" onclick="openModal('addPlayerModal');document.getElementById('team').value = 2"><span>Ajouter un remplaçant</span></button>
+                </div>
+            </div>
+        </section>
 
-    <table>
-        <tr class="tableHeaderRow">
-            <th>Header</th>
-            <th>Header</th>
-        </tr>
-        <tr class="pamps">
-            <td>Text</td>
-            <td>Text</td>
-        </tr>
-        <tr class="tangs">
-            <td>Text</td>
-            <td>Text</td>
-        </tr>
-        <tr class="clems">
-            <td>Text</td>
-            <td>Text</td>
-        </tr>
-    </table>
+        {% if matchData %}
+            <section id="Match" class="hidden">
+            <div class="card improList">
+                <div class="impro">
+                    <p class="improNum">1.</p>
+                    <input type="text" id="impro1" value="{{ matchData.improvisations.0.description }}" onchange="saveToDB()" placeholder="Titre de l'improvisation">
+                    <menu-deroulant>
+                        <select name="" id="improPts1" class="point" onchange="saveToDB(); updatePoint()">
+                            <option value="" {% if not matchData.improvisations.0.points %}selected{% endif %}>Point</option>
+                            <option value="none" {% if matchData.improvisations.0.points == "none" %}selected{% endif %}>&mdash;</option>
+                            <option value="team1" {% if matchData.improvisations.0.points == "team1" %}selected{% endif %}>{{ match.equipe1.nom_equipe }}</option>
+                            <option value="team2" {% if matchData.improvisations.0.points == "team2" %}selected{% endif %}>{{ match.equipe2.nom_equipe }}</option>
+                            <option value="both" {% if matchData.improvisations.0.points == "both" %}selected{% endif %}>Les deux</option>
+                        </select>
+                    </menu-deroulant>
+                </div>
+                <div class="impro">
+                    <p class="improNum">2.</p>
+                    <input type="text" value="{{ matchData.improvisations.1.description }}" id="impro2" onchange="saveToDB()" placeholder="Titre de l'improvisation">
+                    <menu-deroulant>
+                        <select name="" id="improPts2" class="point" onchange="saveToDB(); updatePoint()">
+                            <option value="" {% if not matchData.improvisations.1.points %}selected{% endif %}>Point</option>
+                            <option value="none" {% if matchData.improvisations.1.points == "none" %}selected{% endif %}>&mdash;</option>
+                            <option value="team1" {% if matchData.improvisations.1.points == "team1" %}selected{% endif %}>{{ match.equipe1.nom_equipe }}</option>
+                            <option value="team2" {% if matchData.improvisations.1.points == "team2" %}selected{% endif %}>{{ match.equipe2.nom_equipe }}</option>
+                            <option value="both" {% if matchData.improvisations.1.points == "both" %}selected{% endif %}>Les deux</option>
+                        </select>
+                    </menu-deroulant>
+                </div>
+                <div class="impro">
+                    <p class="improNum">3.</p>
+                    <input type="text" value="{{ matchData.improvisations.2.description }}" id="impro3" onchange="saveToDB()" placeholder="Titre de l'improvisation">
+                    <menu-deroulant>
+                        <select name="" id="improPts3" class="point" onchange="saveToDB(); updatePoint()">
+                            <option value="" {% if not matchData.improvisations.2.points %}selected{% endif %}>Point</option>
+                            <option value="none" {% if matchData.improvisations.2.points == "none" %}selected{% endif %}>&mdash;</option>
+                            <option value="team1" {% if matchData.improvisations.2.points == "team1" %}selected{% endif %}>{{ match.equipe1.nom_equipe }}</option>
+                            <option value="team2" {% if matchData.improvisations.2.points == "team2" %}selected{% endif %}>{{ match.equipe2.nom_equipe }}</option>
+                            <option value="both" {% if matchData.improvisations.2.points == "both" %}selected{% endif %}>Les deux</option>
+                        </select>
+                    </menu-deroulant>
+                </div>
+                <div class="impro">
+                    <p class="improNum">4.</p>
+                    <input type="text" value="{{ matchData.improvisations.3.description }}" id="impro4" onchange="saveToDB()" placeholder="Titre de l'improvisation">
+                    <menu-deroulant>
+                        <select name="" id="improPts4" class="point" onchange="saveToDB(); updatePoint()">
+                            <option value="" {% if not matchData.improvisations.3.points %}selected{% endif %}>Point</option>
+                            <option value="none" {% if matchData.improvisations.3.points == "none" %}selected{% endif %}>&mdash;</option>
+                            <option value="team1" {% if matchData.improvisations.3.points == "team1" %}selected{% endif %}>{{ match.equipe1.nom_equipe }}</option>
+                            <option value="team2" {% if matchData.improvisations.3.points == "team2" %}selected{% endif %}>{{ match.equipe2.nom_equipe }}</option>
+                            <option value="both" {% if matchData.improvisations.3.points == "both" %}selected{% endif %}>Les deux</option>
+                        </select>
+                    </menu-deroulant>
+                </div>
+                <div class="impro">
+                    <p class="improNum">5.</p>
+                    <input type="text" value="{{ matchData.improvisations.4.descrition }}" id="impro5" onchange="saveToDB()" placeholder="Titre de l'improvisation">
+                    <menu-deroulant>
+                        <select name="" id="improPts5" class="point" onchange="saveToDB(); updatePoint()">
+                            <option value="" {% if not matchData.improvisations.4.points %}selected{% endif %}>Point</option>
+                            <option value="none" {% if matchData.improvisations.4.points == "none" %}selected{% endif %}>&mdash;</option>
+                            <option value="team1" {% if matchData.improvisations.4.points == "team1" %}selected{% endif %}>{{ match.equipe1.nom_equipe }}</option>
+                            <option value="team2" {% if matchData.improvisations.4.points == "team2" %}selected{% endif %}>{{ match.equipe2.nom_equipe }}</option>
+                            <option value="both" {% if matchData.improvisations.4.points == "both" %}selected{% endif %}>Les deux</option>
+                        </select>
+                    </menu-deroulant>
+                </div>
+                <div class="impro">
+                    <p class="improNum">6.</p>
+                    <input type="text" value="{{ matchData.improvisations.5.description }}" id="impro6" onchange="saveToDB()" placeholder="Titre de l'improvisation">
+                    <menu-deroulant>
+                        <select name="" id="improPts6" class="point" onchange="saveToDB(); updatePoint()">
+                            <option value="" {% if not matchData.improvisations.5.points %}selected{% endif %}>Point</option>
+                            <option value="none" {% if matchData.improvisations.5.points == "none" %}selected{% endif %}>&mdash;</option>
+                            <option value="team1" {% if matchData.improvisations.5.points == "team1" %}selected{% endif %}>{{ match.equipe1.nom_equipe }}</option>
+                            <option value="team2" {% if matchData.improvisations.5.points == "team2" %}selected{% endif %}>{{ match.equipe2.nom_equipe }}</option>
+                            <option value="both" {% if matchData.improvisations.5.points == "both" %}selected{% endif %}>Les deux</option>
+                        </select>
+                    </menu-deroulant>
+                </div>
+                <div class="impro">
+                    <p class="improNum">7.</p>
+                    <input type="text" value="{{ matchData.improvisations.6.description }}" id="impro7" onchange="saveToDB()" placeholder="Titre de l'improvisation">
+                    <menu-deroulant>
+                        <select name="" id="improPts7" class="point" onchange="saveToDB(); updatePoint()">
+                            <option value="" {% if not matchData.improvisations.6.points %}selected{% endif %}>Point</option>
+                            <option value="none" {% if matchData.improvisations.6.points == "none" %}selected{% endif %}>&mdash;</option>
+                            <option value="team1" {% if matchData.improvisations.6.points == "team1" %}selected{% endif %}>{{ match.equipe1.nom_equipe }}</option>
+                            <option value="team2" {% if matchData.improvisations.6.points == "team2" %}selected{% endif %}>{{ match.equipe2.nom_equipe }}</option>
+                            <option value="both" {% if matchData.improvisations.6.points == "both" %}selected{% endif %}>Les deux</option>
+                        </select>
+                    </menu-deroulant>
+                </div>
+                <div class="impro">
+                    <p class="improNum">8.</p>
+                    <input type="text" value="{{ matchData.improvisations.7.description }}" id="impro8" onchange="saveToDB()" placeholder="Titre de l'improvisation">
+                    <menu-deroulant>
+                        <select name="" id="improPts8" class="point" onchange="saveToDB(); updatePoint()">
+                            <option value="" {% if not matchData.improvisations.7.points %}selected{% endif %}>Point</option>
+                            <option value="none" {% if matchData.improvisations.7.points == "none" %}selected{% endif %}>&mdash;</option>
+                            <option value="team1" {% if matchData.improvisations.7.points == "team1" %}selected{% endif %}>{{ match.equipe1.nom_equipe }}</option>
+                            <option value="team2" {% if matchData.improvisations.7.points == "team2" %}selected{% endif %}>{{ match.equipe2.nom_equipe }}</option>
+                            <option value="both" {% if matchData.improvisations.7.points == "both" %}selected{% endif %}>Les deux</option>
+                        </select>
+                    </menu-deroulant>
+                </div>
+                <div class="impro">
+                    <p class="improNum">9.</p>
+                    <input type="text" value="{{ matchData.improvisations.8.description }}" id="impro9" onchange="saveToDB()" placeholder="Titre de l'improvisation">
+                    <menu-deroulant>
+                        <select name="" id="improPts9" class="point" onchange="saveToDB(); updatePoint()">
+                            <option value="" {% if not matchData.improvisations.8.points %}selected{% endif %}>Point</option>
+                            <option value="none" {% if matchData.improvisations.8.points == "none" %}selected{% endif %}>&mdash;</option>
+                            <option value="team1" {% if matchData.improvisations.8.points == "team1" %}selected{% endif %}>{{ match.equipe1.nom_equipe }}</option>
+                            <option value="team2" {% if matchData.improvisations.8.points == "team2" %}selected{% endif %}>{{ match.equipe2.nom_equipe }}</option>
+                            <option value="both" {% if matchData.improvisations.8.points == "both" %}selected{% endif %}>Les deux</option>
+                        </select>
+                    </menu-deroulant>
+                </div>
+                <div class="impro">
+                    <p class="improNum">10.</p>
+                    <input type="text" value="{{ matchData.improvisations.9.description }}" id="impro10" onchange="saveToDB()" placeholder="Titre de l'improvisation">
+                    <menu-deroulant>
+                        <select name="" id="improPts10" class="point" onchange="saveToDB(); updatePoint()">
+                            <option value="" {% if not matchData.improvisations.9.points %}selected{% endif %}>Point</option>
+                            <option value="none" {% if matchData.improvisations.9.points == "none" %}selected{% endif %}>&mdash;</option>
+                            <option value="team1" {% if matchData.improvisations.9.points == "team1" %}selected{% endif %}>{{ match.equipe1.nom_equipe }}</option>
+                            <option value="team2" {% if matchData.improvisations.9.points == "team2" %}selected{% endif %}>{{ match.equipe2.nom_equipe }}</option>
+                            <option value="both" {% if matchData.improvisations.9.points == "both" %}selected{% endif %}>Les deux</option>
+                        </select>
+                    </menu-deroulant>
+                </div>
+                <div class="impro">
+                    <p class="improNum">11.</p>
+                    <input type="text" value="{{ matchData.improvisations.10.description }}" id="impro11" onchange="saveToDB()" placeholder="Titre de l'improvisation">
+                    <menu-deroulant>
+                        <select name="" id="improPts11" class="point" onchange="saveToDB(); updatePoint()">
+                            <option value="" {% if not matchData.improvisations.10.points %}selected{% endif %}>Point</option>
+                            <option value="none" {% if matchData.improvisations.10.points == "none" %}selected{% endif %}>&mdash;</option>
+                            <option value="team1" {% if matchData.improvisations.10.points == "team1" %}selected{% endif %}>{{ match.equipe1.nom_equipe }}</option>
+                            <option value="team2" {% if matchData.improvisations.10.points == "team2" %}selected{% endif %}>{{ match.equipe2.nom_equipe }}</option>
+                            <option value="both" {% if matchData.improvisations.10.points == "both" %}selected{% endif %}>Les deux</option>
+                        </select>
+                    </menu-deroulant>
+                </div>
+                <div class="impro">
+                    <p class="improNum">12.</p>
+                    <input type="text" value="{{ matchData.improvisations.11.description }}" id="impro12" onchange="saveToDB()" placeholder="Titre de l'improvisation">
+                    <menu-deroulant>
+                        <select name="" id="improPts12" class="point" onchange="saveToDB(); updatePoint()">
+                            <option value="" {% if not matchData.improvisations.11.points %}selected{% endif %}>Point</option>
+                            <option value="none" {% if matchData.improvisations.11.points == "none" %}selected{% endif %}>&mdash;</option>
+                            <option value="team1" {% if matchData.improvisations.11.points == "team1" %}selected{% endif %}>{{ match.equipe1.nom_equipe }}</option>
+                            <option value="team2" {% if matchData.improvisations.11.points == "team2" %}selected{% endif %}>{{ match.equipe2.nom_equipe }}</option>
+                            <option value="both" {% if matchData.improvisations.11.points == "both" %}selected{% endif %}>Les deux</option>
+                        </select>
+                    </menu-deroulant>
+                </div>
+                <div class="impro prolongationRow" id="prolong">
+                    <p class="improNum">Pr.</p>
+                    <input type="text" value="{{ matchData.improvisations.12.description }}" id="impro13" onchange="saveToDB()" placeholder="Titre de l'improvisation">
+                    <menu-deroulant>
+                        <select name="" id="improPts13" class="prolongationPoint" onchange="saveToDB(); updateProlongation()">
+                            <option value="" {% if not matchData.improvisations.12.points %}selected{% endif %}>Point</option>
+                            <option value="none" {% if matchData.improvisations.12.points == "none" %}selected{% endif %}>&mdash;</option>
+                            <option value="team1" {% if matchData.improvisations.12.points == "team1" %}selected{% endif %}>{{ match.equipe1.nom_equipe }}</option>
+                            <option value="team2" {% if matchData.improvisations.12.points == "team2" %}selected{% endif %}>{{ match.equipe2.nom_equipe }}</option>
+                        </select>
+                    </menu-deroulant>
+                </div>
+            </div>
 
-    <div class="tab">
-        <button class="tablinks active" onclick="openTab(event, 'Tab1')">Tab 1</button>
-        <button class="tablinks" onclick="openTab(event, 'Tab2')">Tab 2</button>
-        <button class="tablinks" onclick="openTab(event, 'Tab3')">Tab 3</button>
-    </div>
+        </section>
+        {% else %}
+            <section id="Match" class="hidden">
+            <div class="card improList">
+                <div class="impro">
+                    <p class="improNum">1.</p>
+                    <input type="text" id="impro1" value="" onchange="saveToDB()" placeholder="Titre de l'improvisation">
+                    <menu-deroulant>
+                        <select name="" id="improPts1" class="point" onchange="saveToDB(); updatePoint()">
+                            <option value="">Point</option>
+                            <option value="none">&mdash;</option>
+                            <option value="team1">{{ match.equipe1.nom_equipe }}</option>
+                            <option value="team2">{{ match.equipe2.nom_equipe }}</option>
+                            <option value="both">Les deux</option>
+                        </select>
+                    </menu-deroulant>
+                </div>
+                <div class="impro">
+                    <p class="improNum">2.</p>
+                    <input type="text" value="" id="impro2" onchange="saveToDB()" placeholder="Titre de l'improvisation">
+                    <menu-deroulant>
+                        <select name="" id="improPts2" class="point" onchange="saveToDB(); updatePoint()">
+                            <option value="">Point</option>
+                            <option value="none">&mdash;</option>
+                            <option value="team1">{{ match.equipe1.nom_equipe }}</option>
+                            <option value="team2">{{ match.equipe2.nom_equipe }}</option>
+                            <option value="both">Les deux</option>
+                        </select>
+                    </menu-deroulant>
+                </div>
+                <div class="impro">
+                    <p class="improNum">3.</p>
+                    <input type="text" value="" id="impro3" onchange="saveToDB()" placeholder="Titre de l'improvisation">
+                    <menu-deroulant>
+                        <select name="" id="improPts3" class="point" onchange="saveToDB(); updatePoint()">
+                            <option value="">Point</option>
+                            <option value="none">&mdash;</option>
+                            <option value="team1">{{ match.equipe1.nom_equipe }}</option>
+                            <option value="team2">{{ match.equipe2.nom_equipe }}</option>
+                            <option value="both">Les deux</option>
+                        </select>
+                    </menu-deroulant>
+                </div>
+                <div class="impro">
+                    <p class="improNum">4.</p>
+                    <input type="text" value="" id="impro4" onchange="saveToDB()" placeholder="Titre de l'improvisation">
+                    <menu-deroulant>
+                        <select name="" id="improPts4" class="point" onchange="saveToDB(); updatePoint()">
+                            <option value="">Point</option>
+                            <option value="none">&mdash;</option>
+                            <option value="team1">{{ match.equipe1.nom_equipe }}</option>
+                            <option value="team2">{{ match.equipe2.nom_equipe }}</option>
+                            <option value="both">Les deux</option>
+                        </select>
+                    </menu-deroulant>
+                </div>
+                <div class="impro">
+                    <p class="improNum">5.</p>
+                    <input type="text" value="" id="impro5" onchange="saveToDB()" placeholder="Titre de l'improvisation">
+                    <menu-deroulant>
+                        <select name="" id="improPts5" class="point" onchange="saveToDB(); updatePoint()">
+                            <option value="">Point</option>
+                            <option value="none">&mdash;</option>
+                            <option value="team1">{{ match.equipe1.nom_equipe }}</option>
+                            <option value="team2">{{ match.equipe2.nom_equipe }}</option>
+                            <option value="both">Les deux</option>
+                        </select>
+                    </menu-deroulant>
+                </div>
+                <div class="impro">
+                    <p class="improNum">6.</p>
+                    <input type="text" value="" id="impro6" onchange="saveToDB()" placeholder="Titre de l'improvisation">
+                    <menu-deroulant>
+                        <select name="" id="improPts6" class="point" onchange="saveToDB(); updatePoint()">
+                            <option value="">Point</option>
+                            <option value="none">&mdash;</option>
+                            <option value="team1">{{ match.equipe1.nom_equipe }}</option>
+                            <option value="team2">{{ match.equipe2.nom_equipe }}</option>
+                            <option value="both">Les deux</option>
+                        </select>
+                    </menu-deroulant>
+                </div>
+                <div class="impro">
+                    <p class="improNum">7.</p>
+                    <input type="text" value="" id="impro7" onchange="saveToDB()" placeholder="Titre de l'improvisation">
+                    <menu-deroulant>
+                        <select name="" id="improPts7" class="point" onchange="saveToDB(); updatePoint()">
+                            <option value="">Point</option>
+                            <option value="none">&mdash;</option>
+                            <option value="team1">{{ match.equipe1.nom_equipe }}</option>
+                            <option value="team2">{{ match.equipe2.nom_equipe }}</option>
+                            <option value="both">Les deux</option>
+                        </select>
+                    </menu-deroulant>
+                </div>
+                <div class="impro">
+                    <p class="improNum">8.</p>
+                    <input type="text" value="" id="impro8" onchange="saveToDB()" placeholder="Titre de l'improvisation">
+                    <menu-deroulant>
+                        <select name="" id="improPts8" class="point" onchange="saveToDB(); updatePoint()">
+                            <option value="">Point</option>
+                            <option value="none">&mdash;</option>
+                            <option value="team1">{{ match.equipe1.nom_equipe }}</option>
+                            <option value="team2">{{ match.equipe2.nom_equipe }}</option>
+                            <option value="both">Les deux</option>
+                        </select>
+                    </menu-deroulant>
+                </div>
+                <div class="impro">
+                    <p class="improNum">9.</p>
+                    <input type="text" value="" id="impro9" onchange="saveToDB()" placeholder="Titre de l'improvisation">
+                    <menu-deroulant>
+                        <select name="" id="improPts9" class="point" onchange="saveToDB(); updatePoint()">
+                            <option value="">Point</option>
+                            <option value="none">&mdash;</option>
+                            <option value="team1">{{ match.equipe1.nom_equipe }}</option>
+                            <option value="team2">{{ match.equipe2.nom_equipe }}</option>
+                            <option value="both">Les deux</option>
+                        </select>
+                    </menu-deroulant>
+                </div>
+                <div class="impro">
+                    <p class="improNum">10.</p>
+                    <input type="text" value="" id="impro10" onchange="saveToDB()" placeholder="Titre de l'improvisation">
+                    <menu-deroulant>
+                        <select name="" id="improPts10" class="point" onchange="saveToDB(); updatePoint()">
+                            <option value="">Point</option>
+                            <option value="none">&mdash;</option>
+                            <option value="team1">{{ match.equipe1.nom_equipe }}</option>
+                            <option value="team2">{{ match.equipe2.nom_equipe }}</option>
+                            <option value="both">Les deux</option>
+                        </select>
+                    </menu-deroulant>
+                </div>
+                <div class="impro">
+                    <p class="improNum">11.</p>
+                    <input type="text" value="" id="impro11" onchange="saveToDB()" placeholder="Titre de l'improvisation">
+                    <menu-deroulant>
+                        <select name="" id="improPts11" class="point" onchange="saveToDB(); updatePoint()">
+                            <option value="">Point</option>
+                            <option value="none">&mdash;</option>
+                            <option value="team1">{{ match.equipe1.nom_equipe }}</option>
+                            <option value="team2">{{ match.equipe2.nom_equipe }}</option>
+                            <option value="both">Les deux</option>
+                        </select>
+                    </menu-deroulant>
+                </div>
+                <div class="impro">
+                    <p class="improNum">12.</p>
+                    <input type="text" value="" id="impro12" onchange="saveToDB()" placeholder="Titre de l'improvisation">
+                    <menu-deroulant>
+                        <select name="" id="improPts12" class="point" onchange="saveToDB(); updatePoint()">
+                            <option value="">Point</option>
+                            <option value="none">&mdash;</option>
+                            <option value="team1">{{ match.equipe1.nom_equipe }}</option>
+                            <option value="team2">{{ match.equipe2.nom_equipe }}</option>
+                            <option value="both">Les deux</option>
+                        </select>
+                    </menu-deroulant>
+                </div>
+                <div class="impro prolongationRow" id="prolong">
+                    <p class="improNum">Pr.</p>
+                    <input type="text" value="" id="impro13" onchange="saveToDB()" placeholder="Titre de l'improvisation">
+                    <menu-deroulant>
+                        <select name="" id="improPts13" class="prolongationPoint" onchange="saveToDB(); updateProlongation()">
+                            <option value="">Point</option>
+                            <option value="none">&mdash;</option>
+                            <option value="team1">{{ match.equipe1.nom_equipe }}</option>
+                            <option value="team2">{{ match.equipe2.nom_equipe }}</option>
+                        </select>
+                    </menu-deroulant>
+                </div>
+                <button class="btnPrimary btnStretch" style="margin-top: 1rem;"><span>Terminer le match</span></button>
+            </div>
+        </section>
+        {% endif %}
 
-    <div id="Tab1" class="tabcontent">
-        <h2>Tab1 Content</h2>
-    </div>
-    <div id="Tab2" class="tabcontent">
-        <h3>Tab2 Content</h3>
-    </div>
-    <div id="Tab3" class="tabcontent">
-        <h3>Tab3 Content</h3>
-    </div>
+        <section id="Pénalités" class="hidden card">
+            <h3 class="nopenalty">Aucune pénalité</h3>
+            {% if matchData %}
+                {% for punition in matchData.punitions %}
+                    <div class="pun" data-pun="" data-punvalue="">
+                        <p>{{ punition.equipe }}</p>
+                        <p>{{ punition.titre }}</p>
+                        <p>{{ punition.majeure }}</p>
+                        <i class="fa-solid fa-trash" onclick="removePun(this)" aria-hidden="true"></i>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            <button class="btnPrimary btnStretch addPun" style="margin-top: 1rem;" onclick="openModal('addPunModal')"><span>Ajouter une pénalité</span></button>
+        </section>
 
-    <button type="button" class="collapsible">Open Collapsible</button>
-    <div class="collapsibleContent">
-        <p>Collapsible content. Lorem ipsum dolor sit amet consectetur, adipisicing elit. Excepturi, repellat illum consequuntur error debitis sint asperiores pariatur odit corrupti doloribus quis recusandae quidem culpa quaerat magni possimus temporibus eligendi provident?</p>
-    </div>
+        <section id="Score" class="hidden">
+            <div class="card scoreCard">
+                <div class="scoreBoard">
+                    <div class="logos">
+                        <div>
+                            <img src="{% if match.equipe2.logo %}{{ match.equipe2.getUrlPhoto}}{% else %}{% static 'icons/CitrusLogo.png' %}{% endif %}" alt="" class="logo">
+                            <h3 class="teamName">{{ match.equipe2.nom_equipe }}</h3>
+                        </div>
+                        <div>
+                            <img src="{% if match.equipe1.logo %}{{ match.equipe1.getUrlPhoto}}{% else %}{% static 'icons/CitrusLogo.png' %}{% endif %}" alt="" class="logo">
+                            <h3 class="teamName">{{ match.equipe1.nom_equipe }}</h3>
+                        </div>
 
-    <button id="modalBtn" onclick="openModal('exampleModal')">Open Modal</button>
+                    </div>
+                    <div class="results">
+                        <span id="subTotalTeam2">{% if matchData %}{{ matchData.scores.soustotal.equipe2 }}{% else %}0{% endif %}</span>
+                        <span>Points</span>
+                        <span id="subTotalTeam1">{% if matchData %}{{ matchData.scores.soustotal.equipe1 }}{% else %}0{% endif %}</span>
+                    </div>
+                    <div class="results">
+                        <span id="team2Puns">{% if matchData %}{{ matchData.scores.penalites.equipe2 }}{% else %}0{% endif %}</span>
+                        <span>Pénalités</span>
+                        <span id="team1Puns">{% if matchData %}{{ matchData.scores.penalites.equipe1 }}{% else %}0{% endif %}</span>
+                    </div>
+                    <div class="results">
+                        <span class="biggerNum" id="team2Score">{% if matchData %}{{ matchData.scores.total.equipe2 }}{% else %}0{% endif %}</span>
+                        <span class="biggerNum">Score</span>
+                        <span class="biggerNum" id="team1Score">{% if matchData %}{{ matchData.scores.total.equipe1 }}{% else %}0{% endif %}</span>
+                    </div>
+                </div>
+            </div>
 
-    <div id="modal" class="modal" data-modal="exampleModal">
+            <div class="card">
+                <form method="post">
+                    <div class="sign">
+                        {% csrf_token %}
+                        <h3 class="signTitle">Signatures</h3>
+                        <label for="coach1" class="label onTop">Signature coach {{ match.equipe1.nom_equipe }}</label>
+                        <button type="button" id="signatureCoachBtn1" class="btnPrimary signBtn btnStretch" onclick="openModal('signatureCoachModal1')">Signer</button>
+                        <label for="coach2" class="label onTop">Signature coach {{ match.equipe2.nom_equipe }}</label>
+                        <button type="button" class="btnPrimary signBtn btnStretch" id="signatureCoachBtn2" onclick="openModal('signatureCoachModal2')">Signer</button>
+                        <button type="submit" id="finalizeMatchBtn" class="btnPrimary btnStretch{% if not current_user.admin_flag %} disabled-btn{% endif %}"><span>Confirmer l'envoi</span></button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+    </div><!-- /.pageShell -->
+
+    <div class="modal" data-modal="addPlayerModal">
         <div class="modalContent">
             <div class="modalHeader">
-                <h1>Modal header</h1>
-                <span class="close" id="modalClose" onclick="closeModal('exampleModal')">&times;</span>
+                <h1>Ajouter un remplaçant</h1>
+                <span class="close" onclick="closeModal('addPlayerModal')">&times;</span>
             </div>
+            <form id="addPlayerForm">
             <div class="modalBody">
-                <p>Modal body. Lorem, ipsum dolor sit amet consectetur adipisicing elit. Deleniti, laborum dolore! Ea expedita nam dolores voluptas, nesciunt, esse aut unde necessitatibus temporibus quisquam odit numquam obcaecati tempore deleniti vitae. Numquam.</p>
+                    <label for="number" class="label onTop">Numéro</label>
+                    <input type="text" id="number">
+                    <label for="pronouns" class="label onTop">Pronom(s)</label>
+                    <input type="text" id="pronoun">
+                    <label for="name" class="label onTop">Prénom et nom</label>
+                    <input type="text" id="name">
+                    <input type="text" id="team" value="1" style="display: none;">
             </div>
             <div class="modalFooter">
-                <button class="btnPrimary btnInline"><span>Autre action</span></button>
-                <button class="btnSecondary btnInline" onclick="closeModal('exampleModal')"><span>Close</span></button>
+                <button type="button" class="btnSecondary btnInline" onclick="closeModal('addPlayerModal')"><span>Annuler</span></button>
+                <button type="submit" class="btnPrimary btnInline"><span>Ajouter</span></button>
             </div>
+            </form>
         </div>
     </div>
 
+    <div class="modal" data-modal="signatureCoachModal1">
+        <div class="modalContent">
+            <div class="modalHeader">
+                <h1>Signer le formulaire</h1>
+                <span class="close" onclick="closeModal('signatureCoachModal1')">&times;</span>
+            </div>
+            <form id="signatureCoachForm1">
+            <div class="modalBody">
+                    <h2>Coach {{ match.equipe1.nom_equipe }}</h2>
+                    <label for="passwordCoachTeam1" class="label onTop">Entrez votre mot de passe</label>
+                    <input type="password" id="passwordCoachTeam1">
+                    <label id="msgPasswordChangeTeam1" class="divMsgError"></label>
+            </div>
+            <div class="modalFooter">
+                <button type="button" class="btnSecondary btnInline" onclick="closeModal('signatureCoachModal1')"><span>Annuler</span></button>
+                <button type="button" class="btnPrimary btnInline" onclick="signCoach({{match.equipe1.id_equipe}},1, {{ match.match_id }})"><span>Confirmer</span></button>
+            </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" data-modal="signatureCoachModal2">
+        <div class="modalContent">
+            <div class="modalHeader">
+                <h1>Signer le formulaire</h1>
+                <span class="close" onclick="closeModal('signatureCoachModal2')">&times;</span>
+            </div>
+            <form id="signatureCoachForm2">
+            <div class="modalBody">
+                    <h2>Coach {{ match.equipe2.nom_equipe }}</h2>
+                    <label for="passwordCoachTeam2" class="label onTop">Entrez votre mot de passe</label>
+                    <input type="password" id="passwordCoachTeam2">
+                    <label id="msgPasswordChangeTeam2" class="divMsgError"></label>
+            </div>
+            <div class="modalFooter">
+                <button type="button" class="btnSecondary btnInline" onclick="closeModal('signatureCoachModal2')"><span>Annuler</span></button>
+                <button type="button" class="btnPrimary btnInline" onclick="signCoach({{ match.equipe2.id_equipe }},2, {{ match.match_id }})"><span>Confirmer</span></button>
+            </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" data-modal="addPunModal">
+        <div class="modalContent">
+            <div class="modalHeader">
+                <h1>Ajouter une pénalité</h1>
+                <span class="close" onclick="closeModal('addPunModal')">&times;</span>
+            </div>
+            <form id="addPunForm">
+            <div class="modalBody">
+                <label for="who" class="label onTop">Inteprète/Équipe</label>
+                <menu-deroulant style="width: -webkit-fill-available;">
+                    <select name="" id="who">
+                        <option value=""></option>
+                        <option value="team1">{{ match.equipe1.nom_equipe }}</option>
+                        <option value="team2">{{ match.equipe2.nom_equipe }}</option>
+                    </select>
+                </menu-deroulant>
+                <label for="pun" class="label onTop">Punition</label>
+                <menu-deroulant style="width: -webkit-fill-available;">
+                    <select name="" id="pun">
+                        <option value=""></option>
+                        <option value="Cabotinage">Cabotinage</option>
+                        <option value="Rudesse">Rudesse</option>
+                        <option value="Refus de personnage">Refus de personnage</option>
+                        <option value="Obstruction">Obstruction (Majeure)</option>
+                        <option value="Décrochage">Décrochage</option>
+                        <option value="Manque d'écoute">Manque d'écoute</option>
+                        <option value="Confusion">Confusion</option>
+                        <option value="Cliché">Cliché</option>
+
+                        <option value="Mauvaise conduite">Mauvaise conduite (Majeure)</option>
+                        <option value="Nombre illégal">Nombre illégal d'interprètes</option>
+                        <option value="Accesoire illégal">Accesoire illégal</option>
+                        <option value="Retard de jeu">Retard de jeu</option>
+                        <option value="Procédure illégale">Procédure illégale</option>
+                        <option value="Non-respect de la carte">Non-respect de la carte</option>
+                    </select>
+                </menu-deroulant>
+                <label for="maj" class="label onTop">Majeure</label>
+                <menu-deroulant style="width: -webkit-fill-available;">
+                    <select name="" id="maj">
+                        <option value=""></option>
+                        <option value="Oui">Oui</option>
+                        <option value="" selected>Non</option>
+                    </select>
+                </menu-deroulant>
+            </div>
+            <div class="modalFooter">
+                <button class="btnSecondary btnInline" onclick="closeModal('addPunModal')"><span>Annuler</span></button>
+                <button type="submit" class="btnPrimary btnInline"><span>Ajouter</span></button>
+            </div>
+            </form>
+        </div>
+    </div>
+
+    <style>
+        ::selection {
+            background: var(--mainPamps);
+            color: var(--white);
+        }
+
+        body {
+            background: var(--gradient);
+            background-attachment: fixed;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1.25rem 1rem 3rem;
+            font-size: 15px !important;
+        }
+
+        :focus-visible {
+            outline: 0.15rem solid var(--white);
+            outline-offset: 0.15rem;
+        }
+
+        .pageShell {
+            width: 100%;
+            max-width: 40rem;
+            margin: 0 auto;
+        }
+
+        menu-deroulant {
+            height: 2rem;
+            width: 12rem;
+        }
+
+        h3 {
+            text-align: center;
+            margin: 0.75rem;
+            color: var(--white);
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        p {
+            color: var(--white);
+            font-weight: 500;
+            font-size: 1rem;
+            margin: 0.2rem;
+        }
+
+        .modalFooter {
+            flex-direction: column;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /*==============================
+        =            Header            =
+        ==============================*/
+
+        .matchHeader {
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .logoBoard {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            gap: clamp(1rem, 6vw, 3rem);
+            margin-bottom: 0.75rem;
+        }
+
+        .logoBoard .logo {
+            height: clamp(3.5rem, 12vw, 6rem);
+            width: clamp(3.5rem, 12vw, 6rem);
+            object-fit: contain;
+        }
+
+        .logoX {
+            color: var(--white);
+            font-size: clamp(1.5rem, 6vw, 3rem);
+            font-weight: 700;
+            line-height: 1rem;
+        }
+
+        .teamBoard {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .teamBoard p {
+            margin: 0;
+            font-size: clamp(1rem, 3vw, 1.2rem);
+            font-weight: 600;
+            color: var(--white);
+        }
+
+        .matchDate {
+            font-weight: 400 !important;
+            opacity: 0.85;
+            margin-top: 0.35rem !important;
+            font-size: 0.95rem !important;
+        }
+
+        /*=====================================
+        =            Section tabs            =
+        =====================================*/
+
+        .formTabs {
+            display: flex;
+            gap: 0.5rem;
+            width: 100%;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            padding: 0.25rem 0.1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .formTabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tabBtn {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 44px;
+            padding: 0.5rem 1.15rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--white);
+            background: rgba(255, 255, 255, 0.16);
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+            transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .tabBtn:hover {
+            background: rgba(255, 255, 255, 0.28);
+        }
+
+        .tabBtn.active {
+            background: var(--white);
+            color: var(--mainPamps);
+            box-shadow: var(--smallerShadow);
+        }
+
+        /*======================================
+        =            Cards & layout            =
+        ======================================*/
+
+        section {
+            width: 100%;
+            margin: 0 0 1.5rem;
+        }
+
+        .card {
+            width: 100%;
+            background: var(--white);
+            border-radius: 1.25rem;
+            box-shadow: var(--smallerShadow);
+            padding: 1.25rem 1.25rem 1.5rem;
+            box-sizing: border-box;
+        }
+
+        .card h3, .card p {
+            color: var(--textBlack);
+        }
+
+        .teamsGrid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.25rem;
+        }
+
+        .teamName {
+            margin: 0 0 0.2rem;
+            color: var(--mainPamps) !important;
+            font-weight: 800;
+        }
+
+        .teamCollege {
+            text-align: center;
+            font-weight: 400 !important;
+            opacity: 0.7;
+            margin: 0 0 1rem !important;
+        }
+
+        /*=======================================
+        =            Player & coach list        =
+        =======================================*/
+
+        .playerHeader, .player, .coach {
+            display: grid;
+            grid-template-columns: 2.5rem 2.5rem 4.25rem 1fr;
+            column-gap: 0.5rem;
+            align-items: center;
+            position: relative;
+        }
+
+        .playerHeader {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: var(--mainPamps);
+            opacity: 0.75;
+            padding-bottom: 0.4rem;
+            margin-bottom: 0.25rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
+        .playerHeader span:last-child {
+            text-align: left;
+        }
+
+        .playerHeader span {
+            text-align: center;
+        }
+
+        .player {
+            padding: 0.5rem 0.1rem;
+            border-radius: 0.6rem;
+        }
+
+        .player + .player {
+            border-top: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        .player p, .coach p {
+            margin: 0;
+            text-align: center;
+            color: var(--textBlack);
+            font-weight: 500;
+            min-width: 0;
+            overflow-wrap: break-word;
+        }
+
+        .player p:last-child {
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .coach {
+            grid-template-columns: 4.25rem 4.25rem 1fr;
+            margin: 1rem 0 1.25rem;
+            padding: 0.6rem 0.6rem;
+            background: var(--mainPampsFade);
+            border-radius: 0.75rem;
+        }
+
+        .coachLabel {
+            font-weight: 700 !important;
+            color: var(--mainPamps) !important;
+            text-align: left !important;
+        }
+
+        @media (hover:hover) {
+            .player:hover, .coach:hover {
+                background: var(--mainPampsFade);
+            }
+        }
+
+        .modalBody input, .modalBody div {
+            width: 100%;
+        }
+
+        /*=================================
+        =            Impro list           =
+        =================================*/
+
+        .improList {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .impro {
+            display: grid;
+            grid-template-columns: 2.25rem 1fr;
+            grid-template-areas:
+                "num input"
+                "num select";
+            align-items: center;
+            column-gap: 0.6rem;
+            row-gap: 0.4rem;
+        }
+
+        .impro .improNum {
+            grid-area: num;
+            margin: 0;
+            width: 2.25rem;
+            height: 2.25rem;
+            border-radius: 50%;
+            background: var(--mainPampsFade);
+            color: var(--mainPamps);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        .impro input[type="text"] {
+            grid-area: input;
+            width: 100%;
+            margin: 0;
+        }
+
+        .impro menu-deroulant {
+            grid-area: select;
+            justify-self: start;
+            width: 9.5rem;
+        }
+
+        .prolongationRow {
+            margin-top: 0.4rem;
+            padding-top: 0.75rem;
+            border-top: 1px dashed rgba(0, 0, 0, 0.15);
+        }
+
+        .prolongationRow .improNum {
+            background: var(--mainPamps);
+            color: var(--white);
+        }
+
+        .divMsgError {
+            text-align: center;
+            font-weight: 400;
+            padding-bottom: 2px;
+            color: red;
+        }
+
+        /*=================================
+        =            Pénalités            =
+        =================================*/
+
+        .nopenalty {
+            color: var(--textBlack);
+        }
+
+        .pun {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            grid-template-areas:
+                "equipe icon"
+                "titre titre"
+                "maj maj";
+            align-items: center;
+            column-gap: 0.5rem;
+            row-gap: 0.15rem;
+            padding: 0.6rem 0.6rem;
+            border-radius: 0.75rem;
+            background: var(--mainPampsFade);
+            margin-bottom: 0.6rem;
+            position: relative;
+        }
+
+        .pun p {
+            margin: 0;
+            color: var(--textBlack);
+            font-weight: 600;
+            text-align: left;
+        }
+
+        .pun p:nth-child(1) {
+            grid-area: equipe;
+        }
+
+        .pun p:nth-child(2) {
+            grid-area: titre;
+        }
+
+        .pun p:nth-child(3) {
+            grid-area: maj;
+            font-weight: 500;
+            opacity: 0.75;
+            font-size: 0.85rem;
+        }
+
+        .pun i {
+            grid-area: icon;
+            color: var(--mainPamps);
+            cursor: pointer;
+            padding: 0.5rem;
+            justify-self: end;
+        }
+
+        /*=================================
+        =            Scoreboard           =
+        =================================*/
+
+        .scoreCard {
+            padding-bottom: 1.25rem;
+        }
+
+        .scoreBoard {
+            color: var(--textBlack);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .scoreBoard .logos {
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+            margin-bottom: 0.5rem;
+        }
+
+        .scoreBoard .logo {
+            height: clamp(4rem, 16vw, 7rem);
+            width: clamp(4rem, 16vw, 7rem);
+            object-fit: contain;
+        }
+
+        .scoreBoard .results {
+            width: 100%;
+            display: grid;
+            grid-template-columns: 3fr 2fr 3fr;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .scoreBoard .results * {
+            text-align: center;
+            font-size: clamp(1.15rem, 4vw, 1.7rem);
+            font-weight: 500;
+            color: var(--textBlack);
+        }
+
+        .scoreBoard .results span:nth-child(2) {
+            font-size: clamp(0.9rem, 3vw, 1.2rem);
+            opacity: 0.7;
+        }
+
+        .scoreBoard .results .biggerNum {
+            font-size: clamp(1.35rem, 4.5vw, 2rem);
+            font-weight: 700;
+            color: var(--mainPamps);
+        }
+
+        .scoreBoard .results span.biggerNum:nth-child(2) {
+            font-size: clamp(1.1rem, 3.5vw, 1.7rem);
+            font-weight: 600;
+            color: var(--textBlack);
+            opacity: 1;
+        }
+
+        /*==============================
+        =            Signatures        =
+        ==============================*/
+
+        .signTitle {
+            margin-top: 0 !important;
+            margin-bottom: 1rem !important;
+        }
+
+        .sign {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: stretch;
+        }
+
+        .sign input {
+            width: 100%;
+        }
+
+        .sign label {
+            color: var(--textBlack);
+            font-weight: 400;
+        }
+
+        .disabled-btn {
+            background-color: grey;
+            color: white;
+            cursor: default;
+
+            opacity: 0.6; /* Adds a dimmed look */
+            pointer-events: none; /* Disables hover animations */
+            transition: none; /* Disables any transition animations */
+        }
+
+        /*======================================
+        =            Responsive tuning         =
+        ======================================*/
+
+        @media (max-width: 400px) {
+            .playerHeader, .player, .coach {
+                grid-template-columns: 2rem 2rem 3.5rem 1fr;
+            }
+        }
+
+        @media (min-width: 480px) {
+            .pun {
+                grid-template-columns: 1.2fr 1fr auto auto;
+                grid-template-areas: "equipe titre maj icon";
+                row-gap: 0;
+            }
+
+            .pun p:nth-child(3) {
+                text-align: center;
+            }
+        }
+
+        @media (min-width: 560px) {
+            .impro {
+                grid-template-columns: 2.25rem 1fr auto;
+                grid-template-areas: "num input select";
+            }
+
+            .impro menu-deroulant {
+                width: 10.5rem;
+            }
+        }
+
+        @media (min-width: 640px) {
+            .pageShell {
+                max-width: 42rem;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            body {
+                background-attachment: fixed;
+                padding: 2.5rem 2rem;
+            }
+
+            .pageShell {
+                max-width: 64rem;
+            }
+
+            .teamsGrid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 1023px) {
+            body {
+                background-attachment: scroll;
+            }
+        }
+    </style>
+
     <script>
-        /* À ajouter une fois si dropdowns présents */
-        // Variables globales
-        var selectContainers, selectElements, optionsCount, i, j;
-        var selectedDiv, optionsDiv, optionDiv, searchDiv, searchInput, clearSpan, noResultsDiv;
 
-        // Rechercher tous les éléments avec la classe "select"
-        selectContainers = document.getElementsByClassName("select");
-        var containerCount = selectContainers.length;
+        disableOnSignature("{{ matchData.signatures.coach1 }}","{{ matchData.signatures.coach2 }}");
 
-        // Parcourir chaque conteneur de sélection
-        for (i = 0; i < containerCount; i++) {
-            // Sélectionner l'élément <select> à l'intérieur du conteneur
-            selectElements = selectContainers[i].getElementsByTagName("select")[0];
-            optionsCount = selectElements.length;
+        function desanitizeString(input) {
+            if (typeof input !== "string") return input;
+            return input
+                .replace(/\\\\/g, "\\") // Convert double backslashes to a single backslash
+                .replace(/\\'/g, "'")   // Convert escaped single quotes back to single quotes
+                .replace(/\\"/g, '"');  // Convert escaped double quotes back to double quotes
+        }
+        {% if current_user.admin_flag == True %}
+            let submitBtn = document.getElementById('finalizeMatchBtn');
+            submitBtn.disabled = false;
+            submitBtn.classList.remove("disabled-btn");
+        {% endif %}
 
-            // Créer un nouveau DIV pour afficher l'élément sélectionné
-            selectedDiv = document.createElement("DIV");
-            selectedDiv.setAttribute("class", "select-selected");
-            selectedDiv.innerHTML = selectElements.options[selectElements.selectedIndex].innerHTML;
-            selectContainers[i].appendChild(selectedDiv);
+        {% if match.completed_flag == True and current_user.admin_flag == False %}
+            disableAllInputs()
+        {% endif %}
 
-            // Créer un nouveau DIV pour contenir la liste des options
-            optionsDiv = document.createElement("DIV");
-            optionsDiv.setAttribute("class", "select-items select-hide");
+        function disableAllInputs() {
+            document.querySelectorAll('button , input')
+                .forEach(element => element.disabled = true);
 
-            // Si le conteneur de sélection a la classe "select-search", ajouter une barre de recherche
-            if (selectContainers[i].classList.contains("select-search")) {
-                searchDiv = document.createElement("div");
-                searchDiv.classList.add("select-search-bar");
-
-                searchInput = document.createElement("input");
-                searchInput.setAttribute("type", "text");
-                searchInput.setAttribute("placeholder", "Rechercher...");
-                searchInput.setAttribute("onkeyup", "filterSearch(this)");
-                searchInput.classList.add("select-search-bar-input");
-
-                clearSpan = document.createElement("span");
-                clearSpan.innerHTML = "×";
-                clearSpan.classList.add("select-search-clear");
-                clearSpan.addEventListener("click", function() {
-                    this.previousSibling.value = "";
-                    filterSearch(this.previousSibling);
+            document.querySelectorAll('button, .impro .select')
+                .forEach(element => {
+                    element.disabled = true; // Disable the button
+                    element.classList.add('disabled-btn'); // Add a class
+                    element.style.pointerEvents = "none";
+                    element.style.borderRadius = "15px";
                 });
+        }
 
-                searchDiv.appendChild(searchInput);
-                searchDiv.appendChild(clearSpan);
-                optionsDiv.appendChild(searchDiv);
+        function disableOnSignature(boolCoach1, boolCoach2){
+            console.log(boolCoach1, boolCoach2);
+            let signCoach1 = document.getElementById("signatureCoachBtn1");
+            let signCoach2 = document.getElementById("signatureCoachBtn2");
+
+            if(boolCoach1 === "True"){
+                signCoach1.disabled = true;
+                signCoach1.innerText = "Signature enregistrée";
+                signCoach1.classList.add("disabled-btn");
+            }
+            if(boolCoach2 === "True"){
+                signCoach2.disabled = true;
+                signCoach2.innerText = "Signature enregistrée";
+                signCoach2.classList.add("disabled-btn");
             }
 
-            // Parcourir chaque option dans l'élément <select>
-            for (j = 1; j < optionsCount; j++) {
-                // Créer un nouveau DIV pour chaque option
-                optionDiv = document.createElement("option");
-                optionDiv.value = selectElements.options[j].value;
-                optionDiv.innerHTML = selectElements.options[j].innerHTML;
-                optionDiv.classList.add("select-option");
-                optionDiv.addEventListener("click", function(e) {
-                    // Lorsque l'option est cliquée, mettre à jour l'élément <select> original et l'élément sélectionné
-                    var selectElement, optionsLength, optionText, selectedDiv, allSelectedDivs;
-                    selectElement = this.parentNode.parentNode.getElementsByTagName("select")[0];
-                    optionsLength = selectElement.length;
-                    selectedDiv = this.parentNode.previousSibling;
-                    
-                    for (var k = 0; k < optionsLength; k++) {
-                        if (selectElement.options[k].innerHTML === this.innerHTML) {
-                            selectElement.selectedIndex = k;
-                            selectedDiv.innerHTML = this.innerHTML;
-                            allSelectedDivs = this.parentNode.getElementsByClassName("same-as-selected");
-                            
-                            for (var l = 0; l < allSelectedDivs.length; l++) {
-                                allSelectedDivs[l].removeAttribute("class");
-                            }
-                            
-                            this.setAttribute("class", "same-as-selected");
-                            break;
-                        }
+        }
+
+        const formSign1 = document.getElementById("signatureCoachForm1");
+
+        function getDataJSON() {
+            // Helper function to sanitize inputs
+            function sanitizeString(input) {
+                if (typeof input !== "string") return input;
+                return input
+                    .replace(/\\/g, "\\\\") // Escape backslashes
+                    .replace(/'/g, "\\'")   // Escape single quotes
+                    .replace(/"/g, '\\"');  // Escape double quotes
+            }
+
+            // Build alignment strings
+            function getAlignment(teamId) {
+                let alignment = [];
+                let teamDiv = document.getElementById(teamId);
+                let players = teamDiv.children;
+
+                for (let player of players) {
+                    if (player.classList.contains("player")) {
+                        let playerInfo = [...player.children].map((child) => sanitizeString(child.innerHTML));
+                        alignment.push(playerInfo);
                     }
-
-                    selectedDiv.click();
-                });
-                optionsDiv.appendChild(optionDiv);
+                }
+                return alignment;
             }
 
-            // Ajouter le DIV pour les résultats inexistants
-            noResultsDiv = document.createElement("DIV");
-            noResultsDiv.innerHTML = "Aucun résultats";
-            noResultsDiv.classList.add("select-noResults");
-            optionsDiv.appendChild(noResultsDiv);
 
-            // Ajouter le DIV des options au conteneur de sélection
-            selectContainers[i].appendChild(optionsDiv);
+            let alignementEquipe1 = getAlignment("alignement1");
+            let alignementEquipe2 = getAlignment("alignement2");
 
-            // Ajouter un événement de clic au DIV sélectionné pour ouvrir/fermer la liste des options
-            selectedDiv.addEventListener("click", function(e) {
-                e.stopPropagation();
-                closeAllSelect(this);
-                this.nextSibling.classList.toggle("select-hide");
-                this.classList.toggle("select-arrow-active");
+            // Build improvisations
+            let impro = [];
+            for (let i = 1; i <= 13; i++) {
+                let improText = document.getElementById("impro" + i);
+                let improPts = document.getElementById("improPts" + i);
+                impro.push({
+                    description: sanitizeString(improText.value),
+                    points: sanitizeString(improPts.value),
+                });
+            }
 
-                // Si le conteneur de sélection a la classe "select-search", focaliser la barre de recherche
-                if (this.parentNode.classList.contains("select-search")) {
-                    let searchInput = selectContainers[i].parentNode.getElementsByClassName("select-search-bar-input")[0];
-                    searchInput.focus();
-                    this.nextElementSibling.scroll(0, 0);
+            // Build penalties
+            function getPunitions() {
+                let punitions = [];
+                let punitionDiv = document.getElementById("Pénalités");
+                let punitionItems = punitionDiv.children;
+
+                for (let punition of punitionItems) {
+                    if (punition.classList.contains("pun")) {
+                        let punitionInfo = [...punition.children].map((child) => sanitizeString(child.innerHTML));
+                        punitions.push({
+                            equipe : punitionInfo[0],
+                            titre : punitionInfo[1],
+                            majeure : punitionInfo[2]
+                        });
+                    }
                 }
+                return punitions;
+            }
+
+            let punitions = getPunitions();
+
+            // Signatures
+            let flagSignCoach1 = document.getElementById('signatureCoachBtn1').disabled;
+            let flagSignCoach2 = document.getElementById('signatureCoachBtn2').disabled;
+
+            // Scores
+            let scores = {
+                soustotal: {
+                    equipe1: sanitizeString(document.getElementById("subTotalTeam1").innerText),
+                    equipe2: sanitizeString(document.getElementById("subTotalTeam2").innerText),
+                },
+                penalites: {
+                    equipe1: sanitizeString(document.getElementById("team1Puns").innerText),
+                    equipe2: sanitizeString(document.getElementById("team2Puns").innerText),
+                },
+                total: {
+                    equipe1: sanitizeString(document.getElementById("team1Score").innerText),
+                    equipe2: sanitizeString(document.getElementById("team2Score").innerText),
+                }
+            };
+
+            // Stars (empty as in original code)
+            let etoiles = [];
+
+            // Final JSON object
+            return {
+                alignementEquipe1 : alignementEquipe1,
+                alignementEquipe2 : alignementEquipe2,
+                improvisations: impro,
+                punitions: punitions,
+                etoiles: etoiles,
+                scores: scores,
+                signatures: {
+                    coach1: flagSignCoach1,
+                    coach2: flagSignCoach2
+                }
+            };
+        }
+
+        formSign1.addEventListener("submit", function(event) {
+            event.preventDefault(); // Prevents the page from refreshing
+        });
+
+        const formSign2 = document.getElementById("signatureCoachForm2");
+
+        formSign2.addEventListener("submit", function(event) {
+            event.preventDefault(); // Prevents the page from refreshing
+        });
+
+        async function signCoach(teamID,teamNum, matchId) {
+            let passwordElement = document.getElementById("passwordCoachTeam" + teamNum);
+            let password = passwordElement.value;
+            let divMsgError = document.getElementById('msgPasswordChangeTeam' + teamNum);
+            let btnSignCoach = document.getElementById('signatureCoachBtn' + teamNum);
+
+            // Hash the input password
+            let csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            // Send a POST request with hashed password and team ID
+            try {
+                const response = await fetch('{{domain}}/Citrus/checkPassword/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        "X-CSRFToken": csrfToken  // Include the CSRF token here
+                    },
+                    body: JSON.stringify({
+                        password: password,
+                        teamId: teamID,
+                        matchId : matchId
+                    })
+                });
+
+                // Check the status of the response
+                if (response.ok) {
+                    const data = await response.json();
+                    closeModal('signatureCoachModal' + teamNum);
+                    btnSignCoach.innerText = "Signature enregistrée";
+                    btnSignCoach.disabled = true;
+
+                    btnSignCoach.classList.add("disabled-btn");
+
+                    let btn1 = document.getElementById('signatureCoachBtn1');
+                    let btn2 = document.getElementById('signatureCoachBtn2');
+                    let submitBtn = document.getElementById('finalizeMatchBtn');
+                    if(btn1.disabled === true && btn2.disabled === true){
+                        submitBtn.disabled = false;
+                        submitBtn.classList.remove("disabled-btn");
+                    }
+                    saveToDB();
+
+
+                } else if (response.status === 401) {
+                    console.log("Password does not match.");
+                    divMsgError.innerText = 'Le mot de passe est incorrect !'
+
+                } else {
+                    console.log("An error occurred:", response.status);
+                    divMsgError.innerText = "Une erreur s'est produite !"
+                }
+            } catch (error) {
+                console.error("Network error:", error);
+                divMsgError.innerText = "Une erreur s'est produite !"
+                // Handle network error, e.g., server is unreachable
+            }
+        }
+
+
+        function saveToDB() {
+            console.log("SAVING...")
+            updatePoint()
+            updatePun()
+            updateProlongation()
+            //let dataString = getDataString();
+            let dataJSON = getDataJSON();
+            let userID = saveID;
+            let matchID = {{ match.match_id }};
+
+            // Retrieve CSRF token from the meta tag
+            let csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            let dataMatch = {
+                userID : userID,
+                data : dataJSON,
+                matchID : matchID
+            };
+
+            fetch('{{domain}}/Citrus/SaveToDB/', {
+                method: "POST",
+                headers: {
+                    "Content-Type": 'application/json',
+                    "X-CSRFToken": csrfToken  // Include the CSRF token here
+                },
+                body: JSON.stringify(dataMatch)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(result => {
+                console.log('SUCCESS', result);
+            })
+            .catch(error => {
+                console.error("ERROR:", error);
             });
         }
 
-        // Fonction pour fermer tous les menus de sélection sauf celui spécifié
-        function closeAllSelect(elmnt) {
-            var selectItemsDivs, selectedDivs, i, totalItems, totalSelectedDivs, excludedIndexes = [];
 
-            selectItemsDivs = document.getElementsByClassName("select-items");
-            selectedDivs = document.getElementsByClassName("select-selected");
-            totalItems = selectItemsDivs.length;
-            totalSelectedDivs = selectedDivs.length;
+        let score = [0, 0];
+        let points = [0, 0];
+        let puns = [0, 0];
+        let prolongation = [0, 0];
 
-            for (i = 0; i < totalSelectedDivs; i++) {
-                if (elmnt === selectedDivs[i]) {
-                    excludedIndexes.push(i);
-                } else {
-                    selectedDivs[i].classList.remove("select-arrow-active");
+        function updatePoint() {
+            let pointsList = document.querySelectorAll(".point");
+            points = [0, 0];
+            for (i=0;i<pointsList.length;i++) {
+                if (pointsList[i].value == "team1") {
+                    points[0]++
+                } else if (pointsList[i].value == "team2") {
+                    points[1]++
+                } else if (pointsList[i].value == "both") {
+                    points[0]++
+                    points[1]++
                 }
             }
+            updateScore();
+            console.log("Updating Points : " + points[0] + " - " + points[1])
+        }
 
-            for (i = 0; i < totalItems; i++) {
-                if (!excludedIndexes.includes(i)) {
-                    selectItemsDivs[i].classList.add("select-hide");
+        function updateProlongation() {
+            prolongation = [0, 0];
+            let prolongationSelect = document.querySelector(".prolongationPoint");
+            if (prolongationSelect) {
+                if (prolongationSelect.value == "team1") {
+                    prolongation[0] = 1;
+                } else if (prolongationSelect.value == "team2") {
+                    prolongation[1] = 1;
                 }
             }
+            updateScore();
+            console.log("Updating Prolongation : " + prolongation[0] + " - " + prolongation[1])
+        }
 
-            // Retirer le focus des barres de recherche
-            let searchInputs = document.getElementsByClassName("select-search-bar-input");
-            for (let i = 0; i < searchInputs.length; i++) {
-                searchInputs[i].blur();
+        function updatePun() {
+            let punsList = document.querySelectorAll(".pun");
+            puns = [0, 0];
+            for (i=0;i<punsList.length;i++) {
+                if (punsList[i].getAttribute("data-pun") == "team1") {
+                    puns[0] = puns[0] + Number(punsList[i].getAttribute("data-punvalue"));
+                } else if (punsList[i].getAttribute("data-pun") == "team2") {
+                    puns[1] = puns[1] + Number(punsList[i].getAttribute("data-punvalue"));
+                }
+            }
+            updateScore();
+            console.log("Updating Pun : " + puns[0] + " - " + puns[1])
+        }
+
+        function updateScore() {
+            let tradePun = Array.from(puns);
+            score = Array.from(points);
+            while (tradePun[0]>=3) {
+                score[1]++
+                tradePun[0] = tradePun[0]-3;
+            }
+            while (tradePun[1]>=3) {
+                score[0]++
+                tradePun[1] = tradePun[1]-3;
+            }
+
+            score[0] += prolongation[0];
+            score[1] += prolongation[1];
+
+            document.getElementById("subTotalTeam1").innerText = points[0];
+            document.getElementById("subTotalTeam2").innerText = points[1];
+            document.getElementById("team1Puns").innerText = puns[0];
+            document.getElementById("team2Puns").innerText = puns[1];
+            document.getElementById("team1Score").innerText = score[0];
+            document.getElementById("team2Score").innerText = score[1];
+        }
+
+        // Function to check for local storage and set saveID
+        function setSaveID() {
+            let saveID = null;
+            // Check if userID exists in local storage
+            if (localStorage.getItem('userID')) {
+                saveID = localStorage.getItem('userID');
+            }
+            // Check if deviceID exists in local storage
+            else if (localStorage.getItem('deviceID')) {
+                saveID = localStorage.getItem('deviceID');
+            }
+            // If neither userID nor deviceID exists, create a new deviceID
+            else {
+                // Detect the device type
+                let deviceType = detectDeviceType();
+                // Detect the browser
+                let browserName = detectBrowser();
+                // Generate a random 5-digit number
+                let randomNum = Math.floor(10000 + Math.random() * 90000);
+                // Create a new deviceID
+                let newID = `${deviceType}${browserName}${randomNum}`;
+
+                // Set the new deviceID to local storage
+                localStorage.setItem('deviceID', newID);
+                saveID = newID;
+            }
+
+            // Return or use saveID as needed
+            return saveID;
+        }
+
+        // Function to detect the type of device
+        function detectDeviceType() {
+            let userAgent = navigator.userAgent || navigator.vendor || window.opera;
+
+            if (/iPhone/i.test(userAgent)) {
+                return 'iPhone';
+            } else if (/android/i.test(userAgent)) {
+                return 'Android';
+            } else if (/Macintosh/i.test(userAgent)) {
+                return 'Mac';
+            } else if (/Windows/i.test(userAgent)) {
+                return 'PC';
+            } else {
+                return 'Generic';
             }
         }
 
-        // Fermer tous les menus de sélection si l'utilisateur clique en dehors
-        document.addEventListener("click", function(event) {
-            if (event.target.closest(".select-search-bar")) return;
-            closeAllSelect();
+        // Function to detect the browser
+        function detectBrowser() {
+            let userAgent = navigator.userAgent;
+
+            if (userAgent.indexOf("Firefox") > -1) {
+                return 'Firefox';
+            } else if (userAgent.indexOf("SamsungBrowser") > -1) {
+                return 'SamsungBrowser';
+            } else if (userAgent.indexOf("Opera") > -1 || userAgent.indexOf("OPR") > -1) {
+                return 'Opera';
+            } else if (userAgent.indexOf("Trident") > -1) {
+                return 'IE'; // Internet Explorer
+            } else if (userAgent.indexOf("Edge") > -1) {
+                return 'Edge';
+            } else if (userAgent.indexOf("Chrome") > -1) {
+                return 'Chrome';
+            } else if (userAgent.indexOf("Safari") > -1) {
+                return 'Safari';
+            } else {
+                return 'UnknownBrowser';
+            }
+        }
+
+        // Example usage
+        let saveID = setSaveID();
+        console.log(saveID);
+
+        function showSection(sectionId, tabEl){
+            const sections = document.getElementsByTagName("section");
+            for (i=0;i<sections.length;i++) {
+                sections[i].classList.add("hidden");
+            }
+            document.getElementById(sectionId).classList.remove("hidden");
+
+            document.querySelectorAll(".tabBtn").forEach(function(btn){
+                btn.classList.remove("active");
+                btn.setAttribute("aria-selected", "false");
+            });
+            if (tabEl) {
+                tabEl.classList.add("active");
+                tabEl.setAttribute("aria-selected", "true");
+            }
+        }
+
+        document.querySelectorAll(".tabBtn").forEach(function(btn){
+            btn.addEventListener("keydown", function(e){
+                if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    btn.click();
+                }
+            });
         });
 
-        // Fonction pour filtrer les options en fonction de la recherche
-        function filterSearch(searchBar) {
-            let noResults = true;
-            let filter = searchBar.value.toUpperCase();
-            let optionsDiv = searchBar.parentNode.parentNode;
-            let options = optionsDiv.getElementsByClassName("select-option");
-
-            for (let i = 0; i < options.length; i++) {
-                let optionText = options[i].textContent || options[i].innerText;
-                if (optionText.toUpperCase().indexOf(filter) > -1) {
-                    options[i].style.display = "";
-                    noResults = false;
-                } else {
-                    options[i].style.display = "none";
-                }
-            }
-
-            // Afficher ou masquer le message "Aucun résultats"
-            optionsDiv.getElementsByClassName("select-noResults")[0].style.display = noResults ? "block" : "none";
-        }
-
-    </script>
-
-    <script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.3/air-datepicker.min.js"></script>
-    <script>
-        const localeFr = {
-            days: ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'],
-            daysShort: ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'],
-            daysMin: ['Di', 'Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa'],
-            months: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'],
-            monthsShort: ['Jan', 'Fév', 'Mars', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Dec'],
-            today: "Aujourd'hui",
-            clear: 'Effacer',
-            dateFormat: 'dd/MM/yyyy',
-            timeFormat: 'HH:mm',
-            firstDay: 1
-        }
-
-        calendars = document.getElementsByClassName("calendar");
-        for (i = 0; i<calendars.length; i++) {
-            new AirDatepicker("#"+calendars[i].id, {
-            locale: localeFr,
-            //multipleDates: true,
-        });
-        }
-        
-    </script>
-
-    <script>
-        function openTab(evt, tabName) {
-        // Declare all variables
-        var i, tabcontent, tablinks;
-
-        // Get all elements with class="tabcontent" and hide them
-        tabcontent = document.getElementsByClassName("tabcontent");
-        for (i = 0; i < tabcontent.length; i++) {
-            tabcontent[i].style.display = "none";
-        }
-
-        // Get all elements with class="tablinks" and remove the class "active"
-        tablinks = document.getElementsByClassName("tablinks");
-        for (i = 0; i < tablinks.length; i++) {
-            tablinks[i].className = tablinks[i].className.replace(" active", "");
-        }
-
-        // Show the current tab, and add an "active" class to the button that opened the tab
-        document.getElementById(tabName).style.display = "block";
-        evt.currentTarget.className += " active";
-        }
     </script>
 
     <script>
@@ -406,18 +1650,129 @@
     </script>
 
     <script>
-        var coll = document.getElementsByClassName("collapsible");
-        var i;
+        document.getElementById('addPlayerForm').addEventListener('submit', function (e) {
+            console.log("Submitted")
+            e.preventDefault();  // Prevent form from submitting and refreshing the page
 
-        for (i = 0; i < coll.length; i++) {
-        coll[i].addEventListener("click", function() {
-            this.classList.toggle("active");
+            // Collect input values
+            const playerName = document.getElementById('name').value;
+            const playerNumber = parseInt(document.getElementById('number').value);  // Ensure it's an integer
+            const playerPronoun = document.getElementById('pronoun').value;
+            const playerTeam = document.getElementById('team').value;
+
+            // Create player object
+            const newPlayer = {
+                name: playerName,
+                number: playerNumber,
+                pronoun: playerPronoun
+            };
+
+            // Call addPlayer function with the new player object
+            addPlayer(newPlayer, playerTeam);
+
+            // Close modal after adding the player
+            closeModal('addPlayerModal');
+
+            // Optionally, clear the form for future use
+            document.getElementById('addPlayerForm').reset();
         });
+
+        function addPlayer(playerInfo, team) {
+        const {name, number, pronoun} = playerInfo;
+        const teamDiv = document.getElementById("alignement"+team);  // Get the team container
+        const players = document.getElementsByClassName("player"+team);  // Get all players
+
+        const newPlayerHtml = `
+        <div class="player player${team}">
+            <p></p>
+            <p>${number}</p>
+            <p>${pronoun}</p>
+            <p>${name}</p>
+        </div>
+    `;
+
+        let inserted = false; // Flag to track if the player is inserted
+
+        // Loop through all existing players and find the correct position
+        for (let i = 0; i < players.length; i++) {
+            const player = players[i];
+            const playerPosition = player.querySelector('p:nth-child(1)').innerText;  // First
+            const playerNumber = parseInt(player.querySelector('p:nth-child(2)').innerText);
+
+            // If there's a letter in the first column, skip it (do not consider for sorting)
+            if (playerPosition != '') {
+                player.insertAdjacentHTML('beforebegin', newPlayerHtml);
+                inserted = true;
+                break;
+            }
+
+            // Insert before the first player whose number is larger than the new player's number
+            if (playerNumber > number) {
+                player.insertAdjacentHTML('beforebegin', newPlayerHtml);
+                inserted = true;
+                break;
+            }
         }
+
+        // If the player wasn't inserted, append them to the end
+        if (!inserted) {
+            teamDiv.insertAdjacentHTML('beforeend', newPlayerHtml);
+        }
+    }
+
+    document.getElementById('addPunForm').addEventListener('submit', function (e) {
+            console.log("Submitted")
+            e.preventDefault();
+
+            const punWho = document.getElementById('who').options[document.getElementById('who').selectedIndex].text;
+            const punValue = document.getElementById('who').value;
+            const punName = document.getElementById('pun').value;
+            const punMaj = document.getElementById('maj').value ;
+            let punMajValue = 0;
+            if (punMaj == "Oui") {
+                punMajValue = 2;
+            } else {
+                punMajValue = 1
+            }
+
+            let newPunHtml = `
+                <div class="pun" data-pun=${punValue} data-punValue=${punMajValue}>
+                    <p>${punWho}</p>
+                    <p>${punName}</p>
+                    <p>${punMaj}</p>
+                    <i class="fa-solid fa-trash" onclick="removePun(this)"></i>
+                </div>
+            `;
+
+            document.querySelector(".nopenalty").style.display="none";
+            document.querySelector(".addPun").insertAdjacentHTML('beforebegin', newPunHtml)
+
+            // Close modal after adding the player
+            closeModal('addPunModal');
+
+            // Optionally, clear the form for future use
+            updatePun();
+            saveToDB();
+
+
+            });
+
+        function removePun(el) {
+            el.parentNode.remove();
+            if (document.getElementsByClassName("pun").length === 0) {
+                document.querySelector(".nopenalty").style.display="block";
+            }
+
+            updatePun();
+            saveToDB();
+        }
+
     </script>
-<script src="../../static/javascript/menu_deroulant_avec_recherche.js"></script>
-<script>
-    customElements.define("deroulant-recherche", MenuDeroulantRecherche);
-</script>
+
+    <script src="https://kit.fontawesome.com/b6c9a53dc1.js" crossorigin="anonymous"></script>
+    <script src="../../static/javascript/menu_deroulant.js"></script>
+    <script>
+        customElements.define("menu-deroulant", MenuDeroulant);
+    </script>
 </body>
 </html>

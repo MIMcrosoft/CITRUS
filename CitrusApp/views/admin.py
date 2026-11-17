@@ -1,10 +1,12 @@
 import json
 
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
-from ..models import Coach, Equipe, Saison, Match, Alignement, DIVISION_CHOICES
+from ..models import Coach, Equipe, Saison, Match, Alignement, CourrielNotification, DIVISION_CHOICES
 
 VALID_DIVISIONS = {value for value, _ in DIVISION_CHOICES}
 
@@ -58,6 +60,8 @@ def panneau_admin(request, id_saison=None):
         'saisons': saisons,
         'saison_selectionnee': saison_selectionnee,
         'allUsers': allUsers,
+        'courrielsAdmin': CourrielNotification.objects.filter(type_courriel=CourrielNotification.ADMIN),
+        'courrielsRespoCom': CourrielNotification.objects.filter(type_courriel=CourrielNotification.RESPO_COM),
         'matchs': matchsSaison,
         'dashboard': {
             'nb_equipes': alignementsActives.count(),
@@ -149,3 +153,45 @@ def modifier_alignement_saison(request):
         'division': alignement.division,
         'est_active': alignement.est_active,
     })
+
+
+@login_required
+def ajouter_courriel_notification(request):
+    if not _require_admin(request):
+        return JsonResponse({'message': 'Accès refusé'}, status=403)
+
+    if request.method != "POST":
+        return JsonResponse({'message': 'Méthode invalide'}, status=405)
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'message': 'JSON invalide'}, status=400)
+
+    type_courriel = data.get('type')
+    if type_courriel not in {value for value, _ in CourrielNotification.TYPE_CHOICES}:
+        return JsonResponse({'message': 'Type invalide'}, status=400)
+
+    courriel = (data.get('courriel') or '').strip().lower()
+    try:
+        validate_email(courriel)
+    except ValidationError:
+        return JsonResponse({'message': 'Courriel invalide'}, status=400)
+
+    _, created = CourrielNotification.objects.get_or_create(type_courriel=type_courriel, courriel=courriel)
+    if not created:
+        return JsonResponse({'message': 'Ce courriel est déjà dans la liste'}, status=400)
+
+    return JsonResponse({'message': 'Courriel ajouté'}, status=201)
+
+
+@login_required
+def supprimer_courriel_notification(request, id_courriel):
+    if not _require_admin(request):
+        return JsonResponse({'message': 'Accès refusé'}, status=403)
+
+    if request.method != "POST":
+        return JsonResponse({'message': 'Méthode invalide'}, status=405)
+
+    get_object_or_404(CourrielNotification, pk=id_courriel).delete()
+    return JsonResponse({'message': 'Courriel supprimé'})

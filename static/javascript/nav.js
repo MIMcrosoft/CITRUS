@@ -37,8 +37,19 @@ let loadAnimation = params['animation'];
 
 //Moving selector to element
 function placeSelector(el) {
-    const elRect = el.getBoundingClientRect();
+    if (!el) return;
     const selector = document.getElementById("selector");
+    if (window.matchMedia("(max-width: 768px)").matches) {
+        // Mobile : le sélecteur est en position absolute dans la nav,
+        // on le positionne donc relativement à la nav (et à son défilement).
+        const nav = document.getElementById("primaryNav");
+        const navRect = nav.getBoundingClientRect();
+        const elRect = el.getBoundingClientRect();
+        selector.style.height = `${elRect.height}px`;
+        selector.style.top = `${elRect.top - navRect.top + nav.scrollTop}px`;
+        return;
+    }
+    const elRect = el.getBoundingClientRect();
     const selectorRect = selector.getBoundingClientRect();
 
     const elCenterY = elRect.top + elRect.height / 2;
@@ -113,7 +124,14 @@ if (window.matchMedia("(max-width: 768px)").matches) {
     function toggleNav(hamburger) {
         hamburger.classList.toggle("close");
         hamburger.parentNode.classList.toggle("open");
+        placeSelector(document.querySelector(".navListItem.active"));
     }
+
+    // Re-aligne le sélecteur quand la mise en page change (polices chargées, rotation, etc.)
+    const realignSelector = () => placeSelector(document.querySelector(".navListItem.active"));
+    window.addEventListener("load", realignSelector);
+    window.addEventListener("resize", realignSelector);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(realignSelector);
 } else {
     //--Desktop--
     //if reload or no info

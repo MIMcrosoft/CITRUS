@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import AnonymousUser
 from django.db.models import Q
 from django.shortcuts import render, redirect
+from django.utils import timezone
 
 from ..functions import hash_code
 from ..models import Saison, Alignement, Match, Equipe, Punition, DetailsInterprete, RequeteReportMatch
@@ -73,8 +74,8 @@ def demande_report_match(request, demandeToken):
                 emailHelper.courrielReportMatchAccepte(
                     rr.coach_1.courriel,
                     rr.coach_2.courriel,
-                    EmailHelper.COURRIEL_ADMIN,
-                    EmailHelper.COURRIEL_RESPO_COM,
+                    EmailHelper.getCourrielsAdmin(),
+                    EmailHelper.getCourrielsRespoCom(),
                     rr
                 )
 
@@ -83,7 +84,7 @@ def demande_report_match(request, demandeToken):
                 emailHelper.courrielUpdateReportMatch(
                     rr.coach_1.courriel,
                     rr.coach_2.courriel,
-                    EmailHelper.COURRIEL_ADMIN,
+                    EmailHelper.getCourrielsAdmin(),
                     rr
                 )
 
@@ -115,7 +116,7 @@ def demande_report_match(request, demandeToken):
             emailHelper.courrielUpdateReportMatch(
                 rr.coach_1.courriel,
                 rr.coach_2.courriel,
-                EmailHelper.COURRIEL_ADMIN,
+                EmailHelper.getCourrielsAdmin(),
                 rr
             )
             messages.success(request, "Votre réponse a été enregistrée.")
@@ -246,8 +247,9 @@ def admin_matchs(request, id_saison=None):
         return render(request, "admin/admin_matchs.html", {
             'saisons': Saison.objects.all(),
             'saison_selectionne': saison,
-            'matchs': Match.objects.filter(saison=saison).all(),
+            'matchs': Match.objects.filter(saison=saison).all().order_by('date_match'),
             'activeTab': "MATCH",
+            'now': timezone.now(),
         })
     else:
         return redirect('/Citrus/Accueil')

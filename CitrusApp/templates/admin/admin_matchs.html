@@ -5,8 +5,6 @@
     <h1>Mes Matchs</h1>
     <p>Cette section vous permet d'accéder aux liens de vos matchs !</p>
 
-    
-
     <h1>Matchs à venir</h1>
     <div class="buttonsContainer">
         <menu-deroulant-recherche style="width:300px;" >
@@ -41,6 +39,11 @@
                         <i class="fa-solid fa-check fa-2xl" style="color: #0fc254;"></i>
                     {% else %}
                         <i class="fa-solid fa-x fa-2xl" style="color: #df0707;"></i>
+                        {% if match.date_match and match.date_match < now %}
+                            <i class="fa-solid fa-envelope fa-xl rappelIcon" style="color: #f15e60; cursor: pointer;"
+                               title="Envoyer un rappel de signature aux coachs"
+                               onclick="envoyerRappelSignature({{ match.match_id }}, this)"></i>
+                        {% endif %}
                     {% endif %}
                 </td>
                 <td><button id="modalBtn" onclick="openModalLien('{{ match.get_QrCode }}','{{ match.get_urlMatch }}')">Lien du match</button></td>
@@ -137,6 +140,34 @@
                 } else {
                     alert("Erreur : " + data.error);
                 }
+            });
+        }
+
+        function envoyerRappelSignature(matchId, icon) {
+            if (icon.classList.contains("disabled")) return;
+            icon.classList.add("disabled");
+
+            fetch("/api/envoyer_rappel_signature/", {
+                method: "POST",
+                credentials: "same-origin",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCookie("csrftoken")
+                },
+                body: JSON.stringify({ match_id: matchId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    icon.title = "Rappel envoyé";
+                } else {
+                    icon.classList.remove("disabled");
+                    alert("Erreur : " + data.error);
+                }
+            })
+            .catch(() => {
+                icon.classList.remove("disabled");
+                alert("Une erreur s'est produite.");
             });
         }
 
@@ -303,8 +334,29 @@
         td i{
             margin: 0.5rem 0.5rem 0.5rem 0.5rem;
         }
+        .rappelIcon.disabled {
+            color: grey !important;
+            opacity: 0.5;
+            pointer-events: none;
+            cursor: default !important;
+        }
         td button{
             margin: 0.5rem 0 0.5rem 0;
+        }
+    
+        /* MOBILE */
+        @media (max-width: 768px) {
+            .modal {
+                width: calc(100vw - 1.5rem);
+                max-height: calc(100dvh - 1.5rem);
+                overflow-y: auto;
+                border-radius: 1.25rem;
+            }
+            .modal-content { padding: 1.25rem; }
+            .modal-actions { flex-wrap: wrap; padding: 0.5rem; justify-content: center; }
+            .modal-actions button { margin: 0.5rem; }
+            .buttonsContainer { margin: 1rem 0; flex-wrap: wrap; gap: 0.5rem; }
+            .buttonsContainer button { margin-right: 0; }
         }
     </style>
 {% endblock %}

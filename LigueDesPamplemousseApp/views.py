@@ -1,8 +1,11 @@
+import re
+import unicodedata
+
 from django.db.models import Prefetch, Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, render
 
-from CitrusApp.models import Alignement, Equipe, Match, Saison
+from CitrusApp.models import Alignement, DetailsInterprete, Equipe, Match, Saison
 from .constants import DIVISION_SLUGS
 from .models import ArchiveAnnee, ArchiveEquipe, DocumentTelechargeable, MembreCA
 from .services.citrus_api import ClassementIndisponible, get_classement
@@ -121,6 +124,104 @@ def equipes(request, division):
     return render(request, "LigueDesPamplemousseApp/division/equipes.html", context)
 
 
+def _normaliser_nom(nom):
+    """Clé de comparaison tolérante : sans accents, casse, ponctuation ni « s » final
+    (« Portes-Patios » et « Portes Patio » donnent la même clé)."""
+    texte = unicodedata.normalize("NFKD", nom or "")
+    texte = "".join(c for c in texte if not unicodedata.combining(c)).lower()
+    texte = re.sub(r"[^a-z0-9]", "", texte)
+    return texte[:-1] if texte.endswith("s") and len(texte) > 3 else texte
+
+
+def _nom_equipe_du_prix(gagnant_equipe):
+    """« MIM – Montmorency » -> « MIM » (le texte libre sépare équipe et cégep par un tiret)."""
+    return re.split(r"\s+[–—-]\s+", gagnant_equipe or "", maxsplit=1)[0]
+
+
+def _historique_equipe(equipe):
+    """Titres et prix de l'équipe dans les archives, rattachés par le nom d'équipe
+    (les archives ne contiennent pas de clé vers Equipe)."""
+    cle = _normaliser_nom(equipe.nom_equipe)
+    if not cle:
+        return None
+
+    annees = ArchiveAnnee.objects.prefetch_related(
+        Prefetch("equipes", queryset=ArchiveEquipe.objects.prefetch_related("interpretes")),
+        "prix",
+    ).order_by("-annee_debut", "division")
+
+    saisons = []
+    totaux = {"champion_plaza": 0, "finaliste_plaza": 0, "champion_saison": 0, "prix": 0}
+    for annee in annees:
+        titres = [
+            e for e in sorted(annee.equipes.all(), key=lambda e: ArchiveEquipe.ROLE_ORDRE.get(e.role, 99))
+            if _normaliser_nom(e.nom_equipe) == cle
+        ]
+        prix = [
+            p for p in annee.prix.all()
+            if _normaliser_nom(_nom_equipe_du_prix(p.gagnant_equipe)) == cle
+        ]
+        if not titres and not prix:
+            continue
+        for t in titres:
+            totaux[t.role] = totaux.get(t.role, 0) + 1
+        totaux["prix"] += len(prix)
+        saisons.append({"annee": annee, "titres": titres, "prix": prix})
+
+    if not saisons:
+        return None
+    # Une finale = toute apparition en finale Plaza, qu'elle soit gagnée ou perdue.
+    totaux["finales_plaza"] = totaux["champion_plaza"] + totaux["finaliste_plaza"]
+    return {"saisons": saisons, "totaux": totaux}
+
+
+def _alignement_equipe(equipe, saison):
+    alignement = equipe.get_alignement(saison)
+    if alignement is None:
+        return []
+    ordre = {"C": 0, "A": 1}  # capitaine, puis assistants, puis le reste par numéro
+
+    def cle(details):
+        numero = details.numero_interprete or ""
+        return (ordre.get(details.role_interprete, 2), int(numero) if numero.isdigit() else 10**6, numero)
+
+    return sorted(DetailsInterprete.get_interpretes_triees(alignement), key=cle)
+
+
+def _matchs_joues_equipe(equipe, saison):
+    matchs = (
+        Match.objects.filter(saison=saison, completed_flag=True)
+        .filter(Q(equipe1=equipe) | Q(equipe2=equipe))
+        .select_related("equipe1", "equipe2", "equipe1__college")
+        .order_by("-date_match")
+    )
+    resultats = []
+    bilan = {"victoires": 0, "defaites": 0, "nuls": 0}
+    for match in matchs:
+        if match.equipe1_id is None or match.equipe2_id is None:
+            continue
+        a_domicile = match.equipe1_id == equipe.id_equipe
+        pour, contre = (match.score_eq1, match.score_eq2) if a_domicile else (match.score_eq2, match.score_eq1)
+        if pour > contre:
+            issue, cle = "V", "victoires"
+        elif pour < contre:
+            issue, cle = "D", "defaites"
+        else:
+            issue, cle = "N", "nuls"
+        bilan[cle] += 1
+        resultats.append(
+            {
+                "match": match,
+                "adversaire": match.equipe2 if a_domicile else match.equipe1,
+                "a_domicile": a_domicile,
+                "pour": pour,
+                "contre": contre,
+                "issue": issue,
+            }
+        )
+    return resultats, bilan
+
+
 def equipe_detail(request, equipe_id):
     equipe = get_object_or_404(Equipe, id_equipe=equipe_id)
     saison = Saison.objects.filter(est_active=True).first()
@@ -133,8 +234,20 @@ def equipe_detail(request, equipe_id):
         (slug for slug, nom in DIVISION_SLUGS.items() if nom == division_nom), None
     )
 
+    matchs_joues, bilan = _matchs_joues_equipe(equipe, saison)
+
     context = _nav_context(division_slug)
-    context.update({"equipe": equipe, "division_nom": division_nom})
+    context.update(
+        {
+            "equipe": equipe,
+            "division_nom": division_nom,
+            "saison": saison,
+            "alignement": _alignement_equipe(equipe, saison),
+            "matchs_joues": matchs_joues,
+            "bilan": bilan,
+            "historique": _historique_equipe(equipe),
+        }
+    )
     return render(request, "LigueDesPamplemousseApp/division/equipe_detail.html", context)
 
 

@@ -705,6 +705,21 @@
     .matchDetails .teamMatchScore {
         font-size: 1.5rem;
     }
+
+    /*=== Mobile ===*/
+    @media (max-width: 768px) {
+        header { justify-content: stretch; }
+        .buttonsTeams { flex-wrap: wrap; width: 100%; }
+        .buttonsTeams button { flex: 1 1 auto; }
+        .upperBody { gap: 1rem; }
+        .lowerBody { gap: 1.5rem; }
+        .modal-content { padding: 1.25rem; }
+        .modal-actions { flex-wrap: wrap; }
+        .modal-actions button { flex: 1 1 auto; }
+        .matchDate { min-inline-size: 4rem; padding: 0.5rem; font-size: 0.75rem; }
+        .matchDetails, .matchDetailsValidated { padding: 0.5rem; }
+        .matchs { max-block-size: none; }
+    }
 </style>
 
 {% endblock %}

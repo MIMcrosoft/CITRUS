@@ -1209,3 +1209,23 @@ class RequeteReportMatch(models.Model):
     def __str__(self):
         return f"{self.match} - {self.nouvelle_date} - {self.status} - {self.token}"
 
+
+
+class CourrielNotification(models.Model):
+    """Courriels recevant les notifications de la ligue (administrateurs et responsables des communications)."""
+    ADMIN = "ADMIN"
+    RESPO_COM = "RESPO_COM"
+    TYPE_CHOICES = [
+        (ADMIN, "Administrateur"),
+        (RESPO_COM, "Responsable des communications"),
+    ]
+
+    type_courriel = models.CharField(max_length=20, choices=TYPE_CHOICES)
+    courriel = models.EmailField()
+
+    class Meta:
+        unique_together = ("type_courriel", "courriel")
+        ordering = ["courriel"]
+
+    def __str__(self):
+        return f"{self.type_courriel} - {self.courriel}"

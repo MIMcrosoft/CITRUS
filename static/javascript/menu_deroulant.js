@@ -174,6 +174,11 @@ class MenuDeroulant extends HTMLElement{
             cursor: pointer;
         }
         
+        .select-option-empty {
+            min-height: 1.5rem;
+            box-sizing: content-box;
+        }
+
         .select-option:hover{
             background-color: var(--mainPampsFade);
         }
@@ -196,10 +201,13 @@ class MenuDeroulant extends HTMLElement{
       optionDiv.className = "select-option";
       optionDiv.textContent = opt.textContent;
       optionDiv.dataset.value = opt.value;
+      if (opt.textContent.trim() === "") optionDiv.classList.add("select-option-empty");
 
       optionDiv.addEventListener("click", () => {
         select.selectedIndex = idx;
-        selectedDiv.textContent = opt.textContent;
+        selectedDiv.textContent = (opt.value === "" && idx > 0)
+          ? select.options[0].textContent   // ← affiche "Point"
+          : opt.textContent;
 
         optionsDiv.querySelectorAll(".same-as-selected").forEach(el => el.classList.remove("same-as-selected"));
         optionDiv.classList.add("same-as-selected");

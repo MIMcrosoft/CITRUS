@@ -37,6 +37,8 @@ urlpatterns = [
     path('admin-<int:id_saison>/', views.panneau_admin, name='Admin'),
     path('AjoutSaison/', views.ajouter_saison, name='AjoutSaison'),
     path('ActiverSaison-<int:id_saison>/', views.activer_saison, name='ActiverSaison'),
+    path('AjoutCourrielNotification/', views.ajouter_courriel_notification, name='AjoutCourrielNotification'),
+    path('SuppressionCourrielNotification-<int:id_courriel>/', views.supprimer_courriel_notification, name='SuppressionCourrielNotification'),
     path('selectionner-equipe/', views.selectionner_equipe, name='selectionner_equipe'),
     path('EquipeIPP<int:id_equipe>-<int:id_saison>/', views.equipe_ipp, name='EquipeIPP'),
 

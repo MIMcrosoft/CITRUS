@@ -15,59 +15,85 @@
     <a href="https://liguedespamplemousses.com" class="backButton">
         <h2><i class="fa-solid fa-arrow-left"></i> Retour au site de la ligue</h2>
     </a>
-    <form method="post">
+    <form method="post" class="signupForm">
         {% csrf_token %}
         <div class="loginContainer">
             <div class="login">
-                <div>
-                    <img src="{% static 'icons/CitrusLogoText.png' %}" alt="Logo CITRUS"  class="logo">
+                <img src="{% static 'icons/CitrusLogoText.png' %}" alt="Logo CITRUS" class="logo">
+
+                <header class="signupHeader">
+                    <h1>Créer votre compte coach</h1>
+                    <p class="subtitle">Gérez votre équipe et signez vos fiches de match. Votre compte sera validé par l'organisation avant d'être activé.</p>
+                </header>
+
+                <div class="errors" role="alert" aria-live="polite">
+                    <p class="errorMsg"></p>
+                    {% for error in errors %}
+                        <p class="errorMsg">{{ error }}</p>
+                    {% endfor %}
                 </div>
-                    
-                    <label class="errorMsg" style="font-size: 15px;"></label>
-                {% for error in errors %}
-                    <label class="errorMsg" style="font-size: 15px;"> {{ error }}</label>
-                {% endfor %}
 
-                <section class="section signupFields">
-                    <h2>S'inscrire</h2>
-                
-                    <input type="text" id="coachPrenom" name="coachPrenom" placeholder="Votre prénom" autocomplete="one-time-code" required>
-            
-                    <input type="text" id="coachNom" name="coachNom" placeholder="Votre nom" autocomplete="one-time-code" required>
-            
-                    
-                    <input type="text" id="coachPronom" name="coachPronom" placeholder="Vos pronoms" autocomplete="one-time-code" required>
-                    
-                    <button type="button" class="btnPrimary" onclick="sectionReveal('signUpEmailAndPassword')"><span>Continuer</span></button>
-                </section>
+                <fieldset class="formGroup">
+                    <legend><span class="step">1</span> Qui êtes-vous ?</legend>
+                    <p class="groupHint">Ces informations apparaîtront sur les fiches de match.</p>
 
-                <section class="section signUpEmailAndPassword hidden">
-                    <input type="text" id="coachCourriel" name="coachCourriel" placeholder="Courriel" onchange="emailToLowercase()" onblur="validateEmail()" autocomplete="email" required>
-                                            
-                    <input type="password" id="coachPassword" name="coachPassword" placeholder="Mot de passe" onchange="matchingPasswords()" onblur="validatePassword()" autocomplete="new-password" required>
-                
-                    <input type="password" id="coachPassword2" name="coachPassword2" placeholder="Confirmer le mot de passe" onchange="matchingPasswords()" autocomplete="off" required>
-
-                    <button type="button" class="btnPrimary" onclick="sectionReveal('signupTeam')"><span>Continuer</span></button>
-                </section>
-
-                <section class="section signupTeam hidden">
-                    <div class="select select-search">
-                        <select name="teamCoach" id="teamCoach" required>
-                            <option value="">Choisissez votre équipe</option>
-                            {% for equipe in allEquipes %}
-                                <option value="{{ equipe.id_equipe }}">{{ equipe.nom_equipe }}</option>
-                            {% endfor %}
-                        </select>
+                    <div class="field">
+                        <label for="coachPrenom">Prénom</label>
+                        <input type="text" id="coachPrenom" name="coachPrenom" placeholder="Ex. : Alex" autocomplete="given-name" required>
                     </div>
-                
-                    <a style="gap: 0; margin-top: -0.5rem; margin-bottom: 1rem; font-size: 15px;" onclick="sectionReveal('teamAddFields')">Mon équipe n'est pas dans la liste</a>
-                    
-                    <button class="btnPrimary" onclick="sectionReveal('emailSent')"><span>Continuer</span></button>
-                </section>
 
+                    <div class="field">
+                        <label for="coachNom">Nom</label>
+                        <input type="text" id="coachNom" name="coachNom" placeholder="Ex. : Tremblay" autocomplete="family-name" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="coachPronom">Pronoms</label>
+                        <input type="text" id="coachPronom" name="coachPronom" placeholder="Ex. : elle, il, iel" autocomplete="off" required>
+                    </div>
+                </fieldset>
+
+                <fieldset class="formGroup">
+                    <legend><span class="step">2</span> Vos identifiants</legend>
+                    <p class="groupHint">Vous les utiliserez pour vous connecter à CITRUS.</p>
+
+                    <div class="field">
+                        <label for="coachCourriel">Courriel</label>
+                        <input type="text" inputmode="email" id="coachCourriel" name="coachCourriel" placeholder="nom@exemple.com" onchange="emailToLowercase()" onblur="validateEmail()" autocomplete="email" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="coachPassword">Mot de passe</label>
+                        <input type="password" id="coachPassword" name="coachPassword" placeholder="Votre mot de passe" onchange="matchingPasswords()" onblur="validatePassword()" autocomplete="new-password" aria-describedby="passwordHint" required>
+                        <small id="passwordHint">Au moins 8 caractères, dont un chiffre ou un caractère spécial.</small>
+                    </div>
+
+                    <div class="field">
+                        <label for="coachPassword2">Confirmer le mot de passe</label>
+                        <input type="password" id="coachPassword2" name="coachPassword2" placeholder="Retapez votre mot de passe" onchange="matchingPasswords()" autocomplete="new-password" required>
+                    </div>
+                </fieldset>
+
+                <fieldset class="formGroup">
+                    <legend><span class="step">3</span> Votre équipe</legend>
+                    <p class="groupHint">Choisissez l'équipe que vous coachez. Tapez son nom pour la retrouver plus vite.</p>
+
+                    <div class="field">
+                        <label for="teamCoach">Équipe</label>
+                        <div class="select select-search">
+                            <select name="teamCoach" id="teamCoach" required>
+                                <option value="">Choisissez votre équipe</option>
+                                {% for equipe in allEquipes %}
+                                    <option value="{{ equipe.id_equipe }}">{{ equipe.nom_equipe }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <button type="submit" class="btnPrimary submitBtn"><span>Créer mon compte</span></button>
+                <p class="loginLink">Vous avez déjà un compte ? <a href="{% url 'ConnexionUtilisateur' %}">Se connecter</a></p>
             </div>
-
         </div>
     </form>
     <p class="credit">Plateforme réalisée par <a href="">Félix Robillard</a> et <a href="">Raphaël Dumont</a></p>
@@ -75,73 +101,224 @@
     <style>
         body {
             background: var(--gradient);
+            background-attachment: fixed;
             background-size: cover;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            padding:4rem;
+            block-size: auto;
+            min-block-size: 100dvh;
+            inline-size: 100%;
+            padding: 4rem 1rem 2rem;
+            transition: opacity 0.5s ease;
+        }
+
+        body.hidden {
+            opacity: 0;
+        }
+
+        .backButton {
+            position: absolute;
+            inset-inline-start: 1.5rem;
+            inset-block-start: 0.75rem;
+        }
+
+        .backButton h2 {
+            margin: 0;
+            font-size: 1rem;
+            color: var(--white);
+            font-weight: 600;
+        }
+
+        .signupForm {
+            margin-block: auto;
+            inline-size: min(100%, 32rem);
         }
 
         .loginContainer {
             border-radius: 1.5rem;
-            background-color: rgba(240, 243, 237, 0.502);
-            margin: 1rem;
-            padding: clamp(2rem, 10%, 4rem);
-            padding-inline:clamp(0.5rem, 10%, 4rem);
-            transition: opacity 0.5s ease 0.25s;
-            max-height: 100%;
-        }
-
-        .loginContainer::-webkit-scrollbar {
-            display: none;
-        }
-
-        .loginContainer * {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            transition: opacity 0.5s ease 0.25s;
-        }
-
-        .loginContainer .select {
-            gap:0;
+            background-color: rgba(255, 255, 255, 0.92);
+            box-shadow: var(--shadow);
+            padding: clamp(1.25rem, 5vw, 2.5rem);
         }
 
         .login {
-            max-width: 80vw;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
         }
 
-        .btnPrimary * {
-            margin:auto;
+        .logo {
+            max-inline-size: 12rem;
+            margin-inline: auto;
+        }
+
+        .signupHeader {
+            text-align: center;
+        }
+
+        .signupHeader h1 {
+            margin: 0 0 0.35rem;
+            text-wrap: balance;
+        }
+
+        .subtitle {
+            margin: 0;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            text-wrap: pretty;
+            color: var(--textBlack);
+        }
+
+        .errors {
+            display: grid;
+            gap: 0.5rem;
+        }
+
+        .errorMsg {
+            margin: 0;
+            padding: 0.6rem 1rem;
+            border-radius: 0.75rem;
+            background: oklch(95% 0.04 25);
+            border-inline-start: 0.3rem solid oklch(58% 0.2 25);
+            color: oklch(45% 0.18 25);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .errorMsg:empty {
+            display: none;
+        }
+
+        .formGroup {
+            margin: 0;
+            padding: 1rem 1.1rem 1.1rem;
+            border: 0;
+            border-radius: 1rem;
+            background: var(--mainPampsFade);
+            display: grid;
+            gap: 0.9rem;
+            min-inline-size: 0;
+        }
+
+        .formGroup legend {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0;
+            float: inline-start;
+            inline-size: 100%;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--mainPamps);
+        }
+
+        .formGroup legend + * {
+            clear: both;
+        }
+
+        .step {
+            display: inline-grid;
+            place-items: center;
+            inline-size: 1.6rem;
+            block-size: 1.6rem;
+            border-radius: 50%;
+            background: var(--mainPamps);
+            color: var(--white);
+            font-size: 0.85rem;
+        }
+
+        .groupHint {
+            margin: 0;
+            font-size: 0.85rem;
+            line-height: 1.35;
+            text-wrap: pretty;
+            color: var(--textBlack);
+        }
+
+        .field {
+            display: grid;
+            gap: 0.3rem;
+        }
+
+        .field label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--textBlack);
+        }
+
+        .field input[type="text"],
+        .field input[type="password"] {
+            inline-size: 100%;
+            block-size: 2.5rem;
+            margin: 0;
+            box-shadow: var(--smallerShadow);
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        .field input:focus-visible {
+            outline: 0.15rem solid var(--mainPamps);
+            outline-offset: 0.1rem;
+        }
+
+        .field input:user-invalid {
+            outline: 0.15rem solid oklch(58% 0.2 25);
+        }
+
+        .field small {
+            font-size: 0.8rem;
+            color: var(--textBlack);
+            opacity: 0.85;
+        }
+
+        .field .select {
+            display: block;
+            margin: 0;
+        }
+
+        .field .select-selected {
+            block-size: 2.5rem;
+            padding-block: 0.5rem;
+            box-shadow: var(--smallerShadow);
+        }
+
+        .field .select-selected::after {
+            inset-block-start: 1.05rem;
+        }
+
+        .field .select-selected.select-arrow-active::after {
+            inset-block-start: 0.45rem;
+        }
+
+        .submitBtn {
+            inline-size: 100%;
+            margin: 0;
+            padding-block: 0.7rem;
+            font-size: 1.1rem;
         }
 
         .btnPrimary:hover {
             background: var(--white);
         }
 
-        .logo {
-            padding: 0.5rem;
+        .loginLink {
+            margin: 0;
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--textBlack);
         }
 
-        .backButton {
-            position: absolute;
-            left: 2rem;
-            top: 0.5rem;
-            transition: opacity 0.25s ease;
-        }
-
-        .backButton h2 {
-            color: var(--white);
-            font-weight: 600;
+        .loginLink a {
+            font-weight: 700;
+            color: var(--mainPamps);
         }
 
         .credit {
-            position: absolute;
-            bottom: 1rem;
-            color: var(--white);
+            margin: 1.5rem 0 0;
             text-align: center;
-            padding-inline: 2rem;
-            transition: opacity 0.25s ease;
+            color: var(--white);
+            font-size: 0.9rem;
         }
 
         .credit a {
@@ -149,16 +326,10 @@
             font-weight: 600;
         }
 
-        .section {
-            gap: 0;
-        }
-
-        section.hidden {
-            display: none;
-        }
-
-        input {
-            margin-bottom: 0.5rem !important;
+        @media (prefers-reduced-motion: reduce) {
+            body {
+                transition: none;
+            }
         }
     </style>
     
@@ -195,15 +366,6 @@
             
         }
 
-        function sectionReveal(section) {
-            const sections = document.getElementsByClassName("section");
-            for (i=0;i<sections.length;i++) {
-                sections[i].classList.add("hidden");
-            }
-            console.log("lol")
-            document.getElementsByClassName(section)[0].classList.remove("hidden");
-        }
-
         const emailField = document.getElementById("coachCourriel");
         const errorMsg = document.querySelector(".errorMsg");
 
@@ -221,6 +383,13 @@
                 errorMsg.textContent = "";
             }
         }
+
+        document.querySelector("form").addEventListener("submit", function (e) {
+            if (!document.getElementById("teamCoach").value) {
+                e.preventDefault();
+                errorMsg.textContent = "Veuillez choisir votre équipe.";
+            }
+        });
 
         function matchingPasswords() {
             const pass1 = document.getElementById("coachPassword");

@@ -320,3 +320,163 @@
   background: var(--division-accent, var(--color-encre));
   color: var(--color-ardoise);
 }
+
+/* --- Page d'équipe --- */
+.ligue-team-page { padding: var(--space-sm); }
+
+.ligue-team-layout {
+  display: grid;
+  gap: var(--space-lg);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+  align-items: start;
+}
+
+.ligue-team-block h2 { margin-block: 0 var(--space-sm); }
+
+.ligue-roster, .ligue-results, .ligue-history__prizes { list-style: none; margin: 0; padding: 0; }
+.ligue-roster, .ligue-results { display: grid; gap: var(--space-2xs); }
+
+.ligue-roster__item, .ligue-result {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--color-ardoise-carte);
+  border-radius: 0.5rem;
+  box-shadow: var(--shadow-carte);
+}
+
+.ligue-roster__number {
+  flex: none;
+  inline-size: 2.25rem;
+  block-size: 2.25rem;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-patch);
+  background: var(--division-accent, var(--color-encre-att));
+  color: var(--color-ardoise);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.ligue-roster__name { flex: 1; font-weight: 600; }
+
+.ligue-roster__role {
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 0.1rem 0.5rem;
+  border-radius: var(--radius-patch);
+  border: 1px solid var(--color-liseret);
+  color: var(--color-encre-att);
+}
+
+.ligue-record {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  margin: 0 0 var(--space-sm);
+  color: var(--color-encre-att);
+}
+
+.ligue-record strong {
+  color: var(--color-encre);
+  font-size: 1.5rem;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Résultat factuel : pas de vert/rouge (cf. DESIGN.md) */
+.ligue-result__issue {
+  flex: none;
+  inline-size: 1.75rem;
+  block-size: 1.75rem;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-patch);
+  font-size: 0.8rem;
+  font-weight: 900;
+  border: 1px solid var(--color-liseret);
+  color: var(--color-encre-att);
+}
+
+.ligue-result--V .ligue-result__issue {
+  background: var(--division-accent, var(--color-encre));
+  border-color: transparent;
+  color: var(--color-ardoise);
+}
+
+.ligue-result__body { flex: 1; min-inline-size: 0; display: grid; }
+.ligue-result__opponent { font-weight: 700; }
+.ligue-result__opponent a { color: inherit; }
+.ligue-result__meta { font-size: 0.8rem; color: var(--color-encre-att); }
+
+.ligue-result__score {
+  font-weight: 900;
+  font-size: 1.15rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Historique : résumé par saison, détails au clic (<details>) */
+.ligue-history { display: grid; gap: var(--space-xs); }
+
+.ligue-history__season {
+  background: var(--color-ardoise-carte);
+  border-radius: var(--radius-carte);
+  box-shadow: var(--shadow-carte);
+  border-inline-start: 0.3rem solid var(--division-accent, var(--color-encre));
+}
+
+.ligue-history__season > summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs) var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  cursor: pointer;
+  list-style: none;
+}
+
+.ligue-history__season > summary::-webkit-details-marker { display: none; }
+
+.ligue-history__season > summary::after {
+  content: "+";
+  margin-inline-start: auto;
+  font-weight: 900;
+  font-size: 1.25rem;
+  color: var(--color-encre-att);
+}
+
+.ligue-history__season[open] > summary::after { content: "\2212"; }
+
+.ligue-history__season > summary:focus-visible {
+  outline: 2px solid var(--division-accent, var(--color-encre));
+  outline-offset: 2px;
+}
+
+.ligue-history__year { font-weight: 900; font-variant-numeric: tabular-nums; }
+.ligue-history__titles { display: flex; flex-wrap: wrap; gap: var(--space-2xs); }
+
+.ligue-badge {
+  display: inline-block;
+  padding: 0.15rem 0.6rem;
+  border-radius: var(--radius-patch);
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: 1px solid var(--color-liseret);
+  color: var(--color-encre-att);
+}
+
+.ligue-badge--champion_plaza, .ligue-badge--champion_saison {
+  background: var(--division-accent, var(--color-encre));
+  border-color: transparent;
+  color: var(--color-ardoise);
+}
+
+.ligue-history__detail { padding: 0 var(--space-md) var(--space-md); display: grid; gap: var(--space-sm); }
+.ligue-history__division { margin: 0; color: var(--color-encre-att); font-size: 0.85rem; }
+.ligue-history__team h3 { margin: 0 0 var(--space-2xs); font-size: 1rem; }
+.ligue-history__team h3 span { font-weight: 400; color: var(--color-encre-att); }
+.ligue-history__team p { margin: 0 0 var(--space-2xs); }
+.ligue-history__prizes li { padding-block: 0.15rem; }
+.ligue-history__note { margin-block-start: var(--space-sm); font-size: 0.8rem; color: var(--color-encre-att); }

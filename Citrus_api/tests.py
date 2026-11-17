@@ -108,7 +108,7 @@ class CreerRequeteReportMatchTest(APITestCase):
         mock_courriel.assert_called_once_with(
             self.coach1.courriel,
             self.coach2.courriel,
-            EmailHelper.COURRIEL_ADMIN,
+            EmailHelper.getCourrielsAdmin(),
             rr
         )
 
