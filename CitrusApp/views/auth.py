@@ -14,17 +14,11 @@ def gestion_utilisateurs(request):
     if request.method == 'POST':
         pass
 
-    if settings.DEBUG:
-        domain = "http://localhost:8000"
-    else:
-        domain = "https://liguedespamplemousses.com"
-
     if current_user.admin_flag == True:
 
         return render(request, "admin/admin_gestion_utilisateurs.html", {
             'allUsers' : Coach.objects.all(),
             'saisonActive': Saison.objects.filter(est_active=True).first(),
-            'domain' : domain,
             'activeTab': "USER"
         })
 
@@ -33,16 +27,11 @@ def gestion_utilisateurs(request):
 
 @login_required
 def profil_utilisateur(request, userID):
-    if settings.DEBUG:
-        domain = "http://localhost:8000"
-    else:
-        domain = "https://liguedespamplemousses.com"
     if request.method == 'POST':
         pass
 
     return render(request, "profil_utilisateur.html", {
         'user' : Coach.objects.get(coach_id=userID),
-        'domain' : domain,
         'activeTab': "USER"
     })
 

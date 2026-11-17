@@ -41,7 +41,7 @@ class EmailHelper:
         self.smtpPort = 465
         self.senderEmail = 'citrus@liguedespamplemousses.com'
         self.password = os.getenv('EMAIL_PSWD')
-        self.domaine = "http://localhost:8000" if settings.DEBUG else "https://liguedespamplemousses.com"
+        self.domaine = settings.SITE_URL
         self.baseDirectory = Path(__file__).parent
         self.templateFolder = self.baseDirectory.parent / "CitrusApp" / "templates" / "templatesCourriel"
 
@@ -262,7 +262,7 @@ class EmailHelper:
             f"<strong>{match.equipe1.nom_equipe}</strong> et <strong>{match.equipe2.nom_equipe}</strong>, "
             f"joué le {match.get_dateFormattedWithYear()}, n'a pas encore été complétée. "
             "Merci de la signer dès que possible afin que le match soit comptabilisé au classement.<br><br>"
-            f"Lien de la fiche : <a class=\"link\" href=\"{match.get_urlMatch()}\" target=\"_blank\" rel=\"noopener\">Ouvrir la fiche de match</a>"
+            f"Lien de la fiche : <a class=\"link\" href=\"{match.get_urlMatch}\" target=\"_blank\" rel=\"noopener\">Ouvrir la fiche de match</a>"
         )
 
         htmlBodyParam = htmlBody.replace("{title}", titre)

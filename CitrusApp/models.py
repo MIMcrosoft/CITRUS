@@ -11,6 +11,7 @@ from io import BytesIO
 import base64
 import hashlib
 from django.conf import settings
+from django.urls import reverse
 
 def hash_code(code: str) -> str:
     # Create a SHA-256 hash object
@@ -849,13 +850,8 @@ class Equipe(models.Model):
         return Alignement.objects.filter(saison=selectedSaison, equipe=self).first().interpretes.all()
 
     def getUrlPhoto(self):
-        if settings.DEBUG:
-            domain = "http://localhost:8000/Citrus"
-        else:
-            domain = "https://liguedespamplemousses.com"
-
         if self.logo and self.logo.url :
-            return domain + self.logo.url
+            return settings.SITE_URL + self.logo.url
         else :
             return None
 
@@ -1040,9 +1036,7 @@ class Match(models.Model):
     @property
     def get_urlMatch(self):
         code = str(self.equipe1.nom_equipe) + str(self.equipe2.nom_equipe) + str(self.match_id)
-        if settings.DEBUG:
-            return "http://localhost:8000/Citrus/Match-" + hash_code(code)
-        return "https://liguedespamplemousses.com/Citrus/Match-" + hash_code(code)
+        return settings.SITE_URL + reverse('FormulaireMatch', args=[hash_code(code)])
     def get_QrCode(self):
         qr = segno.make(self.get_urlMatch)
 

@@ -139,11 +139,6 @@ def formulaire_match(request, hashedCode):
     matchSelected = None
     TEST = False
 
-    if settings.DEBUG:
-        domain = "http://localhost:8000"
-    else:
-        domain = "https://liguedespamplemousses.com"
-
     for match in Match.objects.all():
         code = str(match.equipe1) + str(match.equipe2) + str(match.match_id)
 
@@ -217,7 +212,6 @@ def formulaire_match(request, hashedCode):
             'matchData' : matchData,
             'hashedPwdsCoach1':None,
             'hashedPwdsCoach2':None,
-            'domain': domain,
             'current_user': current_user
         })
 

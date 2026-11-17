@@ -45,12 +45,18 @@ if not SECRET_KEY:
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
+def env_list(name):
+    """Lit une variable d'environnement séparée par des virgules (entrées vides ignorées)."""
+    return [item.strip() for item in os.getenv(name, "").split(",") if item.strip()]
 
-CSRF_TRUSTED_ORIGINS = [
-    "https://liguedespamplemousses.com",
-    "https://*.liguedespamplemousses.com",
-]
+
+# URL publique canonique du site (sans slash final), utilisée pour les liens
+# absolus (courriels, QR codes, API). Ex.: https://www.liguedespamplemousses.com
+SITE_URL = os.getenv("SITE_URL", "http://localhost:8000").strip().rstrip("/")
+
+ALLOWED_HOSTS = env_list("ALLOWED_HOSTS")
+
+CSRF_TRUSTED_ORIGINS = env_list("CSRF_TRUSTED_ORIGINS")
 
 
 # Application definition
@@ -170,10 +176,7 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CORS_ORIGIN_WHITELIST = [
-    "https://liguedespamplemousses.com",
-    "https://www.liguedespamplemousses.com",
-]
+CORS_ORIGIN_WHITELIST = env_list("CORS_ORIGIN_WHITELIST")
 
 if not DEBUG:
     # Passenger / reverse proxy : Django doit savoir que la requête d'origine était en HTTPS

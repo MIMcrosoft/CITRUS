@@ -79,7 +79,7 @@ def createMatchTEST():
 
 def updateUrlMatch():
     for match in Match.objects.all():
-        print(match.get_urlMatch())
+        print(match.get_urlMatch)
 
 def updateMatchcache():
     for match in Match.objects.all():
@@ -99,8 +99,7 @@ def getCoachUrlChangeMDP(coachEmail):
     if coachToReset:
         code = str(coachToReset.prenom_coach) + str(coachToReset.nom_coach) + str(coachToReset.coach_id)
         coachCodeHash = hash_code(code)
-        domain = "http://localhost:8000" if settings.DEBUG else "https://liguedespamplemousses.com"
-        urlResetPassword = f"https://liguedespamplemousses.com/Citrus/ResetPassword-{coachCodeHash}"
+        urlResetPassword = f"{settings.SITE_URL}/Citrus/ResetPassword-{coachCodeHash}"
         print(urlResetPassword)
 
 def getMissingMatch():
