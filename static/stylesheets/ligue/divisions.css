@@ -388,8 +388,10 @@
 /* Résultat factuel : pas de vert/rouge (cf. DESIGN.md) */
 .ligue-result__issue {
   flex: none;
-  inline-size: 1.75rem;
+  min-inline-size: 1.75rem;
   block-size: 1.75rem;
+  padding-inline: 0.35rem;
+  box-sizing: border-box;
   display: grid;
   place-items: center;
   border-radius: var(--radius-patch);

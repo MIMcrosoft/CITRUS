@@ -1,4 +1,5 @@
 {% extends "LigueDesPamplemousseApp/base_public.html" %}
+{% load static %}
 
 {% block title %}{{ equipe.nom_equipe }}{% endblock %}
 
@@ -13,6 +14,18 @@
         <h1 class="ligue-division-band__title">{{ equipe.nom_equipe }}</h1>
         <p class="ligue-division-band__meta">Division {{ division_nom }}{% if equipe.college %} · {{ equipe.college.nom_college }}{% endif %} · {{ saison.nom_saison }}</p>
     </header>
+
+    {% if saisons|length > 1 %}
+    <form class="ligue-filter-bar" method="get" data-auto-submit>
+        <label for="saison-filtre">Saison :</label>
+        <select id="saison-filtre" name="saison">
+            {% for s in saisons %}
+            <option value="{{ s.saison_id }}" {% if s.saison_id|stringformat:"s" == saison_filtre %}selected{% endif %}>{{ s.nom_saison }}</option>
+            {% endfor %}
+        </select>
+        <noscript><button type="submit">Afficher</button></noscript>
+    </form>
+    {% endif %}
 
     <div class="ligue-team-layout">
         <section class="ligue-team-block" aria-labelledby="alignement-titre">
@@ -39,16 +52,16 @@
             <p class="ligue-record" aria-label="Bilan de la saison">
                 <span><strong>{{ bilan.victoires }}</strong> V</span>
                 <span><strong>{{ bilan.defaites }}</strong> D</span>
-                <span><strong>{{ bilan.nuls }}</strong> N</span>
+                <span><strong>{{ bilan.defaites_prolongation }}</strong> DP</span>
             </p>
             <ul class="ligue-results">
                 {% for r in matchs_joues %}
                 <li class="ligue-result ligue-result--{{ r.issue }}">
-                    <span class="ligue-result__issue" aria-label="{% if r.issue == 'V' %}Victoire{% elif r.issue == 'D' %}Défaite{% else %}Nul{% endif %}">{{ r.issue }}</span>
+                    <span class="ligue-result__issue" aria-label="{% if r.issue == 'V' %}Victoire{% elif r.issue == 'D' %}Défaite{% elif r.issue == 'DP' %}Défaite en prolongation{% endif %}">{{ r.issue|default:"–" }}</span>
                     <span class="ligue-result__body">
                         <span class="ligue-result__opponent">
-                            {% if r.a_domicile %}vs{% else %}@{% endif %}
-                            <a href="{% url 'ligue:equipe_detail' equipe_id=r.adversaire.id_equipe %}">{{ r.adversaire.nom_equipe }}</a>
+                            Vs
+                            <a href="{% url 'ligue:equipe_detail' equipe_id=r.adversaire.id_equipe %}?saison={{ saison.saison_id }}">{{ r.adversaire.nom_equipe }}</a>
                         </span>
                         <span class="ligue-result__meta">{{ r.match.date_match|date:"d M Y" }}{% if r.match.equipe1.college %} · {{ r.match.equipe1.college.nom_college }}{% endif %}</span>
                     </span>
@@ -119,4 +132,8 @@
         {% endif %}
     </section>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'javascript/ligue/filtres.js' %}"></script>
 {% endblock %}

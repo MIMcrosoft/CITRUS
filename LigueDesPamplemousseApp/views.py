@@ -188,6 +188,15 @@ def _alignement_equipe(equipe, saison):
     return sorted(DetailsInterprete.get_interpretes_triees(alignement), key=cle)
 
 
+def _est_prolongation(match):
+    """Même règle que le classement (Citrus_api) : la 13e improvisation sert à la prolongation."""
+    improvisations = match.improvisations or []
+    try:
+        return bool(improvisations[12].get("points"))
+    except (IndexError, AttributeError, TypeError):
+        return False
+
+
 def _matchs_joues_equipe(equipe, saison):
     matchs = (
         Match.objects.filter(saison=saison, completed_flag=True)
@@ -196,19 +205,23 @@ def _matchs_joues_equipe(equipe, saison):
         .order_by("-date_match")
     )
     resultats = []
-    bilan = {"victoires": 0, "defaites": 0, "nuls": 0}
+    bilan = {"victoires": 0, "defaites": 0, "defaites_prolongation": 0}
     for match in matchs:
         if match.equipe1_id is None or match.equipe2_id is None:
             continue
         a_domicile = match.equipe1_id == equipe.id_equipe
         pour, contre = (match.score_eq1, match.score_eq2) if a_domicile else (match.score_eq2, match.score_eq1)
         if pour > contre:
-            issue, cle = "V", "victoires"
+            issue = "V"
+            bilan["victoires"] += 1
+        elif pour < contre and _est_prolongation(match):
+            issue = "DP"
+            bilan["defaites_prolongation"] += 1
         elif pour < contre:
-            issue, cle = "D", "defaites"
+            issue = "D"
+            bilan["defaites"] += 1
         else:
-            issue, cle = "N", "nuls"
-        bilan[cle] += 1
+            issue = ""  # égalité : n'existe pas au règlement, donnée incomplète
         resultats.append(
             {
                 "match": match,
@@ -222,12 +235,32 @@ def _matchs_joues_equipe(equipe, saison):
     return resultats, bilan
 
 
+def _saisons_equipe(equipe):
+    """Saisons (récentes d'abord) où l'équipe a un alignement ou des matchs joués."""
+    ids = set(Alignement.objects.filter(equipe=equipe).values_list("saison_id", flat=True))
+    ids |= set(
+        Match.objects.filter(Q(equipe1=equipe) | Q(equipe2=equipe), saison__isnull=False)
+        .values_list("saison_id", flat=True)
+    )
+    return list(Saison.objects.filter(saison_id__in=ids).order_by("-saison_id"))
+
+
 def equipe_detail(request, equipe_id):
     equipe = get_object_or_404(Equipe, id_equipe=equipe_id)
-    saison = Saison.objects.filter(est_active=True).first()
+    saison_active = Saison.objects.filter(est_active=True).first()
 
-    if saison is None or not equipe.is_active_pour_saison(saison):
+    if saison_active is None or not equipe.is_active_pour_saison(saison_active):
         raise Http404("Équipe introuvable.")
+
+    saisons = _saisons_equipe(equipe)
+    if saison_active not in saisons:
+        saisons.insert(0, saison_active)
+
+    saison = saison_active
+    saison_param = request.GET.get("saison", "").strip()
+    choisie = next((s for s in saisons if str(s.saison_id) == saison_param), None)
+    if choisie is not None:
+        saison = choisie
 
     division_nom = equipe.get_division(saison)
     division_slug = next(
@@ -242,6 +275,9 @@ def equipe_detail(request, equipe_id):
             "equipe": equipe,
             "division_nom": division_nom,
             "saison": saison,
+            "saisons": saisons,
+            "saison_filtre": str(saison.saison_id),
+            "saison_active": saison_active,
             "alignement": _alignement_equipe(equipe, saison),
             "matchs_joues": matchs_joues,
             "bilan": bilan,
