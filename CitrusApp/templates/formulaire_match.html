@@ -516,7 +516,10 @@
                         <button type="button" id="signatureCoachBtn1" class="btnPrimary signBtn btnStretch" onclick="openModal('signatureCoachModal1')">Signer</button>
                         <label for="coach2" class="label onTop">Signature coach {{ match.equipe2.nom_equipe }}</label>
                         <button type="button" class="btnPrimary signBtn btnStretch" id="signatureCoachBtn2" onclick="openModal('signatureCoachModal2')">Signer</button>
-                        <button type="submit" id="finalizeMatchBtn" class="btnPrimary btnStretch{% if not current_user.admin_flag %} disabled-btn{% endif %}"><span>Confirmer l'envoi</span></button>
+                        <button type="submit" id="finalizeMatchBtn" class="btnPrimary btnStretch disabled-btn" disabled><span>Confirmer l'envoi</span></button>
+                        {% if current_user.admin_flag %}
+                            <button type="submit" id="adminSubmitBtn" class="btnPrimary btnStretch" style="margin-top: 1rem;"><span>Envoyer en tant qu'administrateur</span></button>
+                        {% endif %}
                     </div>
                 </form>
             </div>
@@ -1209,24 +1212,19 @@
                 .replace(/\\'/g, "'")   // Convert escaped single quotes back to single quotes
                 .replace(/\\"/g, '"');  // Convert escaped double quotes back to double quotes
         }
-        {% if current_user.admin_flag == True %}
-            let submitBtn = document.getElementById('finalizeMatchBtn');
-            submitBtn.disabled = false;
-            submitBtn.classList.remove("disabled-btn");
-        {% endif %}
+        // "Confirmer l'envoi" n'est actif que si les deux signatures sont enregistrées
+        (function () {
+            const btn1 = document.getElementById('signatureCoachBtn1');
+            const btn2 = document.getElementById('signatureCoachBtn2');
+            if (btn1.disabled && btn2.disabled) {
+                const submitBtn = document.getElementById('finalizeMatchBtn');
+                submitBtn.disabled = false;
+                submitBtn.classList.remove("disabled-btn");
+            }
+        })();
 
         {% if match.completed_flag == True and not current_user.admin_flag %}
             disableAllInputs()
-        {% endif %}
-
-        {% if current_user.admin_flag %}
-            // Un administrateur peut toujours envoyer le formulaire
-            window.addEventListener('load', function () {
-                const adminSubmitBtn = document.getElementById('finalizeMatchBtn');
-                adminSubmitBtn.disabled = false;
-                adminSubmitBtn.classList.remove("disabled-btn");
-                adminSubmitBtn.style.pointerEvents = "auto";
-            });
         {% endif %}
 
         function disableAllInputs() {
