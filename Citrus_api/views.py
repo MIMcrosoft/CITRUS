@@ -159,6 +159,12 @@ IPP_EQUIPE_SQL = load_sql('SQL/ipp_equipe.sql')
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def get_ipp_equipe(request, equipe_id, saison_id):
+    if Match.objects.filter(saison_id=saison_id, completed_flag=False).exclude(
+        Q(equipe1__nom_equipe="EQUIPE TEST") | Q(equipe2__nom_equipe="EQUIPE TEST")
+    ).exists():
+        return Response({"detail": "Tous les matchs de la saison doivent être validés."},
+                        status=status.HTTP_403_FORBIDDEN)
+
     with connection.cursor() as cursor:
         cursor.execute(IPP_EQUIPE_SQL, [saison_id, equipe_id])
         columns = [col[0] for col in cursor.description]

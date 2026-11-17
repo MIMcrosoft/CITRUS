@@ -1215,8 +1215,18 @@
             submitBtn.classList.remove("disabled-btn");
         {% endif %}
 
-        {% if match.completed_flag == True and current_user.admin_flag == False %}
+        {% if match.completed_flag == True and not current_user.admin_flag %}
             disableAllInputs()
+        {% endif %}
+
+        {% if current_user.admin_flag %}
+            // Un administrateur peut toujours envoyer le formulaire
+            window.addEventListener('load', function () {
+                const adminSubmitBtn = document.getElementById('finalizeMatchBtn');
+                adminSubmitBtn.disabled = false;
+                adminSubmitBtn.classList.remove("disabled-btn");
+                adminSubmitBtn.style.pointerEvents = "auto";
+            });
         {% endif %}
 
         function disableAllInputs() {

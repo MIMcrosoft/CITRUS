@@ -93,7 +93,12 @@ def equipe_ipp(request, id_equipe, id_saison=None):
 
     if request.user in alignement.coachs.all():
 
+        ipp_disponible = not Match.objects.filter(saison=saison, completed_flag=False).exclude(
+            Q(equipe1__nom_equipe="EQUIPE TEST") | Q(equipe2__nom_equipe="EQUIPE TEST")
+        ).exists()
+
         return render(request, "equipe_ipp.html", {
+            'ipp_disponible': ipp_disponible,
             'activeTab': "EQUIPE",
             'equipe': equipe,
             'alignement': alignement,

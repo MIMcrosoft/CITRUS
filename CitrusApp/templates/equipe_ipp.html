@@ -21,10 +21,16 @@
     </menu-deroulant-recherche>
 </div>
 
-<div id="ippLoading" class="ippLoading">
+<div id="ippLoading" class="ippLoading" {% if not ipp_disponible %}style="display:none;"{% endif %}>
     <div class="ippSpinner"></div>
     <p>Chargement des statistiques...</p>
 </div>
+
+{% if not ipp_disponible %}
+<div class="ippError">
+    <p>L'IPP sera disponible lorsque tous les matchs de la saison auront été validés.</p>
+</div>
+{% endif %}
 
 <div id="ippError" class="ippError" style="display:none;">
     <p id="ippErrorMessage">Aucune donnée d'IPP n'est disponible pour cette équipe pour cette saison.</p>
@@ -244,7 +250,7 @@
         }
     }
 
-    chargerIpp();
+    {% if ipp_disponible %}chargerIpp();{% endif %}
 </script>
 
 <style>
